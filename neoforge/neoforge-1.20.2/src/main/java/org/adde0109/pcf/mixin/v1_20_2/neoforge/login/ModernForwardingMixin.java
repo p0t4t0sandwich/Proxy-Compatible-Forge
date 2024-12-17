@@ -86,7 +86,9 @@ public abstract class ModernForwardingMixin {
                 this.authenticatedProfile =
                         PCF.modernForwarding.handleForwardingPacket(
                                 (Payload) data, (Connection) connection);
+
                 this.arclight$preLogin();
+                this.bridge$preLogin(this.authenticatedProfile);
                 StateUtil.setState(this, 4);
             } catch (Exception e) {
                 this.shadow$disconnect((Component) PCF.directConnErrComponent());
@@ -99,4 +101,8 @@ public abstract class ModernForwardingMixin {
     @Shadow(remap = false)
     @SuppressWarnings({"MixinAnnotationTarget", "RedundantThrows"})
     void arclight$preLogin() throws Exception {}
+
+    @Shadow(remap = false)
+    @SuppressWarnings({"MixinAnnotationTarget", "RedundantThrows"})
+    void bridge$preLogin(GameProfile authenticatedProfile) throws Exception {}
 }
