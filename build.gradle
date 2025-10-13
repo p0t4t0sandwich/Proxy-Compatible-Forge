@@ -129,6 +129,7 @@ subprojects {
         compileOnly("org.spongepowered:mixin:0.8.5")
         compileOnly("dev.neuralnexus.taterlib.lite:base:0.1.0-SNAPSHOT")
         compileOnly("dev.neuralnexus.taterlib.lite:metadata:0.1.0-SNAPSHOT")
+        compileOnly("dev.neuralnexus.taterlib.lite:core:0.1.0-SNAPSHOT")
         compileOnly("dev.neuralnexus.taterlib.lite:muxins:0.1.0-SNAPSHOT")
     }
 

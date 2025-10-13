@@ -1,5 +1,9 @@
 package org.adde0109.pcf.v1_21_5.forge;
 
+import dev.neuralnexus.taterapi.meta.anno.AConstraint;
+import dev.neuralnexus.taterapi.meta.anno.Versions;
+import dev.neuralnexus.taterapi.meta.enums.MinecraftVersion;
+import dev.neuralnexus.taterapi.meta.enums.Platform;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -12,6 +16,7 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import org.adde0109.pcf.PCFInitializer;
 import org.adde0109.pcf.v1_14_4.forge.Config;
 import org.adde0109.pcf.v1_20_2.neoforge.crossstitch.CSBootstrap;
 import org.adde0109.pcf.v1_20_2.neoforge.forwarding.FWDBootstrap;
@@ -19,10 +24,13 @@ import org.adde0109.pcf.v1_21_10.forge.crossstitch.CSForgeBootstrap;
 
 import java.util.Optional;
 
-@SuppressWarnings("unused")
-public final class Initializer {
+@AConstraint(
+        platform = Platform.FORGE,
+        version = @Versions(min = MinecraftVersion.V21, max = MinecraftVersion.V21_5))
+public final class Initializer implements PCFInitializer {
+    @Override
+    public void onInit() {
     //    public static void init(FMLJavaModLoadingContext context) {
-    public static void init() {
         FWDBootstrap.RESOURCE_LOCATION = ResourceLocation::parse;
         FWDBootstrap.COMPONENT = Component::nullToEmpty;
         FWDBootstrap.init();
