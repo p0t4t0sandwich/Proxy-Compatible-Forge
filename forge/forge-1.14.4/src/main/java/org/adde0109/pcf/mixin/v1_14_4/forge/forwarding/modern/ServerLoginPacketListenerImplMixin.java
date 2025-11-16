@@ -60,7 +60,7 @@ public abstract class ServerLoginPacketListenerImplMixin {
     @Unique private int pcf$velocityLoginMessageId = -1;
 
     @SuppressWarnings("DataFlowIssue")
-    @Inject(method = "handleHello", cancellable = true, at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD,
+    @Inject(method = "handleHello", cancellable = true, at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD, ordinal = 1,
             target = "Lnet/minecraft/server/network/ServerLoginPacketListenerImpl;state:Lnet/minecraft/server/network/ServerLoginPacketListenerImpl$State;"))
     private void onHandleHello(ServerboundHelloPacket packet, CallbackInfo ci) {
         Validate.validState(StateUtil.stateEquals(this, 0), "Unexpected hello packet");
@@ -100,6 +100,10 @@ public abstract class ServerLoginPacketListenerImplMixin {
                 return;
             }
             ((ConnectionAccessor) this.connection).pcf$setAddress(data.address());
+            if (MetaAPI.instance().isPlatformPresent(Platforms.SPONGE)) {
+                this.gameProfile = data.profile();
+                this.bridge$fireAuthEvent();
+            }
 
             final NameAndId nameAndId = new NameAndId(data.profile());
 
@@ -125,4 +129,8 @@ public abstract class ServerLoginPacketListenerImplMixin {
     @Shadow(remap = false)
     @SuppressWarnings({"MixinAnnotationTarget", "RedundantThrows"})
     void arclight$preLogin() throws Exception {}
+
+    @Shadow(remap = false)
+    @SuppressWarnings("MixinAnnotationTarget")
+    void bridge$fireAuthEvent() {}
 }

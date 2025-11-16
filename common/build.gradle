@@ -14,6 +14,7 @@ dependencies {
     compileOnly(libs.asm.tree)
 
     compileOnly(libs.entrypoint.spoof)
+    implementation(libs.mixin.squared.common)
     implementation(libs.taterlib.lite.base)
     implementation(libs.taterlib.lite.metadata)
     implementation(libs.taterlib.lite.muxins)

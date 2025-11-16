@@ -1,5 +1,14 @@
 package org.adde0109.pcf.mixin.plugin;
 
+import com.bawnorton.mixinsquared.MixinSquaredBootstrap;
+import com.bawnorton.mixinsquared.adjuster.MixinAnnotationAdjusterRegistrar;
+import com.bawnorton.mixinsquared.api.MixinAnnotationAdjuster;
+import com.bawnorton.mixinsquared.api.MixinCanceller;
+import com.bawnorton.mixinsquared.canceller.MixinCancellerRegistrar;
+
+import dev.neuralnexus.taterapi.meta.MetaAPI;
+import dev.neuralnexus.taterapi.meta.MinecraftVersions;
+import dev.neuralnexus.taterapi.meta.Platforms;
 import dev.neuralnexus.taterapi.muxins.Muxins;
 
 import org.adde0109.pcf.PCF;
@@ -8,13 +17,25 @@ import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
 import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.Set;
 
 /** A mixin plugin for PCF. */
-@SuppressWarnings("unused")
 public class PCFMixinPlugin implements IMixinConfigPlugin {
     @Override
-    public void onLoad(String mixinPackage) {}
+    public void onLoad(String mixinPackage) {
+        if (MetaAPI.instance().isPlatformPresent(Platforms.SPONGE)
+                && MetaAPI.instance()
+                        .meta(Platforms.FORGE)
+                        .get()
+                        .minecraftVersion()
+                        .is(MinecraftVersions.V16_5)) {
+            MixinSquaredBootstrap.init();
+            ServiceLoader.load(MixinCanceller.class).forEach(MixinCancellerRegistrar::register);
+            ServiceLoader.load(MixinAnnotationAdjuster.class)
+                    .forEach(MixinAnnotationAdjusterRegistrar::register);
+        }
+    }
 
     @Override
     public String getRefMapperConfig() {
@@ -34,6 +55,7 @@ public class PCFMixinPlugin implements IMixinConfigPlugin {
 
     @Override
     public List<String> getMixins() {
+        MixinSquaredBootstrap.reOrderExtensions();
         return null;
     }
 

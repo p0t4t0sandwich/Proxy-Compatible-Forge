@@ -1,5 +1,7 @@
 dependencies {
     compileOnly(project(":common"))
+    compileOnly(libs.mixin.squared.common)
+    annotationProcessor(libs.mixin.squared.common)
 }
 
 unimined.minecraft(sourceSets.main) {

@@ -14,4 +14,7 @@ import org.spongepowered.asm.mixin.Unique;
 public class ServerLoginPacketListenerPlaceholderMixin {
     @Unique
     void arclight$preLogin() throws Exception {}
+
+    @Unique
+    void bridge$fireAuthEvent() {}
 }

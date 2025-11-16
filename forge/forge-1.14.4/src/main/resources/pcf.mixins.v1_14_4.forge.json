@@ -13,6 +13,7 @@
     "v1_14_4.forge.forwarding.modern.ServerboundCustomQueryPacketAccessor",
     "v1_14_4.forge.forwarding.modern.ServerLoginPacketListenerImplMixin",
     "v1_14_4.forge.forwarding.modern.ServerLoginPacketListenerPlaceholderMixin",
-    "v1_14_4.forge.network.ConnectionAccessor"
+    "v1_14_4.forge.network.ConnectionAccessor",
+    "v1_14_4.forge.forwarding.modern.SpongeFixMixin"
   ]
 }

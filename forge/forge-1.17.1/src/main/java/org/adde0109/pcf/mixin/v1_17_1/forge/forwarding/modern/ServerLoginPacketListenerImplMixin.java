@@ -60,7 +60,7 @@ public abstract class ServerLoginPacketListenerImplMixin {
     @Unique private static final Logger pcf$LOGGER = LoggerFactory.getLogger("ServerLoginPacketListenerImpl");
     @Unique private int pcf$velocityLoginMessageId = -1;
 
-    @Inject(method = "handleHello", cancellable = true, at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD,
+    @Inject(method = "handleHello", cancellable = true, at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD, ordinal = 1,
             target = "Lnet/minecraft/server/network/ServerLoginPacketListenerImpl;state:Lnet/minecraft/server/network/ServerLoginPacketListenerImpl$State;"))
     // spotless:on
     private void onHandleHello(ServerboundHelloPacket packet, CallbackInfo ci) {

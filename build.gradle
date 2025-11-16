@@ -105,7 +105,7 @@ subprojects {
             url = "https://maven.neuralnexus.dev/releases"
         }
 
-        // NeuralNexus Mirror
+        // NeuralNexus Snapshots
         maven {
             name = 'NeuralNexus Mirror'
             url = 'https://maven.neuralnexus.dev/snapshots'
@@ -122,6 +122,9 @@ subprojects {
             name = "minecraft-repo"
             url = "https://libraries.minecraft.net/"
         }
+
+        // Mixin Squared
+        maven { url = "https://maven.bawnorton.com/releases" }
 
         // Modrinth
         maven {
@@ -195,8 +198,9 @@ tasks.register("buildAllTheStuffNowBcGradleIsDumb", Task) {
 }
 
 tasks.register("shadeAndRelocate", ShadowJar) {
-    relocate("dev.neuralnexus.conditionalmixins", "org.adde0109.pcf.lib.conditionalmixins")
     relocate("dev.neuralnexus.taterapi", "org.adde0109.pcf.lib.taterapi")
+    relocate("com.bawnorton.mixinsquared", "org.adde0109.pcf.lib.mixinsquared")
+    mergeServiceFiles()
 
     String mc_version = '1.14-1.21.x'
     archiveFileName = "proxy-compatible-forge-${version}-mono.jar"
