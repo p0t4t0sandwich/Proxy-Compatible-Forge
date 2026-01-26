@@ -8,7 +8,7 @@ public interface ArclightBridge {
      * href="https://github.com/IzzelAliz/Arclight/blob/Trials/arclight-common/src/main/java/io/izzel/arclight/common/mixin/core/network/ServerLoginNetHandlerMixin.java">Used
      * in Arclight 1.14 - 1.20.1</a>
      */
-    interface V1 {
+    interface V14 {
         void arclight$preLogin() throws Exception;
     }
 
@@ -17,7 +17,7 @@ public interface ArclightBridge {
      * href="https://github.com/IzzelAliz/Arclight/blob/Net/arclight-common/src/main/java/io/izzel/arclight/common/mixin/core/network/ServerLoginNetHandlerMixin.java">Used
      * in Arclight 1.20.2 - 1.20.3</a>
      */
-    interface V2 {
+    interface V20_2 {
         void arclight$preLogin(GameProfile profile) throws Exception;
     }
 
@@ -30,7 +30,7 @@ public interface ArclightBridge {
      * href="https://github.com/IzzelAliz/Arclight/blob/FeudalKings/arclight-common/src/main/java/io/izzel/arclight/common/mixin/core/network/ServerLoginPacketListenerImplMixin.java">Arclight
      * 1.20.5+.</a>
      */
-    interface V3 {
+    interface V20_4 {
         void bridge$preLogin(GameProfile profile) throws Exception;
     }
 }
