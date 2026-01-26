@@ -220,7 +220,7 @@ public final class ModernForwarding {
                 PlayerInfoQueryAnswerPayload.STREAM_CODEC.decode(packet.payload().data());
 
         // Validate version
-        VelocityProxy.Version version = payload.version();
+        final VelocityProxy.Version version = payload.version();
         if (version.id() > MODERN_MAX_VERSION) {
             throw new IllegalStateException(
                     "Unsupported forwarding version "
