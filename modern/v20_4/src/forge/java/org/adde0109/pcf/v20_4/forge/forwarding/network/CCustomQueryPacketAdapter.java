@@ -20,7 +20,7 @@ public final class CCustomQueryPacketAdapter
     @Override
     public Result<ClientboundCustomQueryPacket> encode(
             final net.minecraft.network.protocol.login.ClientboundCustomQueryPacket object) {
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        final FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         object.payload().write(buf);
         return Result.success(
                 new ClientboundCustomQueryPacket(
