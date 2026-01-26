@@ -87,7 +87,23 @@ public final class PCF {
                 ModernForwarding.postProcessor =
                         (slpl, profile) -> {
                             slpl.bridge$setGameProfile(profile);
-                            ((ArclightBridge) slpl).arclight$preLogin();
+                            ((ArclightBridge.V1) slpl).arclight$preLogin();
+                        };
+            } else if (Constraint.range(MinecraftVersions.V20_2, MinecraftVersions.V20_3)
+                    .platform(Platforms.ARCLIGHT)
+                    .result()) {
+                ModernForwarding.postProcessor =
+                        (slpl, profile) -> {
+                            slpl.bridge$setGameProfile(profile);
+                            ((ArclightBridge.V2) slpl).arclight$preLogin(profile);
+                        };
+            } else if (Constraint.noLessThan(MinecraftVersions.V20_4)
+                    .platform(Platforms.ARCLIGHT)
+                    .result()) {
+                ModernForwarding.postProcessor =
+                        (slpl, profile) -> {
+                            slpl.bridge$setGameProfile(profile);
+                            ((ArclightBridge.V3) slpl).bridge$preLogin(profile);
                         };
             }
         }
