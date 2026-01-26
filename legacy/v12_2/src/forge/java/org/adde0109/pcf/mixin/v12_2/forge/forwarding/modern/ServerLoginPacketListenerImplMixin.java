@@ -49,6 +49,11 @@ public abstract class ServerLoginPacketListenerImplMixin
     }
 
     @Override
+    public void bridge$setGameProfile(final @NonNull GameProfile profile) {
+        this.loginGameProfile = profile;
+    }
+
+    @Override
     public void bridge$startClientVerification(final @NonNull GameProfile profile) {
         this.loginGameProfile = profile;
         this.currentLoginState = NetHandlerLoginServer.LoginState.READY_TO_ACCEPT;

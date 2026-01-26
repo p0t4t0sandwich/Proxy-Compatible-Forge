@@ -14,6 +14,8 @@ import dev.neuralnexus.taterapi.network.NetworkRegistry;
 import dev.neuralnexus.taterapi.registries.AdapterRegistry;
 
 import org.adde0109.pcf.forwarding.Mode;
+import org.adde0109.pcf.forwarding.compat.ArclightBridge;
+import org.adde0109.pcf.forwarding.modern.ModernForwarding;
 import org.adde0109.pcf.forwarding.modern.PlayerInfoQueryPayload;
 import org.adde0109.pcf.forwarding.modern.VelocityProxy;
 import org.jetbrains.annotations.ApiStatus;
@@ -74,9 +76,20 @@ public final class PCF {
         }
         loader.onInit();
 
+        // Modern forwarding init
         if (this.forwarding().enabled() && this.forwarding().mode().equals(Mode.MODERN)) {
             NetworkRegistry.registerQueryPayload(
                     PlayerInfoQueryPayload.IDENTIFIER, PlayerInfoQueryPayload.STREAM_CODEC);
+
+            if (Constraint.range(MinecraftVersions.V14, MinecraftVersions.V20_1)
+                    .platform(Platforms.ARCLIGHT)
+                    .result()) {
+                ModernForwarding.postProcessor =
+                        (slpl, profile) -> {
+                            slpl.bridge$setGameProfile(profile);
+                            ((ArclightBridge) slpl).arclight$preLogin();
+                        };
+            }
         }
 
         Constraint.Evaluator.DEBUG = debug;

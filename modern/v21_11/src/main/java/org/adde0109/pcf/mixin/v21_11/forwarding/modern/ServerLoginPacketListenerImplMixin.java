@@ -32,6 +32,9 @@ public abstract class ServerLoginPacketListenerImplMixin
     @Shadow public abstract void shadow$onDisconnect(net.minecraft.network.DisconnectionDetails details);
 
     @Shadow abstract void shadow$startClientVerification(GameProfile profile);
+
+    @Shadow
+    private GameProfile authenticatedProfile;
     @Unique private int pcf$velocityLoginMessageId = -1;
     // spotless:on
 
@@ -55,6 +58,11 @@ public abstract class ServerLoginPacketListenerImplMixin
     public void bridge$disconnect(final @NonNull Object reason) {
         this.shadow$onDisconnect(
                 new net.minecraft.network.DisconnectionDetails((Component) reason));
+    }
+
+    @Override
+    public void bridge$setGameProfile(final @NonNull GameProfile profile) {
+        this.authenticatedProfile = profile;
     }
 
     @Override
