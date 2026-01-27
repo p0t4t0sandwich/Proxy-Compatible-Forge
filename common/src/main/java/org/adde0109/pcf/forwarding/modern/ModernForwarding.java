@@ -30,7 +30,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.net.InetSocketAddress;
 import java.security.InvalidKeyException;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.SequencedCollection;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
@@ -116,14 +118,17 @@ public final class ModernForwarding {
 
     @ApiStatus.Internal public static PreProcessor preProcessor = (slpl, buf) -> {};
 
-    @ApiStatus.Internal
-    public static PostProcessor postProcessor =
+    private static final PostProcessor DEFAULT_POST_PROCESSOR =
             (slpl, profile) -> {
                 final NameAndId nameAndId = new NameAndId(profile);
                 slpl.bridge$logger_info(
                         "UUID of player {} is {}", nameAndId.name(), nameAndId.id());
                 slpl.bridge$startClientVerification(profile);
             };
+
+    @ApiStatus.Internal
+    public static SequencedCollection<PostProcessor> postProcessors =
+            new LinkedHashSet<>(List.of(DEFAULT_POST_PROCESSOR));
 
     private static final Object DIRECT_CONNECT_ERR =
             literal("This server requires you to connect with Velocity.");
@@ -295,7 +300,9 @@ public final class ModernForwarding {
 
         // Proceed with login
         try {
-            postProcessor.accept(slpl, payload.profile());
+            for (final PostProcessor processor : postProcessors) {
+                processor.accept(slpl, payload.profile());
+            }
         } catch (Exception e) {
             final NameAndId nameAndId = new NameAndId(payload.profile());
             PCF.logger.warn("Exception while forwarding user " + nameAndId.name());
