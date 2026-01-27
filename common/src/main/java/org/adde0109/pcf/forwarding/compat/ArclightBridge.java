@@ -25,8 +25,8 @@ public interface ArclightBridge {
      * <a
      * href="https://github.com/IzzelAliz/Arclight/blob/Whisper/arclight-common/src/main/java/io/izzel/arclight/common/mixin/core/network/ServerLoginNetHandlerMixin.java">Used
      * for Arclight 1.20.4+.</a> <br>
-     * {@link SpigotLoginHandler.V20_5#callPlayerPreLoginEvents(GameProfile)} could be used, but it is
-     * private in <a
+     * {@link SpigotLoginHandler.V20_5#callPlayerPreLoginEvents(GameProfile)} could be used, but it
+     * is private in <a
      * href="https://github.com/IzzelAliz/Arclight/blob/FeudalKings/arclight-common/src/main/java/io/izzel/arclight/common/mixin/core/network/ServerLoginPacketListenerImplMixin.java">Arclight
      * 1.20.5+.</a>
      */

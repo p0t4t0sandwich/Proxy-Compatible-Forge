@@ -15,6 +15,7 @@ import dev.neuralnexus.taterapi.registries.AdapterRegistry;
 
 import org.adde0109.pcf.forwarding.Mode;
 import org.adde0109.pcf.forwarding.compat.ArclightBridge;
+import org.adde0109.pcf.forwarding.compat.MohistBridge;
 import org.adde0109.pcf.forwarding.modern.ModernForwarding;
 import org.adde0109.pcf.forwarding.modern.PlayerInfoQueryPayload;
 import org.adde0109.pcf.forwarding.modern.VelocityProxy;
@@ -81,30 +82,36 @@ public final class PCF {
             NetworkRegistry.registerQueryPayload(
                     PlayerInfoQueryPayload.IDENTIFIER, PlayerInfoQueryPayload.STREAM_CODEC);
 
-            if (Constraint.range(MinecraftVersions.V14, MinecraftVersions.V20_1)
-                    .platform(Platforms.ARCLIGHT)
-                    .result()) {
-                ModernForwarding.postProcessor =
-                        (slpl, profile) -> {
-                            slpl.bridge$setGameProfile(profile);
-                            ((ArclightBridge.V14) slpl).arclight$preLogin();
-                        };
+            if (Constraint.builder().platform(Platforms.ARCLIGHT).result()) {
+                if (Constraint.range(MinecraftVersions.V14, MinecraftVersions.V20_1).result()) {
+                    ModernForwarding.postProcessor =
+                            (slpl, profile) -> {
+                                slpl.bridge$setGameProfile(profile);
+                                ((ArclightBridge.V14) slpl).arclight$preLogin();
+                            };
+                } else if (Constraint.builder().version(MinecraftVersions.V20_2).result()) {
+                    ModernForwarding.postProcessor =
+                            (slpl, profile) ->
+                                    ((ArclightBridge.V20_2) slpl).arclight$preLogin(profile);
+                } else if (Constraint.noLessThan(MinecraftVersions.V20_3).result()) {
+                    ModernForwarding.postProcessor =
+                            (slpl, profile) ->
+                                    ((ArclightBridge.V20_4) slpl).bridge$preLogin(profile);
+                }
             } else if (Constraint.builder()
-                    .version(MinecraftVersions.V20_2)
-                    .platform(Platforms.ARCLIGHT)
+                    .platform(Platforms.MOHIST)
+                    .version(MinecraftVersions.V20_1)
                     .result()) {
                 ModernForwarding.postProcessor =
                         (slpl, profile) -> {
                             slpl.bridge$setGameProfile(profile);
-                            ((ArclightBridge.V20_2) slpl).arclight$preLogin(profile);
+                            MohistBridge.V20_1.fireEvents(slpl);
                         };
-            } else if (Constraint.noLessThan(MinecraftVersions.V20_3)
-                    .platform(Platforms.ARCLIGHT)
-                    .result()) {
+            } else if (Constraint.builder().platform(Platforms.YOUER).result()) {
                 ModernForwarding.postProcessor =
                         (slpl, profile) -> {
-                            slpl.bridge$setGameProfile(profile);
-                            ((ArclightBridge.V20_4) slpl).bridge$preLogin(profile);
+                            MohistBridge.Youer.fireEvents(slpl);
+                            slpl.bridge$startClientVerification(profile);
                         };
             }
         }
