@@ -105,3 +105,17 @@ Versions: 1.21.1, 1.21.10 <br>
 Class: `net.minecraft.server.network.ServerLoginPacketListenerImpl` <br>
 Method: `callPlayerPreLoginEvents(GameProfile)` <br>
 Source: <https://github.com/Teneted/NeoTenet/blob/1.21.10/paper-patches/sources/net/minecraft/server/network/ServerLoginPacketListenerImpl.java.patch>
+
+## Sponge
+
+Versions: 1.16.5, 1.18.2 <br>
+Class: `net.minecraft.server.network.ServerLoginPacketListenerImpl` <br>
+Method:
+```java
+if (this.bridge$fireAuthEvent()) {
+    ci.cancel();
+}
+```
+Sources:
+- API 8: <https://github.com/SpongePowered/Sponge/blob/api-8/src/mixins/java/org/spongepowered/common/mixin/core/server/network/ServerLoginPacketListenerImplMixin.java>
+- API 9: <https://github.com/SpongePowered/Sponge/blob/api-9/src/mixins/java/org/spongepowered/common/mixin/core/server/network/ServerLoginPacketListenerImplMixin.java>

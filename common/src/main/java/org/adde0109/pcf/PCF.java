@@ -18,6 +18,7 @@ import org.adde0109.pcf.forwarding.Mode;
 import org.adde0109.pcf.forwarding.compat.ArclightBridge;
 import org.adde0109.pcf.forwarding.compat.MohistBridge;
 import org.adde0109.pcf.forwarding.compat.SpigotLoginHandler;
+import org.adde0109.pcf.forwarding.compat.SpongeBridge;
 import org.adde0109.pcf.forwarding.modern.ModernForwarding;
 import org.adde0109.pcf.forwarding.modern.PlayerInfoQueryPayload;
 import org.adde0109.pcf.forwarding.modern.VelocityProxy;
@@ -167,6 +168,13 @@ public final class PCF {
                         (slpl, profile) ->
                                 ((SpigotLoginHandler.V20_5) slpl)
                                         .callPlayerPreLoginEvents(profile));
+            }
+
+            if (Constraint.range(MinecraftVersions.V16, MinecraftVersions.V18_2)
+                    .platform(Platforms.SPONGE)
+                    .result()) {
+                ModernForwarding.postProcessors.addFirst(
+                        (slpl, profile) -> ((SpongeBridge) slpl).bridge$fireAuthEvent());
             }
         }
 
