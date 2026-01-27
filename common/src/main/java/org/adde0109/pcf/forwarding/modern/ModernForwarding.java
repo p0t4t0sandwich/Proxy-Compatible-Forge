@@ -6,15 +6,13 @@ import static dev.neuralnexus.taterapi.network.chat.Component.translatable;
 import static org.adde0109.pcf.forwarding.modern.ReflectionUtils.enforceSecureProfile;
 import static org.adde0109.pcf.forwarding.modern.VelocityProxy.MODERN_MAX_VERSION;
 import static org.adde0109.pcf.forwarding.modern.VelocityProxy.PLAYER_INFO_PAYLOAD;
-import static org.adde0109.pcf.forwarding.modern.VelocityProxy.Version.MODERN_DEFAULT;
-import static org.adde0109.pcf.forwarding.modern.VelocityProxy.Version.MODERN_FORWARDING_WITH_KEY;
-import static org.adde0109.pcf.forwarding.modern.VelocityProxy.Version.MODERN_FORWARDING_WITH_KEY_V2;
 import static org.adde0109.pcf.forwarding.modern.VelocityProxy.checkIntegrity;
+
+import com.mojang.authlib.GameProfile;
 
 import dev.neuralnexus.taterapi.event.Cancellable;
 import dev.neuralnexus.taterapi.meta.Constraint;
 import dev.neuralnexus.taterapi.meta.MinecraftVersions;
-import dev.neuralnexus.taterapi.meta.Platforms;
 import dev.neuralnexus.taterapi.mixin.CancellableMixin;
 import dev.neuralnexus.taterapi.network.chat.ThrowingComponent;
 import dev.neuralnexus.taterapi.network.protocol.login.ClientboundCustomQueryPacket;
@@ -26,7 +24,6 @@ import io.netty.handler.codec.DecoderException;
 
 import org.adde0109.pcf.PCF;
 import org.adde0109.pcf.forwarding.Mode;
-import org.adde0109.pcf.forwarding.compat.ArclightBridge;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -37,7 +34,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.BiConsumer;
 
 /**
  * Utility class for modern forwarding handling. <br>
@@ -103,8 +99,31 @@ public final class ModernForwarding {
     }
 
     @ApiStatus.Internal
-    public static BiConsumer<@NonNull ServerLoginPacketListenerBridge, @NonNull ByteBuf>
-            preProcessor = (slpl, buf) -> {};
+    @FunctionalInterface
+    public interface PreProcessor {
+        void accept(
+                final @NonNull ServerLoginPacketListenerBridge slpl, final @NonNull ByteBuf buf);
+    }
+
+    @ApiStatus.Internal
+    @FunctionalInterface
+    public interface PostProcessor {
+        void accept(
+                final @NonNull ServerLoginPacketListenerBridge slpl,
+                final @NonNull GameProfile profile)
+                throws Exception;
+    }
+
+    @ApiStatus.Internal public static PreProcessor preProcessor = (slpl, buf) -> {};
+
+    @ApiStatus.Internal
+    public static PostProcessor postProcessor =
+            (slpl, profile) -> {
+                final NameAndId nameAndId = new NameAndId(profile);
+                slpl.bridge$logger_info(
+                        "UUID of player {} is {}", nameAndId.name(), nameAndId.id());
+                slpl.bridge$startClientVerification(profile);
+            };
 
     private static final Object DIRECT_CONNECT_ERR =
             literal("This server requires you to connect with Velocity.");
@@ -275,16 +294,10 @@ public final class ModernForwarding {
         }
 
         // Proceed with login
-        final NameAndId nameAndId = new NameAndId(payload.profile());
         try {
-            // TODO: Pull this into a common compat class when other hybrids are supported
-            if (Constraint.builder().platform(Platforms.ARCLIGHT).result()) {
-                ((ArclightBridge) slpl).arclight$preLogin();
-                return;
-            }
-            slpl.bridge$logger_info("UUID of player {} is {}", nameAndId.name(), nameAndId.id());
-            slpl.bridge$startClientVerification(payload.profile());
+            postProcessor.accept(slpl, payload.profile());
         } catch (Exception e) {
+            final NameAndId nameAndId = new NameAndId(payload.profile());
             PCF.logger.warn("Exception while forwarding user " + nameAndId.name());
             e.printStackTrace();
             throw new ThrowingComponent(FAILED_TO_VERIFY, e);
