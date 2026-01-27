@@ -3,6 +3,7 @@ package org.adde0109.pcf;
 import dev.neuralnexus.taterapi.loader.EntrypointLoader;
 import dev.neuralnexus.taterapi.logger.Logger;
 import dev.neuralnexus.taterapi.meta.Constraint;
+import dev.neuralnexus.taterapi.meta.Constraints;
 import dev.neuralnexus.taterapi.meta.MetaAPI;
 import dev.neuralnexus.taterapi.meta.MinecraftVersion;
 import dev.neuralnexus.taterapi.meta.MinecraftVersions;
@@ -12,10 +13,12 @@ import dev.neuralnexus.taterapi.meta.Platform;
 import dev.neuralnexus.taterapi.meta.Platforms;
 import dev.neuralnexus.taterapi.network.NetworkRegistry;
 import dev.neuralnexus.taterapi.registries.AdapterRegistry;
+import dev.neuralnexus.taterapi.server.players.NameAndId;
 
 import org.adde0109.pcf.forwarding.Mode;
 import org.adde0109.pcf.forwarding.compat.ArclightBridge;
 import org.adde0109.pcf.forwarding.compat.MohistBridge;
+import org.adde0109.pcf.forwarding.compat.SpigotLoginHandler;
 import org.adde0109.pcf.forwarding.modern.ModernForwarding;
 import org.adde0109.pcf.forwarding.modern.PlayerInfoQueryPayload;
 import org.adde0109.pcf.forwarding.modern.VelocityProxy;
@@ -107,10 +110,59 @@ public final class PCF {
                             slpl.bridge$setGameProfile(profile);
                             MohistBridge.V20_1.fireEvents(slpl);
                         };
-            } else if (Constraint.builder().platform(Platforms.YOUER).result()) {
+            } else if (Constraint.builder()
+                    .platform(Platforms.YOUER)
+                    .version(MinecraftVersions.V21_1)
+                    .result()) {
                 ModernForwarding.postProcessor =
                         (slpl, profile) -> {
                             MohistBridge.Youer.fireEvents(slpl);
+                            slpl.bridge$startClientVerification(profile);
+                        };
+            } else if (Constraints.builder()
+                    .or(
+                            Constraint.builder()
+                                    .platform(Platforms.KETTING)
+                                    .version(MinecraftVersions.V20_1),
+                            Constraint.range(MinecraftVersions.V12_2, MinecraftVersions.V20_1)
+                                    .platform(Platforms.MAGMA),
+                            Constraint.range(MinecraftVersions.V12_2, MinecraftVersions.V19_4)
+                                    .platform(Platforms.MOHIST))
+                    .result()) {
+                ModernForwarding.postProcessor =
+                        (slpl, profile) -> {
+                            slpl.bridge$setGameProfile(profile);
+                            SpigotLoginHandler.Legacy.fireEvents(slpl);
+                        };
+            } else if (Constraints.builder()
+                    .or(
+                            Constraint.range(MinecraftVersions.V20_2, MinecraftVersions.V20_4)
+                                    .platform(Platforms.KETTING),
+                            Constraint.builder()
+                                    .platform(Platforms.MOHIST)
+                                    .version(MinecraftVersions.V20_2))
+                    .result()) {
+                ModernForwarding.postProcessor = SpigotLoginHandler.V20_2::fireEvents;
+            } else if (Constraints.builder()
+                    .or(
+                            Constraint.builder()
+                                    .platform(Platforms.MAGMA)
+                                    .version(MinecraftVersions.V21_1),
+                            Constraint.builder()
+                                    .platform(Platforms.MOHIST)
+                                    .version(MinecraftVersions.V21_1, MinecraftVersions.V21_4),
+                            Constraint.range(MinecraftVersions.V21_11, MinecraftVersions.V26_1)
+                                    .platform(Platforms.YOUER),
+                            Constraint.builder()
+                                    .platform(Platforms.NEOTENET)
+                                    .version(MinecraftVersions.V21_1, MinecraftVersions.V21_10))
+                    .result()) {
+                ModernForwarding.postProcessor =
+                        (slpl, profile) -> {
+                            final NameAndId nameAndId = new NameAndId(profile);
+                            ((SpigotLoginHandler.V20_5) slpl).callPlayerPreLoginEvents(profile);
+                            slpl.bridge$logger_info(
+                                    "UUID of player {} is {}", nameAndId.name(), nameAndId.id());
                             slpl.bridge$startClientVerification(profile);
                         };
             }
