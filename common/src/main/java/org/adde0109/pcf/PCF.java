@@ -89,7 +89,8 @@ public final class PCF {
                             slpl.bridge$setGameProfile(profile);
                             ((ArclightBridge.V14) slpl).arclight$preLogin();
                         };
-            } else if (Constraint.range(MinecraftVersions.V20_2, MinecraftVersions.V20_3)
+            } else if (Constraint.builder()
+                    .version(MinecraftVersions.V20_2)
                     .platform(Platforms.ARCLIGHT)
                     .result()) {
                 ModernForwarding.postProcessor =
@@ -97,7 +98,7 @@ public final class PCF {
                             slpl.bridge$setGameProfile(profile);
                             ((ArclightBridge.V20_2) slpl).arclight$preLogin(profile);
                         };
-            } else if (Constraint.noLessThan(MinecraftVersions.V20_4)
+            } else if (Constraint.noLessThan(MinecraftVersions.V20_3)
                     .platform(Platforms.ARCLIGHT)
                     .result()) {
                 ModernForwarding.postProcessor =
