@@ -92,17 +92,22 @@ public final class PCF {
                             (slpl, profile) -> {
                                 slpl.bridge$setGameProfile(profile);
                                 ((ArclightBridge.V14) slpl).arclight$preLogin();
+                                return false;
                             });
                 } else if (Constraint.builder().version(MinecraftVersions.V20_2).result()) {
                     ModernForwarding.postProcessors.removeFirst();
                     ModernForwarding.postProcessors.add(
-                            (slpl, profile) ->
-                                    ((ArclightBridge.V20_2) slpl).arclight$preLogin(profile));
+                            (slpl, profile) -> {
+                                ((ArclightBridge.V20_2) slpl).arclight$preLogin(profile);
+                                return false;
+                            });
                 } else if (Constraint.noLessThan(MinecraftVersions.V20_3).result()) {
                     ModernForwarding.postProcessors.removeFirst();
                     ModernForwarding.postProcessors.add(
-                            (slpl, profile) ->
-                                    ((ArclightBridge.V20_4) slpl).bridge$preLogin(profile));
+                            (slpl, profile) -> {
+                                ((ArclightBridge.V20_4) slpl).bridge$preLogin(profile);
+                                return false;
+                            });
                 }
             } else if (Constraint.builder()
                     .platform(Platforms.MOHIST)
@@ -113,6 +118,7 @@ public final class PCF {
                         (slpl, profile) -> {
                             slpl.bridge$setGameProfile(profile);
                             MohistBridge.V20_1.fireEvents(slpl);
+                            return false;
                         });
             } else if (Constraint.builder()
                     .platform(Platforms.YOUER)
@@ -123,6 +129,7 @@ public final class PCF {
                         (slpl, profile) -> {
                             MohistBridge.Youer.fireEvents(slpl, profile);
                             slpl.bridge$startClientVerification(profile);
+                            return false;
                         });
             } else if (Constraints.builder()
                     .or(
@@ -139,6 +146,7 @@ public final class PCF {
                         (slpl, profile) -> {
                             slpl.bridge$setGameProfile(profile);
                             SpigotLoginHandler.Legacy.fireEvents(slpl);
+                            return false;
                         });
             } else if (Constraints.builder()
                     .or(
@@ -149,7 +157,11 @@ public final class PCF {
                                     .version(MinecraftVersions.V20_2))
                     .result()) {
                 ModernForwarding.postProcessors.removeFirst();
-                ModernForwarding.postProcessors.add(SpigotLoginHandler.V20_2::fireEvents);
+                ModernForwarding.postProcessors.add(
+                        (slpl, profile) -> {
+                            SpigotLoginHandler.V20_2.fireEvents(slpl, profile);
+                            return false;
+                        });
             } else if (Constraints.builder()
                     .or(
                             Constraint.builder()
@@ -165,9 +177,10 @@ public final class PCF {
                                     .version(MinecraftVersions.V21_1, MinecraftVersions.V21_10))
                     .result()) {
                 ModernForwarding.postProcessors.addFirst(
-                        (slpl, profile) ->
-                                ((SpigotLoginHandler.V20_5) slpl)
-                                        .callPlayerPreLoginEvents(profile));
+                        (slpl, profile) -> {
+                            ((SpigotLoginHandler.V20_5) slpl).callPlayerPreLoginEvents(profile);
+                            return false;
+                        });
             }
 
             if (Constraint.range(MinecraftVersions.V16, MinecraftVersions.V18_2)

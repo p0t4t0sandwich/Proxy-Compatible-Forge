@@ -103,14 +103,22 @@ public final class ModernForwarding {
     @ApiStatus.Internal
     @FunctionalInterface
     public interface PreProcessor {
-        void accept(
+        void process(
                 final @NonNull ServerLoginPacketListenerBridge slpl, final @NonNull ByteBuf buf);
     }
 
     @ApiStatus.Internal
     @FunctionalInterface
     public interface PostProcessor {
-        void accept(
+        /**
+         * Process the forwarded profile
+         *
+         * @param slpl the ServerLoginPacketListener
+         * @param profile the forwarded GameProfile
+         * @return true to stop processing further, false to continue
+         * @throws Exception if an error occurs
+         */
+        boolean process(
                 final @NonNull ServerLoginPacketListenerBridge slpl,
                 final @NonNull GameProfile profile)
                 throws Exception;
@@ -124,6 +132,7 @@ public final class ModernForwarding {
                 slpl.bridge$logger_info(
                         "UUID of player {} is {}", nameAndId.name(), nameAndId.id());
                 slpl.bridge$startClientVerification(profile);
+                return false;
             };
 
     @ApiStatus.Internal
@@ -217,7 +226,7 @@ public final class ModernForwarding {
         }
 
         // Apply fixes
-        preProcessor.accept(slpl, packet.payload().data());
+        preProcessor.process(slpl, packet.payload().data());
 
         // Remove transaction ID from pending set
         TRANSACTION_IDS.remove(packet.transactionId());
@@ -301,7 +310,9 @@ public final class ModernForwarding {
         // Proceed with login
         try {
             for (final PostProcessor processor : postProcessors) {
-                processor.accept(slpl, payload.profile());
+                if (processor.process(slpl, payload.profile())) {
+                    break;
+                }
             }
         } catch (Exception e) {
             final NameAndId nameAndId = new NameAndId(payload.profile());
