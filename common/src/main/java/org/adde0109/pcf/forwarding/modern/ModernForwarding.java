@@ -30,9 +30,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.net.InetSocketAddress;
 import java.security.InvalidKeyException;
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.SequencedCollection;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
@@ -136,8 +135,8 @@ public final class ModernForwarding {
             };
 
     @ApiStatus.Internal
-    public static SequencedCollection<PostProcessor> postProcessors =
-            new LinkedHashSet<>(List.of(DEFAULT_POST_PROCESSOR));
+    public static final List<PostProcessor> postProcessors =
+            new ArrayList<>(List.of(DEFAULT_POST_PROCESSOR));
 
     private static final Object DIRECT_CONNECT_ERR =
             literal("This server requires you to connect with Velocity.");
