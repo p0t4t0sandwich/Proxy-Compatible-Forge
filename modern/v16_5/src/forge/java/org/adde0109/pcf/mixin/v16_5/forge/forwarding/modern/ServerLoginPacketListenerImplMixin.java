@@ -9,6 +9,7 @@ import dev.neuralnexus.taterapi.meta.Mappings;
 import dev.neuralnexus.taterapi.meta.anno.AConstraint;
 import dev.neuralnexus.taterapi.meta.anno.Versions;
 import dev.neuralnexus.taterapi.meta.enums.MinecraftVersion;
+import dev.neuralnexus.taterapi.meta.enums.Platform;
 
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
@@ -17,6 +18,7 @@ import net.minecraft.server.network.ServerLoginPacketListenerImpl;
 
 import org.adde0109.pcf.forwarding.modern.ConnectionBridge;
 import org.adde0109.pcf.forwarding.modern.ServerLoginPacketListenerBridge;
+import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -43,10 +45,19 @@ public abstract class ServerLoginPacketListenerImplMixin
     // spotless:on
 
     // spotless:off
+    @AConstraint(platform = Platform.ARCLIGHT, invert = true)
     @Inject(method = "handleHello", cancellable = true, at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD, ordinal = 1,
             target = "Lnet/minecraft/server/network/ServerLoginPacketListenerImpl;state:Lnet/minecraft/server/network/ServerLoginPacketListenerImpl$State;"))
     // spotless:on
     private void onHandleHello(final @NonNull CallbackInfo ci) {
+        handleHello(this, ci);
+    }
+
+    @AConstraint(platform = Platform.ARCLIGHT)
+    @Inject(method = "handleHello", cancellable = true, at = @At(value = "HEAD"))
+    private void onHandleHelloArclight(final @NonNull CallbackInfo ci) {
+        Validate.validState(
+                this.state == ServerLoginPacketListenerImpl.State.HELLO, "Unexpected hello packet");
         handleHello(this, ci);
     }
 
