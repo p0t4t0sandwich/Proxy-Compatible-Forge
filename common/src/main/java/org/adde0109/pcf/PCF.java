@@ -16,8 +16,8 @@ import dev.neuralnexus.taterapi.registries.AdapterRegistry;
 
 import org.adde0109.pcf.forwarding.Mode;
 import org.adde0109.pcf.forwarding.compat.ArclightPreLogin;
-import org.adde0109.pcf.forwarding.compat.MohistBridge;
-import org.adde0109.pcf.forwarding.compat.SpigotLoginHandler;
+import org.adde0109.pcf.forwarding.compat.MohistPreLogin;
+import org.adde0109.pcf.forwarding.compat.SpigotPreLogin;
 import org.adde0109.pcf.forwarding.compat.SpongePreLogin;
 import org.adde0109.pcf.forwarding.modern.ModernForwarding;
 import org.adde0109.pcf.forwarding.modern.PlayerInfoQueryPayload;
@@ -117,7 +117,7 @@ public final class PCF {
                 ModernForwarding.postProcessors.add(
                         (slpl, profile) -> {
                             slpl.bridge$setGameProfile(profile);
-                            MohistBridge.V20_1.fireEvents(slpl);
+                            MohistPreLogin.V20_1.fireEvents(slpl);
                             return false;
                         });
             } else if (Constraint.builder()
@@ -127,7 +127,7 @@ public final class PCF {
                 ModernForwarding.postProcessors.removeFirst();
                 ModernForwarding.postProcessors.add(
                         (slpl, profile) -> {
-                            MohistBridge.Youer.fireEvents(slpl, profile);
+                            MohistPreLogin.Youer.fireEvents(slpl, profile);
                             slpl.bridge$startClientVerification(profile);
                             return false;
                         });
@@ -145,7 +145,7 @@ public final class PCF {
                 ModernForwarding.postProcessors.add(
                         (slpl, profile) -> {
                             slpl.bridge$setGameProfile(profile);
-                            SpigotLoginHandler.Legacy.fireEvents(slpl);
+                            SpigotPreLogin.Legacy.fireEvents(slpl);
                             return false;
                         });
             } else if (Constraints.builder()
@@ -159,7 +159,7 @@ public final class PCF {
                 ModernForwarding.postProcessors.removeFirst();
                 ModernForwarding.postProcessors.add(
                         (slpl, profile) -> {
-                            SpigotLoginHandler.V20_2.fireEvents(slpl, profile);
+                            SpigotPreLogin.V20_2.fireEvents(slpl, profile);
                             return false;
                         });
             } else if (Constraints.builder()
@@ -178,7 +178,7 @@ public final class PCF {
                     .result()) {
                 ModernForwarding.postProcessors.addFirst(
                         (slpl, profile) -> {
-                            ((SpigotLoginHandler.V20_5) slpl).callPlayerPreLoginEvents(profile);
+                            ((SpigotPreLogin.V20_5) slpl).callPlayerPreLoginEvents(profile);
                             return false;
                         });
             }

@@ -20,8 +20,9 @@ public interface SpongePreLogin {
                 throws Exception {
             if (fireAuthEvent == null) {
                 final MethodHandles.Lookup lookup = MethodHandles.lookup();
-                final MethodType rType = MethodType.methodType(boolean.class);
-                fireAuthEvent = lookup.findVirtual(slpl.getClass(), "bridge$fireAuthEvent", rType);
+                final MethodType methodType = MethodType.methodType(boolean.class);
+                fireAuthEvent =
+                        lookup.findVirtual(slpl.getClass(), "bridge$fireAuthEvent", methodType);
             }
 
             try {

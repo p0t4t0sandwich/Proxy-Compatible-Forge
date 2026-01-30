@@ -9,7 +9,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 
-public interface SpigotLoginHandler {
+public interface SpigotPreLogin {
     /**
      * Used for: <br>
      * <a
@@ -31,9 +31,9 @@ public interface SpigotLoginHandler {
             if (loginHandler == null || fireEvents == null) {
                 final MethodHandles.Lookup lookup = MethodHandles.lookup();
                 final Class<?> clazz = Class.forName(slpl.getClass().getName() + "$LoginHandler");
-                final MethodType vType = MethodType.methodType(void.class);
-                loginHandler = lookup.findConstructor(clazz, vType);
-                fireEvents = lookup.findVirtual(clazz, "fireEvents", vType);
+                final MethodType voidType = MethodType.methodType(void.class);
+                loginHandler = lookup.findConstructor(clazz, voidType);
+                fireEvents = lookup.findVirtual(clazz, "fireEvents", voidType);
             }
 
             try {
@@ -63,11 +63,13 @@ public interface SpigotLoginHandler {
                 throws Exception {
             if (loginHandler == null || fireEvents == null) {
                 final MethodHandles.Lookup lookup = MethodHandles.lookup();
+
                 final Class<?> clazz = Class.forName(slpl.getClass().getName() + "$LoginHandler");
-                final MethodType vType = MethodType.methodType(void.class);
-                loginHandler = lookup.findConstructor(clazz, vType);
-                final MethodType fireType = MethodType.methodType(void.class, GameProfile.class);
-                fireEvents = lookup.findVirtual(clazz, "fireEvents", fireType);
+                final MethodType cType = MethodType.methodType(void.class);
+                loginHandler = lookup.findConstructor(clazz, cType);
+
+                final MethodType methodType = MethodType.methodType(void.class, GameProfile.class);
+                fireEvents = lookup.findVirtual(clazz, "fireEvents", methodType);
             }
             try {
                 fireEvents.invoke(loginHandler.invoke(), profile);

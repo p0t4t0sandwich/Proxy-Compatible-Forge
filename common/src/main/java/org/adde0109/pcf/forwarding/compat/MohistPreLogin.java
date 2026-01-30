@@ -9,7 +9,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 
-public interface MohistBridge {
+public interface MohistPreLogin {
     /**
      * <a
      * href="https://github.com/Teneted/Tenet/blob/1.20.1/patches/minecraft/net/minecraft/server/network/ServerLoginPacketListenerImpl.java.patch">Used
@@ -23,11 +23,13 @@ public interface MohistBridge {
                 throws Exception {
             if (loginHandler == null || fireEvents == null) {
                 final MethodHandles.Lookup lookup = MethodHandles.lookup();
+
                 final Class<?> clazz = Class.forName("com.mohistmc.bukkit.LoginHandler");
-                final MethodType vType = MethodType.methodType(void.class);
-                loginHandler = lookup.findConstructor(clazz, vType);
-                final MethodType fireType = MethodType.methodType(void.class, slpl.getClass());
-                fireEvents = lookup.findVirtual(clazz, "fireEvents", fireType);
+                final MethodType cType = MethodType.methodType(void.class);
+                loginHandler = lookup.findConstructor(clazz, cType);
+
+                final MethodType methodType = MethodType.methodType(void.class, slpl.getClass());
+                fireEvents = lookup.findVirtual(clazz, "fireEvents", methodType);
             }
 
             try {
@@ -53,12 +55,14 @@ public interface MohistBridge {
                 throws Exception {
             if (loginHandler == null || fireEvents == null) {
                 final MethodHandles.Lookup lookup = MethodHandles.lookup();
+
                 final Class<?> clazz = Class.forName("com.mohistmc.youer.bukkit.LoginHandler");
-                final MethodType vType = MethodType.methodType(void.class);
-                loginHandler = lookup.findConstructor(clazz, vType);
-                final MethodType fireType =
+                final MethodType cType = MethodType.methodType(void.class);
+                loginHandler = lookup.findConstructor(clazz, cType);
+
+                final MethodType methodType =
                         MethodType.methodType(void.class, slpl.getClass(), GameProfile.class);
-                fireEvents = lookup.findVirtual(clazz, "fireEvents", fireType);
+                fireEvents = lookup.findVirtual(clazz, "fireEvents", methodType);
             }
 
             try {
