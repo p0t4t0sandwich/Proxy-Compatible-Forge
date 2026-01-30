@@ -15,10 +15,10 @@ import dev.neuralnexus.taterapi.network.NetworkRegistry;
 import dev.neuralnexus.taterapi.registries.AdapterRegistry;
 
 import org.adde0109.pcf.forwarding.Mode;
-import org.adde0109.pcf.forwarding.compat.ArclightBridge;
+import org.adde0109.pcf.forwarding.compat.ArclightPreLogin;
 import org.adde0109.pcf.forwarding.compat.MohistBridge;
 import org.adde0109.pcf.forwarding.compat.SpigotLoginHandler;
-import org.adde0109.pcf.forwarding.compat.SpongeBridge;
+import org.adde0109.pcf.forwarding.compat.SpongePreLogin;
 import org.adde0109.pcf.forwarding.modern.ModernForwarding;
 import org.adde0109.pcf.forwarding.modern.PlayerInfoQueryPayload;
 import org.adde0109.pcf.forwarding.modern.VelocityProxy;
@@ -91,21 +91,21 @@ public final class PCF {
                     ModernForwarding.postProcessors.add(
                             (slpl, profile) -> {
                                 slpl.bridge$setGameProfile(profile);
-                                ((ArclightBridge.V14) slpl).arclight$preLogin();
+                                ArclightPreLogin.V14.preLogin(slpl);
                                 return false;
                             });
                 } else if (Constraint.builder().version(MinecraftVersions.V20_2).result()) {
                     ModernForwarding.postProcessors.removeFirst();
                     ModernForwarding.postProcessors.add(
                             (slpl, profile) -> {
-                                ((ArclightBridge.V20_2) slpl).arclight$preLogin(profile);
+                                ArclightPreLogin.V20_2.preLogin(slpl, profile);
                                 return false;
                             });
                 } else if (Constraint.noLessThan(MinecraftVersions.V20_3).result()) {
                     ModernForwarding.postProcessors.removeFirst();
                     ModernForwarding.postProcessors.add(
                             (slpl, profile) -> {
-                                ((ArclightBridge.V20_4) slpl).bridge$preLogin(profile);
+                                ((ArclightPreLogin.V20_4) slpl).bridge$preLogin(profile);
                                 return false;
                             });
                 }
@@ -189,7 +189,7 @@ public final class PCF {
                 ModernForwarding.postProcessors.addFirst(
                         (slpl, profile) -> {
                             slpl.bridge$setGameProfile(profile);
-                            return SpongeBridge.API8.fireAuthEvent(slpl);
+                            return SpongePreLogin.API8.fireAuthEvent(slpl);
                         });
             }
         }
