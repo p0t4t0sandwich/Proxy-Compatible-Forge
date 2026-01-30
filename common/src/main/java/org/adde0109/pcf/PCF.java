@@ -187,7 +187,10 @@ public final class PCF {
                     .platform(Platforms.SPONGE)
                     .result()) {
                 ModernForwarding.postProcessors.addFirst(
-                        (slpl, profile) -> ((SpongeBridge) slpl).bridge$fireAuthEvent());
+                        (slpl, profile) -> {
+                            slpl.bridge$setGameProfile(profile);
+                            return SpongeBridge.API8.fireAuthEvent(slpl);
+                        });
             }
         }
 
