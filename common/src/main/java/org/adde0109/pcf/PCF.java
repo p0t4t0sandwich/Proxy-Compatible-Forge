@@ -15,10 +15,10 @@ import dev.neuralnexus.taterapi.network.NetworkRegistry;
 import dev.neuralnexus.taterapi.registries.AdapterRegistry;
 
 import org.adde0109.pcf.forwarding.Mode;
-import org.adde0109.pcf.forwarding.compat.ArclightPreLogin;
-import org.adde0109.pcf.forwarding.compat.MohistPreLogin;
-import org.adde0109.pcf.forwarding.compat.SpigotPreLogin;
-import org.adde0109.pcf.forwarding.compat.SpongePreLogin;
+import org.adde0109.pcf.forwarding.compatibility.ArclightPreLogin;
+import org.adde0109.pcf.forwarding.compatibility.MohistPreLogin;
+import org.adde0109.pcf.forwarding.compatibility.SpigotPreLogin;
+import org.adde0109.pcf.forwarding.compatibility.SpongePreLogin;
 import org.adde0109.pcf.forwarding.modern.ModernForwarding;
 import org.adde0109.pcf.forwarding.modern.PlayerInfoQueryPayload;
 import org.adde0109.pcf.forwarding.modern.VelocityProxy;

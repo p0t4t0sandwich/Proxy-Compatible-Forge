@@ -10,7 +10,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
 import org.adde0109.pcf.PCF;
-import org.adde0109.pcf.crossstitch.compat.ArgumentEdgeCases;
+import org.adde0109.pcf.crossstitch.compatibility.ArgumentEdgeCases;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;

@@ -1,4 +1,4 @@
-package org.adde0109.pcf.forwarding.compat;
+package org.adde0109.pcf.forwarding.compatibility;
 
 import com.mojang.authlib.GameProfile;
 

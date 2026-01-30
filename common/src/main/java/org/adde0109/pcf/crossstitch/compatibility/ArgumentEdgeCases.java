@@ -1,4 +1,4 @@
-package org.adde0109.pcf.crossstitch.compat;
+package org.adde0109.pcf.crossstitch.compatibility;
 
 import dev.neuralnexus.taterapi.meta.Constraint;
 import dev.neuralnexus.taterapi.meta.MinecraftVersions;
