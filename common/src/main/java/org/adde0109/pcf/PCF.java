@@ -54,7 +54,7 @@ public final class PCF {
         Platform platform = api.platform();
 
         // spotless:off
-        PCF.logger.info("Initializing Proxy Compatible Forge on "
+        PCF.logger.info("Initializing " + MOD_NAME + " on "
                 + "Minecraft " + mcv
                 + " (" + platform + " " + api.meta().apiVersion() + ")");
         // spotless:on
@@ -86,6 +86,7 @@ public final class PCF {
                     PlayerInfoQueryPayload.IDENTIFIER, PlayerInfoQueryPayload.STREAM_CODEC);
 
             if (Constraint.builder().platform(Platforms.ARCLIGHT).result()) {
+                logger.debug("Arclight detected, applying pre-login post processor");
                 if (Constraint.range(MinecraftVersions.V14, MinecraftVersions.V20_1).result()) {
                     ModernForwarding.postProcessors.removeFirst();
                     ModernForwarding.postProcessors.add(
@@ -113,6 +114,7 @@ public final class PCF {
                     .platform(Platforms.MOHIST)
                     .version(MinecraftVersions.V20_1)
                     .result()) {
+                logger.debug("Mohist detected, applying pre-login post processor");
                 ModernForwarding.postProcessors.removeFirst();
                 ModernForwarding.postProcessors.add(
                         (slpl, profile) -> {
@@ -124,6 +126,7 @@ public final class PCF {
                     .platform(Platforms.YOUER)
                     .version(MinecraftVersions.V21_1)
                     .result()) {
+                logger.debug("Youer detected, applying pre-login post processor");
                 ModernForwarding.postProcessors.removeFirst();
                 ModernForwarding.postProcessors.add(
                         (slpl, profile) -> {
@@ -140,6 +143,7 @@ public final class PCF {
                                     .platform(Platforms.MAGMA, Platforms.KETTING)
                                     .version(MinecraftVersions.V20_1))
                     .result()) {
+                logger.debug("Forge+Bukkit hybrid detected, applying pre-login post processor");
                 ModernForwarding.postProcessors.removeFirst();
                 ModernForwarding.postProcessors.add(
                         (slpl, profile) -> {
@@ -155,6 +159,7 @@ public final class PCF {
                                     .platform(Platforms.MOHIST)
                                     .version(MinecraftVersions.V20_2))
                     .result()) {
+                logger.debug("[Neo]Forge+Bukkit hybrid detected, applying pre-login post processor");
                 ModernForwarding.postProcessors.removeFirst();
                 ModernForwarding.postProcessors.add(
                         (slpl, profile) -> {
@@ -175,6 +180,7 @@ public final class PCF {
                                     .platform(Platforms.NEOTENET)
                                     .version(MinecraftVersions.V21_1, MinecraftVersions.V21_10))
                     .result()) {
+                logger.debug("[Neo]Forge+Bukkit hybrid detected, applying pre-login post processor");
                 ModernForwarding.postProcessors.addFirst(
                         (slpl, profile) -> {
                             ((SpigotPreLogin.V20_5) slpl).callPlayerPreLoginEvents(profile);
@@ -185,6 +191,7 @@ public final class PCF {
             if (Constraint.range(MinecraftVersions.V16, MinecraftVersions.V18_2)
                     .platform(Platforms.SPONGE)
                     .result()) {
+                logger.debug("SpongeAPI 8 or 9 detected, applying pre-login post processor");
                 ModernForwarding.postProcessors.addFirst(
                         (slpl, profile) -> {
                             slpl.bridge$setGameProfile(profile);
