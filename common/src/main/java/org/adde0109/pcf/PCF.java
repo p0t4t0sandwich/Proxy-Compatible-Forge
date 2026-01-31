@@ -133,13 +133,12 @@ public final class PCF {
                         });
             } else if (Constraints.builder()
                     .or(
-                            Constraint.builder()
-                                    .platform(Platforms.KETTING)
-                                    .version(MinecraftVersions.V20_1),
-                            Constraint.range(MinecraftVersions.V12_2, MinecraftVersions.V20_1)
-                                    .platform(Platforms.MAGMA),
                             Constraint.range(MinecraftVersions.V12_2, MinecraftVersions.V19_4)
-                                    .platform(Platforms.MOHIST))
+                                    .platform(
+                                            Platforms.CATSERVER, Platforms.MAGMA, Platforms.MOHIST),
+                            Constraint.builder()
+                                    .platform(Platforms.MAGMA, Platforms.KETTING)
+                                    .version(MinecraftVersions.V20_1))
                     .result()) {
                 ModernForwarding.postProcessors.removeFirst();
                 ModernForwarding.postProcessors.add(
