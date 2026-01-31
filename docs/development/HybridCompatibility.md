@@ -2,7 +2,7 @@
 
 ## Arclight
 
-Versions: 1.14 - 1.20.1 <br>
+Versions: 1.14.4, 1.15.2, 1.16.3, 1.16.5, 1.17.1, 1.18.1, 1.18.2, 1.19.2, 1.19.3, 1.19.4, 1.20.1 <br>
 Class: `net.minecraft.server.network.ServerLoginPacketListenerImpl` <br>
 Method: `arclight$preLogin()` <br>
 Source: <https://github.com/IzzelAliz/Arclight/blob/Trials/arclight-common/src/main/java/io/izzel/arclight/common/mixin/core/network/ServerLoginNetHandlerMixin.java>

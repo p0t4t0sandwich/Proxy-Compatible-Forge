@@ -1,6 +1,7 @@
-# Platform Compatibility
+# Compatibility
 
 ## Modern Forwarding and CrossStitch Command Wrapping
+
 | MC Version | Forge | NeoForge | Modern Forwarding | CrossStitch | Notes                                                                                      |
 |------------|-------|----------|-------------------|-------------|--------------------------------------------------------------------------------------------|
 | 1.21.x     | ✅     | ✅        | ✅                 | ✅           |                                                                                            |
@@ -12,19 +13,38 @@
 | 1.15.x     | ✅     | N/A      | ✅                 | ✅           | Requires [MixinBootstrap](https://modrinth.com/mod/mixinbootstrap) on 1.15 - 1.15.1        |
 | 1.14.x     | ✅     | N/A      | ✅                 | ✅           | Requires [MixinBootstrap](https://modrinth.com/mod/mixinbootstrap)                         |
 | 1.13.x     | ❌     | N/A      | ❌                 | ❌           |                                                                                            |
-| 1.12.x     | ✅     | N/A      | ✅                 | ❌           | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy |
-| 1.11.x     | ✅     | N/A      | ✅                 | ❌           | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy |
-| 1.10.x     | ✅     | N/A      | ✅                 | ❌           | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy |
-| 1.9.x      | ✅     | N/A      | ✅                 | ❌           | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy |
-| 1.8.x      | ✅     | N/A      | ✅                 | ❌           | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy |
-| 1.7.x      | ✅     | N/A      | ✅                 | ❌           | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy |
+| 1.12.x     | ✅     | N/A      | ✅                 | N/A         | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy |
+| 1.11.x     | ✅     | N/A      | ✅                 | N/A         | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy |
+| 1.10.x     | ✅     | N/A      | ✅                 | N/A         | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy |
+| 1.9.x      | ✅     | N/A      | ✅                 | N/A         | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy |
+| 1.8.x      | ✅     | N/A      | ✅                 | N/A         | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy |
+| 1.7.x      | ✅     | N/A      | ✅                 | N/A         | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy |
+
+## SpongeForge and SpongeNeo Compatibility
+
+In most cases PCF shouldn't be needed, as Sponge supports legacy+modern forwarding and command argument wrapping. Known exceptions to this rule are listed below.
+
+| MC Version | SpongeAPI Version | SpongeForge | SpongeNeo | Notes                                                                                                                                                      |
+|------------|-------------------|-------------|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| 1.16.5     | 8                 | ✅           | N/A       | SF's modern forwarding doesn't work                                                                                                                        |
+| 1.18.2     | 9                 | TBD         | N/A       |                                                                                                                                                            |
+| 1.19.4     | 10                | TBD         | N/A       |                                                                                                                                                            |
+| 1.20.6     | 11                | TBD         | TBD       |                                                                                                                                                            |
+| 1.21.1     | 12                | TBD         | ✅         | SpongeNeo's modern forwarding doesn't work due to an incompatibility caused by Forgified Fabric API is installed (specifically `fabric_networking_api_v1`) |
+| 1.21.3     | 13                | TBD         | TBD       |                                                                                                                                                            |
+| 1.21.4     | 14                | TBD         | TBD       |                                                                                                                                                            |
+| 1.21.5     | 15                | TBD         | TBD       |                                                                                                                                                            |
+| 1.21.8     | 16                | TBD         | TBD       |                                                                                                                                                            |
+| 1.21.10    | 17                | TBD         | TBD       |                                                                                                                                                            |
+| 1.21.11    | 18                | TBD         | TBD       |                                                                                                                                                            |
 
 ## Modpack Compatibility
+
 Try adding [BeQuietNegotiator](<https://modrinth.com/mod/be-quiet-negotiator>) to your NeoForge client if you're trying to join a Vanilla server.
 
 | Modpack Name                                                                                       | Modpack Version | MC Version | Modloader Version | As Primary/Forced-Host | Server Switching | Can Join Vanilla Servers | Notes                          |
 |----------------------------------------------------------------------------------------------------|-----------------|------------|-------------------|------------------------|------------------|--------------------------|--------------------------------|
-| [ATM10](https://www.curseforge.com/minecraft/modpacks/all-the-mods-10)                             | 4.12            | 1.21.1     | NeoForge 21.1.209 | ✅                      | ?                | ❌                        |                                |
+| [ATM10](https://www.curseforge.com/minecraft/modpacks/all-the-mods-10)                             | 5.4             | 1.21.1     | NeoForge 21.1.215 | ✅                      | ✅                | ❌                        |                                |
 | [ATM10 to Sky](https://www.curseforge.com/minecraft/modpacks/all-the-mods-10-sky)                  | 1.5.1           | 1.21.1     | NeoForge 21.1.206 | ✅                      | ?                | ❌                        |                                |
 | [FTB Presents Direwolf20](https://www.feed-the-beast.com/modpacks/126-ftb-presents-direwolf20-121) | 1.14.2          | 1.21.1     | NeoForge 21.1.172 | ✅                      | ?                | ❌                        |                                |
 | [FTB Evolution](https://www.feed-the-beast.com/modpacks/125-ftb-evolution)                         | ?               | 1.21.1     | NeoForge 21.1.203 | ✅                      | ?                | ❌                        |                                |
@@ -33,8 +53,20 @@ Try adding [BeQuietNegotiator](<https://modrinth.com/mod/be-quiet-negotiator>) t
 | [Age of Fate](https://www.curseforge.com/minecraft/modpacks/age-of-fate)                           | 4.3.2           | 1.20.1     | Forge 47.4.0      | ?                      | ?                | ?                        |                                |
 | [ATM9](https://www.curseforge.com/minecraft/modpacks/all-the-mods-9)                               | 1.1.0           | 1.20.1     | Forge 47.4.0      | ✅                      | ?                | ?                        |                                |
 | [ATM9 to Sky](https://www.curseforge.com/minecraft/modpacks/all-the-mods-9-to-the-sky)             | 1.1.8           | 1.20.1     | Forge 47.4.0      | ✅                      | ?                | ?                        |                                |
+| [Better MC 4](https://www.curseforge.com/minecraft/modpacks/better-mc-forge-bmc4)                  | 55              | 1.20.1     | Forge 47.4.13     | ✅                      | ?                | ?                        |                                |
 | [Ozone Skyblock Reloaded](https://www.curseforge.com/minecraft/modpacks/ozone-skyblock-reborn)     | 1.19.1          | 1.20.1     | Forge 47.4.10     | ✅                      | ?                | ?                        |                                |
 | [Workload](https://www.curseforge.com/minecraft/modpacks/workload)                                 | 1.1.0           | 1.20.1     | Forge 47.3.22     | ✅                      | ✅                | ?                        | FFCRP mod incompatible with VS |
 | [FTB Presents Stoneblock 3](https://www.feed-the-beast.com/modpacks/100-ftb-stoneblock-3)          | 1.11.5          | 1.18.2     | Forge 40.2.34     | ✅                      | ?                | ?                        |                                |
 | [TechBlock - SkyTech 3](https://modrinth.com/project/techblock-skytech-3)                          | 1.0             | 1.16.5     | Forge 36.2.35     | ✅                      | ?                | ?                        |                                |
 | [The Pixelmon Modpack](https://www.curseforge.com/minecraft/modpacks/the-pixelmon-modpack)         | 9.1.13          | 1.16.5     | Forge 36.2.35     | ✅                      | ?                | ?                        |                                |
+
+## Hybrid Server Software Compatibility
+
+| Server Software | MC Version | Modern Forwarding | CrossStitch | Notes                                                     |
+|-----------------|------------|-------------------|-------------|-----------------------------------------------------------|
+| Arclight        | 1.14.4     | ✅                 | ✅           |                                                           |
+| Arclight        | 1.15.2     | ✅                 | ✅           |                                                           |
+| Arclight        | 1.16.5     | ✅                 | ✅           |                                                           |
+| CatServer       | 1.16.5     | ✅                 | ✅           |                                                           |
+| Magma           | 1.16.5     | ✅                 | ✅           | Magma 1.16.5 is unstable in general and shouldn't be used |
+| Mohist          | 1.16.5     | ✅                 | ✅           |                                                           |
