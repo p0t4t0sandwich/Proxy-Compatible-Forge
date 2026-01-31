@@ -30,14 +30,17 @@ public interface SpigotPreLogin {
                 throws Exception {
             if (loginHandler == null || fireEvents == null) {
                 final MethodHandles.Lookup lookup = MethodHandles.lookup();
+
                 final Class<?> clazz = Class.forName(slpl.getClass().getName() + "$LoginHandler");
-                final MethodType voidType = MethodType.methodType(void.class);
-                loginHandler = lookup.findConstructor(clazz, voidType);
-                fireEvents = lookup.findVirtual(clazz, "fireEvents", voidType);
+                final MethodType cType = MethodType.methodType(void.class, slpl.getClass());
+                loginHandler = lookup.findConstructor(clazz, cType);
+
+                MethodType methodType = MethodType.methodType(void.class);
+                fireEvents = lookup.findVirtual(clazz, "fireEvents", methodType);
             }
 
             try {
-                fireEvents.invoke(loginHandler.invoke());
+                fireEvents.invoke(loginHandler.invoke(slpl));
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }
@@ -65,14 +68,14 @@ public interface SpigotPreLogin {
                 final MethodHandles.Lookup lookup = MethodHandles.lookup();
 
                 final Class<?> clazz = Class.forName(slpl.getClass().getName() + "$LoginHandler");
-                final MethodType cType = MethodType.methodType(void.class);
+                final MethodType cType = MethodType.methodType(void.class, slpl.getClass());
                 loginHandler = lookup.findConstructor(clazz, cType);
 
                 final MethodType methodType = MethodType.methodType(void.class, GameProfile.class);
                 fireEvents = lookup.findVirtual(clazz, "fireEvents", methodType);
             }
             try {
-                fireEvents.invoke(loginHandler.invoke(), profile);
+                fireEvents.invoke(loginHandler.invoke(slpl), profile);
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }
