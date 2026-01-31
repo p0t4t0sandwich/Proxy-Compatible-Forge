@@ -45,7 +45,7 @@ public abstract class ServerLoginPacketListenerImplMixin
     // spotless:on
 
     // spotless:off
-    @AConstraint(platform = Platform.ARCLIGHT, invert = true)
+    @AConstraint(platform = {Platform.ARCLIGHT, Platform.MOHIST}, invert = true)
     @Inject(method = "handleHello", cancellable = true, at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD, ordinal = 1,
             target = "Lnet/minecraft/server/network/ServerLoginPacketListenerImpl;state:Lnet/minecraft/server/network/ServerLoginPacketListenerImpl$State;"))
     // spotless:on
@@ -53,7 +53,11 @@ public abstract class ServerLoginPacketListenerImplMixin
         handleHello(this, ci);
     }
 
-    @AConstraint(platform = Platform.ARCLIGHT)
+    /**
+     * Arclight - Overwrites the method <br>
+     * Mohist - Changed the method in some incompatible manner, not obvious from their patches
+     */
+    @AConstraint(platform = {Platform.ARCLIGHT, Platform.MOHIST})
     @Inject(method = "handleHello", cancellable = true, at = @At(value = "HEAD"))
     private void onHandleHelloArclight(final @NonNull CallbackInfo ci) {
         Validate.validState(
