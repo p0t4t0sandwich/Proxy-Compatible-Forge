@@ -23,6 +23,16 @@ Method: `bridge$preLogin(GameProfile)` <br>
 Source: <https://github.com/IzzelAliz/Arclight/blob/FeudalKings/arclight-common/src/main/java/io/izzel/arclight/common/mixin/core/network/ServerLoginPacketListenerImplMixin.java>
 Notes: Alternatively call `private void callPlayerPreLoginEvents(GameProfile)` and use PCF logic
 
+## CatServer
+
+Versions: 1.12.2, 1.16.5, 1.18.2 <br>
+Class: `net.minecraft.server.network.ServerLoginPacketListenerImpl$LoginHandler` <br>
+Method: `fireEvents()` <br>
+Sources:
+- 1.12.2: <https://github.com/Luohuayu/CatServer/blob/1.12.2/patches/net/minecraft/server/network/NetHandlerLoginServer.java.patch>
+- 1.16.5: <https://github.com/Luohuayu/CatServer/blob/1.16.5/patches/minecraft/net/minecraft/network/login/ServerLoginNetHandler.java.patch>
+- 1.18.2: <https://github.com/Luohuayu/CatServer/blob/1.18.2/patches/minecraft/net/minecraft/server/network/ServerLoginPacketListenerImpl.java.patch>
+
 ## Ketting
 
 Version: 1.20.1 <br>
