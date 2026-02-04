@@ -90,25 +90,19 @@ public final class PCF {
                 if (Constraint.range(MinecraftVersions.V14, MinecraftVersions.V20_1).result()) {
                     ModernForwarding.postProcessors.removeFirst();
                     ModernForwarding.postProcessors.add(
-                            (slpl, profile) -> {
+                            (slpl, profile, c) -> {
                                 slpl.bridge$setGameProfile(profile);
                                 ArclightPreLogin.V14.preLogin(slpl);
-                                return false;
                             });
                 } else if (Constraint.builder().version(MinecraftVersions.V20_2).result()) {
                     ModernForwarding.postProcessors.removeFirst();
                     ModernForwarding.postProcessors.add(
-                            (slpl, profile) -> {
-                                ArclightPreLogin.V20_2.preLogin(slpl, profile);
-                                return false;
-                            });
+                            (slpl, profile, c) -> ArclightPreLogin.V20_2.preLogin(slpl, profile));
                 } else if (Constraint.noLessThan(MinecraftVersions.V20_3).result()) {
                     ModernForwarding.postProcessors.removeFirst();
                     ModernForwarding.postProcessors.add(
-                            (slpl, profile) -> {
-                                ((ArclightPreLogin.V20_4) slpl).bridge$preLogin(profile);
-                                return false;
-                            });
+                            (slpl, profile, c) ->
+                                    ((ArclightPreLogin.V20_4) slpl).bridge$preLogin(profile));
                 }
             } else if (Constraint.builder()
                     .platform(Platforms.MOHIST)
@@ -117,10 +111,9 @@ public final class PCF {
                 logger.debug("Mohist detected, applying pre-login post processor");
                 ModernForwarding.postProcessors.removeFirst();
                 ModernForwarding.postProcessors.add(
-                        (slpl, profile) -> {
+                        (slpl, profile, c) -> {
                             slpl.bridge$setGameProfile(profile);
                             MohistPreLogin.V20_1.fireEvents(slpl);
-                            return false;
                         });
             } else if (Constraint.builder()
                     .platform(Platforms.YOUER)
@@ -129,10 +122,9 @@ public final class PCF {
                 logger.debug("Youer detected, applying pre-login post processor");
                 ModernForwarding.postProcessors.removeFirst();
                 ModernForwarding.postProcessors.add(
-                        (slpl, profile) -> {
+                        (slpl, profile, c) -> {
                             MohistPreLogin.Youer.fireEvents(slpl, profile);
                             slpl.bridge$startClientVerification(profile);
-                            return false;
                         });
             } else if (Constraints.builder()
                     .or(
@@ -146,10 +138,9 @@ public final class PCF {
                 logger.debug("Forge+Bukkit hybrid detected, applying pre-login post processor");
                 ModernForwarding.postProcessors.removeFirst();
                 ModernForwarding.postProcessors.add(
-                        (slpl, profile) -> {
+                        (slpl, profile, c) -> {
                             slpl.bridge$setGameProfile(profile);
                             SpigotPreLogin.Legacy.fireEvents(slpl);
-                            return false;
                         });
             } else if (Constraints.builder()
                     .or(
@@ -159,13 +150,11 @@ public final class PCF {
                                     .platform(Platforms.MOHIST)
                                     .version(MinecraftVersions.V20_2))
                     .result()) {
-                logger.debug("[Neo]Forge+Bukkit hybrid detected, applying pre-login post processor");
+                logger.debug(
+                        "[Neo]Forge+Bukkit hybrid detected, applying pre-login post processor");
                 ModernForwarding.postProcessors.removeFirst();
                 ModernForwarding.postProcessors.add(
-                        (slpl, profile) -> {
-                            SpigotPreLogin.V20_2.fireEvents(slpl, profile);
-                            return false;
-                        });
+                        (slpl, profile, c) -> SpigotPreLogin.V20_2.fireEvents(slpl, profile));
             } else if (Constraints.builder()
                     .or(
                             Constraint.builder()
@@ -180,12 +169,11 @@ public final class PCF {
                                     .platform(Platforms.NEOTENET)
                                     .version(MinecraftVersions.V21_1, MinecraftVersions.V21_10))
                     .result()) {
-                logger.debug("[Neo]Forge+Bukkit hybrid detected, applying pre-login post processor");
+                logger.debug(
+                        "[Neo]Forge+Bukkit hybrid detected, applying pre-login post processor");
                 ModernForwarding.postProcessors.addFirst(
-                        (slpl, profile) -> {
-                            ((SpigotPreLogin.V20_5) slpl).callPlayerPreLoginEvents(profile);
-                            return false;
-                        });
+                        (slpl, profile, c) ->
+                                ((SpigotPreLogin.V20_5) slpl).callPlayerPreLoginEvents(profile));
             }
 
             if (Constraint.range(MinecraftVersions.V16, MinecraftVersions.V18_2)
@@ -193,9 +181,9 @@ public final class PCF {
                     .result()) {
                 logger.debug("SpongeAPI 8 or 9 detected, applying pre-login post processor");
                 ModernForwarding.postProcessors.addFirst(
-                        (slpl, profile) -> {
+                        (slpl, profile, c) -> {
                             slpl.bridge$setGameProfile(profile);
-                            return SpongePreLogin.API8.fireAuthEvent(slpl);
+                            c.setCancelled(SpongePreLogin.API8.fireAuthEvent(slpl));
                         });
             }
         }

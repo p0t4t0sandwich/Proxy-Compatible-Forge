@@ -114,24 +114,24 @@ public final class ModernForwarding {
          *
          * @param slpl the ServerLoginPacketListener
          * @param profile the forwarded GameProfile
-         * @return true to stop processing further, false to continue
+         * @param c the cancellable wrapper
          * @throws Exception if an error occurs
          */
-        boolean process(
+        void process(
                 final @NonNull ServerLoginPacketListenerBridge slpl,
-                final @NonNull GameProfile profile)
+                final @NonNull GameProfile profile,
+                final @NonNull Cancellable c)
                 throws Exception;
     }
 
     @ApiStatus.Internal public static PreProcessor preProcessor = (slpl, buf) -> {};
 
     private static final PostProcessor DEFAULT_POST_PROCESSOR =
-            (slpl, profile) -> {
+            (slpl, profile, c) -> {
                 final NameAndId nameAndId = new NameAndId(profile);
                 slpl.bridge$logger_info(
                         "UUID of player {} is {}", nameAndId.name(), nameAndId.id());
                 slpl.bridge$startClientVerification(profile);
-                return false;
             };
 
     @ApiStatus.Internal
@@ -186,24 +186,24 @@ public final class ModernForwarding {
      * @param slpl The ServerLoginPacketListenerImpl
      * @param transactionId The transaction ID
      * @param mcPacket The Minecraft packet
-     * @param ci The callback info wrapper
+     * @param c The cancellable wrapper
      */
     public static void handleCustomQueryPacket(
             final @NonNull ServerLoginPacketListenerBridge slpl,
             final int transactionId,
             final @NonNull Object mcPacket,
-            final @NonNull Cancellable ci) {
+            final @NonNull Cancellable c) {
         if (transactionId != slpl.bridge$velocityLoginMessageId()) {
             return;
         }
         final ServerboundCustomQueryAnswerPacket packet =
                 ServerboundCustomQueryAnswerPacket.fromMC(mcPacket);
         try {
-            handleCustomQueryPacket(slpl, packet);
+            handleCustomQueryPacket(slpl, packet, c);
         } catch (ThrowingComponent e) {
             slpl.bridge$disconnect(e.getComponent());
         }
-        ci.cancel();
+        c.cancel();
     }
 
     /**
@@ -211,10 +211,12 @@ public final class ModernForwarding {
      *
      * @param slpl The ServerLoginPacketListenerImpl
      * @param packet The Minecraft packet
+     * @param c The cancellable wrapper
      */
     public static void handleCustomQueryPacket(
             final @NonNull ServerLoginPacketListenerBridge slpl,
-            final @NonNull ServerboundCustomQueryAnswerPacket packet) {
+            final @NonNull ServerboundCustomQueryAnswerPacket packet,
+            final @NonNull Cancellable c) {
         // Validate payload presence
         if (packet.payload() == null) {
             throw new ThrowingComponent(DIRECT_CONNECT_ERR);
@@ -309,7 +311,8 @@ public final class ModernForwarding {
         // Proceed with login
         try {
             for (final PostProcessor processor : postProcessors) {
-                if (processor.process(slpl, payload.profile())) {
+                processor.process(slpl, payload.profile(), c);
+                if (c.cancelled()) {
                     break;
                 }
             }
