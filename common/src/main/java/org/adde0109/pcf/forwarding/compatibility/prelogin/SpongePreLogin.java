@@ -1,4 +1,4 @@
-package org.adde0109.pcf.forwarding.compatibility;
+package org.adde0109.pcf.forwarding.compatibility.prelogin;
 
 import org.adde0109.pcf.forwarding.modern.ServerLoginPacketListenerBridge;
 import org.jetbrains.annotations.NotNull;
