@@ -200,7 +200,7 @@ public final class ModernForwarding {
                 ServerboundCustomQueryAnswerPacket.fromMC(mcPacket);
         try {
             handleCustomQueryPacket(slpl, packet, c);
-        } catch (ThrowingComponent e) {
+        } catch (final ThrowingComponent e) {
             slpl.bridge$disconnect(e.getComponent());
         }
         c.cancel();
@@ -237,7 +237,7 @@ public final class ModernForwarding {
             if (!checkIntegrity(packet.payload().data())) {
                 throw new ThrowingComponent(PLAYER_INFO_ERR);
             }
-        } catch (AssertionError e) {
+        } catch (final AssertionError e) {
             if (e.getCause() instanceof InvalidKeyException
                     && PCF.instance().forwarding().secret().isBlank()) {
                 PCF.logger.error(
@@ -285,7 +285,7 @@ public final class ModernForwarding {
                     }
                     ((ServerLoginPacketListenerBridge.KeyV1) slpl)
                             .bridge$setPlayerProfilePublicKey(payload.key());
-                } catch (DecoderException e) {
+                } catch (final DecoderException e) {
                     PCF.logger.error("Public key read failed.", e);
                     if (enforceSecureProfile) {
                         throw new ThrowingComponent(INVALID_SIGNATURE, e);
@@ -299,7 +299,7 @@ public final class ModernForwarding {
                     try {
                         keyV2.bridge$validatePublicKey(payload.key(), payload.signer());
                         keyV2.bridge$setProfilePublicKeyData(payload.key());
-                    } catch (Exception e) {
+                    } catch (final Exception e) {
                         slpl.bridge$logger_error(
                                 "Failed to validate profile key: {}", e.getMessage());
                         throw new ThrowingComponent(INVALID_SIGNATURE, e);
