@@ -49,9 +49,9 @@ public final class PCF {
 
     @ApiStatus.Internal
     void onInit() {
-        MetaAPI api = MetaAPI.instance();
-        MinecraftVersion mcv = api.version();
-        Platform platform = api.platform();
+        final MetaAPI api = MetaAPI.instance();
+        final MinecraftVersion mcv = api.version();
+        final Platform platform = api.platform();
 
         // spotless:off
         PCF.logger.info("Initializing " + MOD_NAME + " on "
@@ -76,7 +76,7 @@ public final class PCF {
 
             loader.load();
         } catch (final Exception e) {
-            PCF.logger.error("Failed to access PCF Mod Resources: " + e.getClass(), e);
+            throw new RuntimeException("Failed to access " + MOD_NAME + " Mod Resources: " + e.getClass(), e);
         }
         loader.onInit();
 
