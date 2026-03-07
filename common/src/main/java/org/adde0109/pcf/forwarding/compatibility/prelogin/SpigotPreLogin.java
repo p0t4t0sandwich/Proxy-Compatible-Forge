@@ -94,8 +94,8 @@ public interface SpigotPreLogin {
      * href="https://github.com/MohistMC/Youer/blob/26.1/nms-patches/net/minecraft/server/network/ServerLoginPacketListenerImpl.patch">Youer
      * 1.21.11 - 26.1</a> <br>
      * <a
-     * href="https://github.com/Teneted/NeoTenet/blob/1.21.10/paper-patches/sources/net/minecraft/server/network/ServerLoginPacketListenerImpl.java.patch">NeoTenet
-     * 1.21.1, 1.21.10</a>
+     * href="https://github.com/Teneted/NeoTenet/blob/1.21.11/nms-patches/net/minecraft/server/network/ServerLoginPacketListenerImpl.patch">NeoTenet
+     * 1.21.1, 1.21.11</a>
      */
     final class V20_5 {
         private static MethodHandle callPlayerPreLoginEvents;

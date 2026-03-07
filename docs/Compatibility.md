@@ -62,13 +62,39 @@ Try adding [BeQuietNegotiator](<https://modrinth.com/mod/be-quiet-negotiator>) t
 
 ## Hybrid Server Software Compatibility
 
-| Server Software | MC Version | Modern Forwarding | CrossStitch | Notes                                                     |
-|-----------------|------------|-------------------|-------------|-----------------------------------------------------------|
-| Arclight        | 1.14.4     | ✅                 | ✅           |                                                           |
-| Arclight        | 1.15.2     | ✅                 | ✅           |                                                           |
-| Arclight        | 1.16.5     | ✅                 | ✅           |                                                           |
-| CatServer       | 1.16.5     | ✅                 | ✅           |                                                           |
-| Magma           | 1.16.5     | ✅                 | ✅           | Magma 1.16.5 is unstable in general and shouldn't be used |
-| Mohist          | 1.16.5     | ✅                 | ✅           |                                                           |
-| Arclight        | 1.17.1     | ✅                 | ✅           |                                                           |
-| Arclight        | 1.18.2     | ✅                 | ✅           |                                                           |
+| Server Software  | MC Version | Modloader | Modern Forwarding | CrossStitch | Notes                                                                                                                                                   |
+|------------------|------------|-----------|-------------------|-------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Arclight         | 1.14.4     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
+| Arclight         | 1.15.2     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
+| Arclight         | 1.16.5     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
+| CatServer        | 1.16.5     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
+| Magma            | 1.16.5     | Forge     | ✅                 | ✅           | Magma 1.16.5 is unstable in general and shouldn't be used                                                                                               |
+| Mohist           | 1.16.5     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
+| Arclight         | 1.17.1     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
+| Arclight         | 1.18.2     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
+| Catserver        | 1.18.2     | Forge     | ?                 | ?           | Wouldn't launch, even without PCF                                                                                                                       |
+| Magma            | 1.18.2     | Forge     | ❌                 | ✅           | Causes PCF's modern forwarding to fail due to the custom query response being null. Magma's built-in modern forwarding works.                           |
+| Magma Maintained | 1.18.2     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
+| Mohist           | 1.18.2     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
+| Arclight         | 1.19.2     | Forge     | ✅                 | ✅           | Arclight chat handling incompatibility requires a reconnect. Resolved by setting `advanced.modernForwardingVersion = "MODERN_DEFAULT"` in PCF's config. |
+| Mohist           | 1.19.2     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
+| Arclight         | 1.19.3     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
+| Magma            | 1.19.3     | Forge     | ✅                 | ✅           | PCF's pre-login hooks don't work. Magma's built-in modern forwarding works.                                                                             |
+| Arclight         | 1.19.4     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
+| Mohist           | 1.19.4     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
+| Arclight         | 1.20.1     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
+| Ketting          | 1.20.1     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
+| Magma            | 1.20.1     | Forge     | ❌                 | ?           | May be the same issue as 1.18.2, except here Magma's built-in modern forwarding doesn't work.                                                           |
+| Magma Maintained | 1.20.1     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
+| Mohist           | 1.20.1     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
+| Arclight         | 1.20.2     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
+| Ketting          | 1.20.2     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
+| Mohist           | 1.20.2     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
+| Arclight         | 1.20.4     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
+| Arclight         | 1.20.4     | NeoForge  | ?                 | ?           | Wouldn't finish starting, even without PCF.                                                                                                             |
+| Ketting          | 1.20.4     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
+| Arclight         | 1.21.1     | Forge     | ?                 | ?           | Wouldn't start, even without PCF.                                                                                                                       |
+| Arclight         | 1.21.1     | NeoForge  | ✅                 | ✅           |                                                                                                                                                         |
+| Magma Neo        | 1.21.1     | NeoForge  | ✅                 | ✅           |                                                                                                                                                         |
+| TenetNeo         | 1.21.1     | NeoForge  | ?                 | ?           | Wouldn't start, even without PCF.                                                                                                                       |
+| Youer            | 1.21.1     | NeoForge  | ?                 | ?           | Youer automatically removes PCF, leaving Youer without any way to wrap modded command args.                                                             |
