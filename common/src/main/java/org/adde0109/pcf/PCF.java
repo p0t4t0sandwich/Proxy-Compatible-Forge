@@ -76,7 +76,8 @@ public final class PCF {
 
             loader.load();
         } catch (final Exception e) {
-            throw new RuntimeException("Failed to access " + MOD_NAME + " Mod Resources: " + e.getClass(), e);
+            throw new RuntimeException(
+                    "Failed to access " + MOD_NAME + " Mod Resources: " + e.getClass(), e);
         }
         loader.onInit();
 
@@ -129,8 +130,10 @@ public final class PCF {
             } else if (Constraints.builder()
                     .or(
                             Constraint.range(MinecraftVersions.V12_2, MinecraftVersions.V19_4)
+                                    .platform(Platforms.CATSERVER, Platforms.MOHIST),
+                            Constraint.range(MinecraftVersions.V12_2, MinecraftVersions.V18_2)
                                     .platform(
-                                            Platforms.CATSERVER, Platforms.MAGMA, Platforms.MOHIST),
+                                            Platforms.MAGMA), // TODO: Magma 1.19.3 is having issues
                             Constraint.builder()
                                     .platform(Platforms.MAGMA, Platforms.KETTING)
                                     .version(MinecraftVersions.V20_1))
