@@ -21,7 +21,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 // spotless:off
 @AConstraint(
-        platform = {Platform.ARCLIGHT, Platform.CATSERVER, Platform.MAGMA, Platform.MOHIST},
+        platform = {
+            Platform.ARCLIGHT,
+            Platform.CATSERVER,
+            Platform.KETTING,
+            Platform.MAGMA,
+            Platform.MOHIST
+        },
         version = @Versions(min = MinecraftVersion.V17))
 @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
 @Mixin(ServerLoginPacketListenerImpl.class)

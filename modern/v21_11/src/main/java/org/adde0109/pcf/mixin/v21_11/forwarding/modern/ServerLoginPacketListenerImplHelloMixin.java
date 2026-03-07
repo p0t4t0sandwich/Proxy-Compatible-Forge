@@ -20,7 +20,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 // spotless:off
 @AConstraints({
     @AConstraint(
-            platform = {Platform.ARCLIGHT, Platform.CATSERVER, Platform.MAGMA, Platform.MOHIST},
+            platform = {
+                Platform.ARCLIGHT,
+                Platform.CATSERVER,
+                Platform.KETTING,
+                Platform.MAGMA,
+                Platform.MOHIST
+            },
             invert = true),
     @AConstraint(version = @Versions(min = MinecraftVersion.V17))
 })
