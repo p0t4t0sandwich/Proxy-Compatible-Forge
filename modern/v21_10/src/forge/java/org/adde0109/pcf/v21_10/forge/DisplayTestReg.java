@@ -19,6 +19,10 @@ import org.adde0109.pcf.PCFInitializer;
             version = @Versions(value = {MinecraftVersion.V18_2, MinecraftVersion.V19_4}),
             invert = true),
     @AConstraint(
+            platform = Platform.KETTING,
+            version = @Versions(MinecraftVersion.V20_4),
+            invert = true),
+    @AConstraint(
             platform = {Platform.MAGMA, Platform.MOHIST},
             version = @Versions(MinecraftVersion.V20_1),
             invert = true),
