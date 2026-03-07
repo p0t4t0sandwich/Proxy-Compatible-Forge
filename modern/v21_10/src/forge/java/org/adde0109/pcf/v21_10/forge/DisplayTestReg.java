@@ -16,7 +16,7 @@ import org.adde0109.pcf.PCFInitializer;
     @AConstraint(platform = Platform.FORGE, version = @Versions(min = MinecraftVersion.V18_2)),
     @AConstraint( // TODO: Filter based on Forge version
             platform = {Platform.ARCLIGHT, Platform.MAGMA, Platform.MOHIST},
-            version = @Versions(MinecraftVersion.V18_2),
+            version = @Versions(value = {MinecraftVersion.V18_2, MinecraftVersion.V19_4}),
             invert = true),
     @AConstraint(
             version =

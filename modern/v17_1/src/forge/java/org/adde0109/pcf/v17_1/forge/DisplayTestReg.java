@@ -13,23 +13,24 @@ import net.minecraftforge.fml.ModLoadingContext;
 
 import org.adde0109.pcf.PCFInitializer;
 
-@AConstraints({
-    @AConstraint( // TODO: Filter based on Forge version
-            platform = {Platform.ARCLIGHT, Platform.MAGMA, Platform.MOHIST},
-            version = @Versions(MinecraftVersion.V18_2)),
-    @AConstraint(
-            platform = Platform.FORGE,
-            version =
-                    @Versions(
-                            value = {
-                                MinecraftVersion.V19,
-                                MinecraftVersion.V19_1,
-                                MinecraftVersion.V19_3,
-                                MinecraftVersion.V20_2
-                            },
-                            min = MinecraftVersion.V17,
-                            max = MinecraftVersion.V18_1))
-})
+@AConstraints(
+        or = {
+            @AConstraint( // TODO: Filter based on Forge version
+                    platform = {Platform.ARCLIGHT, Platform.MAGMA, Platform.MOHIST},
+                    version = @Versions(value = {MinecraftVersion.V18_2, MinecraftVersion.V19_4})),
+            @AConstraint(
+                    platform = Platform.FORGE,
+                    version =
+                            @Versions(
+                                    value = {
+                                        MinecraftVersion.V19,
+                                        MinecraftVersion.V19_1,
+                                        MinecraftVersion.V19_3,
+                                        MinecraftVersion.V20_2
+                                    },
+                                    min = MinecraftVersion.V17,
+                                    max = MinecraftVersion.V18_1))
+        })
 public final class DisplayTestReg implements PCFInitializer {
     @Override
     public void onInit() {
