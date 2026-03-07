@@ -9,21 +9,19 @@ import dev.neuralnexus.taterapi.meta.anno.Versions;
 import dev.neuralnexus.taterapi.meta.enums.MinecraftVersion;
 import dev.neuralnexus.taterapi.meta.enums.Platform;
 
-import net.minecraft.server.network.ServerLoginPacketListenerImpl;
-
 import org.adde0109.pcf.forwarding.modern.ServerLoginPacketListenerBridge;
-import org.apache.commons.lang3.Validate;
 import org.jspecify.annotations.NonNull;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 // spotless:off
 @AConstraints({
-    @AConstraint(platform = Platform.ARCLIGHT, invert = true),
+    @AConstraint(
+            platform = {Platform.ARCLIGHT, Platform.CATSERVER, Platform.MAGMA, Platform.MOHIST},
+            invert = true),
     @AConstraint(version = @Versions(min = MinecraftVersion.V17))
 })
 @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
@@ -56,32 +54,6 @@ public abstract class ServerLoginPacketListenerImplHelloMixin
             target = "Lnet/minecraft/server/network/ServerLoginPacketListenerImpl;startClientVerification(Lcom/mojang/authlib/GameProfile;)V"))
     private void onHandleHello_20_M(final @NonNull CallbackInfo ci) {
         handleHello(this, ci);
-    }
-
-    @AConstraint(platform = Platform.ARCLIGHT, version = @Versions(min = MinecraftVersion.V17))
-    @Mixin(ServerLoginPacketListenerImpl.class)
-    public static class ArclightMixin {
-        @AConstraint(mappings = Mappings.SEARGE)
-        @Shadow ServerLoginPacketListenerImpl.State f_10019_;
-
-        @AConstraint(mappings = Mappings.SEARGE)
-        @Inject(method = "m_5990_", require = 0, cancellable = true, at = @At(value = "HEAD"))
-        private void onHandleHelloArclightS(final @NonNull CallbackInfo ci) {
-            Validate.validState(
-                    this.f_10019_ == ServerLoginPacketListenerImpl.State.HELLO, "Unexpected hello packet");
-            handleHello((ServerLoginPacketListenerBridge) this, ci);
-        }
-
-        @AConstraint(mappings = Mappings.MOJANG)
-        @Shadow private ServerLoginPacketListenerImpl.State state;
-
-        @AConstraint(mappings = Mappings.MOJANG)
-        @Inject(method = "handleHello", require = 0, cancellable = true, at = @At(value = "HEAD"))
-        private void onHandleHelloArclightM(final @NonNull CallbackInfo ci) {
-            Validate.validState(
-                    this.state == ServerLoginPacketListenerImpl.State.HELLO, "Unexpected hello packet");
-            handleHello((ServerLoginPacketListenerBridge) this, ci);
-        }
     }
 }
 // spotless:on
