@@ -22,7 +22,7 @@ public interface SpigotPreLogin {
      * href="https://github.com/Teneted/Tenet/blob/1.19.4/patches/minecraft/net/minecraft/server/network/ServerLoginPacketListenerImpl.java.patch">Mohist
      * 1.12.2, 1.16.5, 1.18.2, 1.19.2, 1.19.4</a>
      */
-    class Legacy {
+    final class Legacy {
         private static MethodHandle loginHandler;
         private static MethodHandle fireEvents;
 
@@ -56,7 +56,7 @@ public interface SpigotPreLogin {
      * href="https://github.com/Teneted/Tenet/blob/1.20.2/patches/minecraft/net/minecraft/server/network/ServerLoginPacketListenerImpl.java.patch">Mohist
      * 1.20.2</a>
      */
-    class V20_2 {
+    final class V20_2 {
         private static MethodHandle loginHandler;
         private static MethodHandle fireEvents;
 
@@ -97,7 +97,26 @@ public interface SpigotPreLogin {
      * href="https://github.com/Teneted/NeoTenet/blob/1.21.10/paper-patches/sources/net/minecraft/server/network/ServerLoginPacketListenerImpl.java.patch">NeoTenet
      * 1.21.1, 1.21.10</a>
      */
-    interface V20_5 {
-        void callPlayerPreLoginEvents(GameProfile profile) throws Exception;
+    final class V20_5 {
+        private static MethodHandle callPlayerPreLoginEvents;
+
+        public static void callPlayerPreLoginEvents(
+                final @NonNull ServerLoginPacketListenerBridge slpl,
+                final @NonNull GameProfile profile)
+                throws Exception {
+            if (callPlayerPreLoginEvents == null) {
+                final MethodHandles.Lookup lookup =
+                        MethodHandles.privateLookupIn(slpl.getClass(), MethodHandles.lookup());
+                final MethodType methodType = MethodType.methodType(void.class, GameProfile.class);
+                callPlayerPreLoginEvents =
+                        lookup.findVirtual(slpl.getClass(), "callPlayerPreLoginEvents", methodType);
+            }
+
+            try {
+                callPlayerPreLoginEvents.invoke(slpl, profile);
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

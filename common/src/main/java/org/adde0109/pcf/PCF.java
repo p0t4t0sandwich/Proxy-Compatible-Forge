@@ -175,7 +175,7 @@ public final class PCF {
                         "[Neo]Forge+Bukkit hybrid detected, applying pre-login post processor");
                 ModernForwarding.postProcessors.addFirst(
                         (slpl, profile, c) ->
-                                ((SpigotPreLogin.V20_5) slpl).callPlayerPreLoginEvents(profile));
+                                SpigotPreLogin.V20_5.callPlayerPreLoginEvents(slpl, profile));
             }
 
             if (Constraint.range(MinecraftVersions.V16, MinecraftVersions.V18_2)
