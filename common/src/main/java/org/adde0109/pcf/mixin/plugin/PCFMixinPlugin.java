@@ -1,5 +1,6 @@
 package org.adde0109.pcf.mixin.plugin;
 
+import static org.adde0109.pcf.forwarding.modern.VelocityProxy.Version.MODERN_DEFAULT;
 import static org.adde0109.pcf.forwarding.modern.VelocityProxy.Version.MODERN_FORWARDING_WITH_KEY;
 import static org.adde0109.pcf.forwarding.modern.VelocityProxy.Version.MODERN_FORWARDING_WITH_KEY_V2;
 import static org.adde0109.pcf.forwarding.modern.VelocityProxy.Version.NO_OVERRIDE;
@@ -99,7 +100,8 @@ public final class PCFMixinPlugin implements IMixinConfigPlugin {
                 && Constraint.range(MinecraftVersions.V19_1, MinecraftVersions.V19_2).result()
                 && advanced.modernForwardingVersion() != MODERN_FORWARDING_WITH_KEY_V2
                 && (m.endsWith("KeyV2Mixin")
-                        || m.endsWith("LastSeenMessagesValidatorMixin")
+                        && advanced.modernForwardingVersion() != MODERN_DEFAULT)
+                && (m.endsWith("LastSeenMessagesValidatorMixin")
                         || m.endsWith("PlayerChatMessageMixin")
                         || m.endsWith("SignedMessageChainMixin"))) {
             PCF.logger.debug(
