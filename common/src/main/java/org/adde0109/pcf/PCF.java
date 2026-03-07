@@ -102,8 +102,7 @@ public final class PCF {
                 } else if (Constraint.noLessThan(MinecraftVersions.V20_3).result()) {
                     ModernForwarding.postProcessors.removeFirst();
                     ModernForwarding.postProcessors.add(
-                            (slpl, profile, c) ->
-                                    ((ArclightPreLogin.V20_4) slpl).bridge$preLogin(profile));
+                            (slpl, profile, c) -> ArclightPreLogin.V20_4.preLogin(slpl, profile));
                 }
             } else if (Constraint.builder()
                     .platform(Platforms.MOHIST)

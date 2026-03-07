@@ -15,7 +15,7 @@ public interface ArclightPreLogin {
      * href="https://github.com/IzzelAliz/Arclight/blob/Trials/arclight-common/src/main/java/io/izzel/arclight/common/mixin/core/network/ServerLoginNetHandlerMixin.java">Used
      * for Arclight 1.14 - 1.20.1</a>
      */
-    class V14 {
+    final class V14 {
         private static MethodHandle preLogin;
 
         public static void preLogin(final @NonNull ServerLoginPacketListenerBridge slpl)
@@ -40,7 +40,7 @@ public interface ArclightPreLogin {
      * href="https://github.com/IzzelAliz/Arclight/blob/Net/arclight-common/src/main/java/io/izzel/arclight/common/mixin/core/network/ServerLoginNetHandlerMixin.java">Used
      * for Arclight 1.20.2 - 1.20.3</a>
      */
-    class V20_2 {
+    final class V20_2 {
         private static MethodHandle preLogin;
 
         public static void preLogin(
@@ -71,7 +71,24 @@ public interface ArclightPreLogin {
      * href="https://github.com/IzzelAliz/Arclight/blob/FeudalKings/arclight-common/src/main/java/io/izzel/arclight/common/mixin/core/network/ServerLoginPacketListenerImplMixin.java">Arclight
      * 1.20.5+.</a>
      */
-    interface V20_4 {
-        void bridge$preLogin(GameProfile profile) throws Exception;
+    final class V20_4 {
+        private static MethodHandle preLogin;
+
+        public static void preLogin(
+                final @NonNull ServerLoginPacketListenerBridge slpl,
+                final @NonNull GameProfile profile)
+                throws Exception {
+            if (preLogin == null) {
+                final MethodHandles.Lookup lookup = MethodHandles.lookup();
+                final MethodType methodType = MethodType.methodType(void.class, GameProfile.class);
+                preLogin = lookup.findVirtual(slpl.getClass(), "bridge$preLogin", methodType);
+            }
+
+            try {
+                preLogin.invoke(slpl, profile);
+            } catch (final Throwable e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
