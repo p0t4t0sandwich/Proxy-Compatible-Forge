@@ -70,3 +70,4 @@ Try adding [BeQuietNegotiator](<https://modrinth.com/mod/be-quiet-negotiator>) t
 | CatServer       | 1.16.5     | ✅                 | ✅           |                                                           |
 | Magma           | 1.16.5     | ✅                 | ✅           | Magma 1.16.5 is unstable in general and shouldn't be used |
 | Mohist          | 1.16.5     | ✅                 | ✅           |                                                           |
+| Arclight        | 1.17.1     | ✅                 | ✅           |                                                           |

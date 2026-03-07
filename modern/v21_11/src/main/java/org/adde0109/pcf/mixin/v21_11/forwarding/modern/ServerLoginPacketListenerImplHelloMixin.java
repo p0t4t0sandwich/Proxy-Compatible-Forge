@@ -59,12 +59,25 @@ public abstract class ServerLoginPacketListenerImplHelloMixin
     }
 
     @AConstraint(platform = Platform.ARCLIGHT, version = @Versions(min = MinecraftVersion.V17))
-    @Mixin(targets = "net.minecraft.server.network.ServerLoginPacketListenerImpl")
+    @Mixin(ServerLoginPacketListenerImpl.class)
     public static class ArclightMixin {
+        @AConstraint(mappings = Mappings.SEARGE)
+        @Shadow ServerLoginPacketListenerImpl.State f_10019_;
+
+        @AConstraint(mappings = Mappings.SEARGE)
+        @Inject(method = "m_5990_", require = 0, cancellable = true, at = @At(value = "HEAD"))
+        private void onHandleHelloArclightS(final @NonNull CallbackInfo ci) {
+            Validate.validState(
+                    this.f_10019_ == ServerLoginPacketListenerImpl.State.HELLO, "Unexpected hello packet");
+            handleHello((ServerLoginPacketListenerBridge) this, ci);
+        }
+
+        @AConstraint(mappings = Mappings.MOJANG)
         @Shadow private ServerLoginPacketListenerImpl.State state;
 
-        @Inject(method = {"handleHello", "m_5990_"}, require = 0, cancellable = true, at = @At(value = "HEAD"))
-        private void onHandleHelloArclight(final @NonNull CallbackInfo ci) {
+        @AConstraint(mappings = Mappings.MOJANG)
+        @Inject(method = "handleHello", require = 0, cancellable = true, at = @At(value = "HEAD"))
+        private void onHandleHelloArclightM(final @NonNull CallbackInfo ci) {
             Validate.validState(
                     this.state == ServerLoginPacketListenerImpl.State.HELLO, "Unexpected hello packet");
             handleHello((ServerLoginPacketListenerBridge) this, ci);
