@@ -27,6 +27,10 @@ import org.adde0109.pcf.PCFInitializer;
             version = @Versions(MinecraftVersion.V20_1),
             invert = true),
     @AConstraint(
+            platform = Platform.GOLDENFORGE,
+            version = @Versions(MinecraftVersion.V19_2),
+            invert = true),
+    @AConstraint(
             version =
                     @Versions({
                         MinecraftVersion.V19,

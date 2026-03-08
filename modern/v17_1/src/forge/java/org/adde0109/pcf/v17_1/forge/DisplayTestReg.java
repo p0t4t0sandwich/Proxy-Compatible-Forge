@@ -23,6 +23,9 @@ import org.adde0109.pcf.PCFInitializer;
                     platform = {Platform.MAGMA, Platform.MOHIST},
                     version = @Versions(MinecraftVersion.V20_1)),
             @AConstraint(
+                    platform = Platform.GOLDENFORGE,
+                    version = @Versions(MinecraftVersion.V19_2)),
+            @AConstraint(
                     platform = Platform.FORGE,
                     version =
                             @Versions(
