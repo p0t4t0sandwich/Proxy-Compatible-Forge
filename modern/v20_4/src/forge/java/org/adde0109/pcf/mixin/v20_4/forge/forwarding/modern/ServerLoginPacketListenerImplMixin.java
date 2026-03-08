@@ -14,6 +14,7 @@ import net.minecraft.server.network.ServerLoginPacketListenerImpl;
 import org.adde0109.pcf.forwarding.modern.ConnectionBridge;
 import org.adde0109.pcf.forwarding.modern.ServerLoginPacketListenerBridge;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -29,6 +30,9 @@ public abstract class ServerLoginPacketListenerImplMixin
 
     @AConstraint(version = @Versions(min = MinecraftVersion.V20_2))
     @Shadow abstract void shadow$startClientVerification(GameProfile profile);
+
+    @AConstraint(version = @Versions(min = MinecraftVersion.V20_2))
+    @Shadow private @Nullable GameProfile authenticatedProfile;
 
     @Unique private int pcf$velocityLoginMessageId = -1;
     // spotless:on
@@ -51,6 +55,12 @@ public abstract class ServerLoginPacketListenerImplMixin
     @Override
     public void bridge$disconnect(final @NonNull Object reason) {
         this.shadow$onDisconnect((Component) reason);
+    }
+
+    @AConstraint(version = @Versions(min = MinecraftVersion.V20_2))
+    @Override
+    public void bridge$setGameProfile(final @NonNull GameProfile profile) {
+        this.authenticatedProfile = profile;
     }
 
     @AConstraint(version = @Versions(min = MinecraftVersion.V20_2))

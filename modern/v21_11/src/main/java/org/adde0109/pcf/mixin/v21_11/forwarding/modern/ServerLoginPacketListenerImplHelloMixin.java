@@ -4,8 +4,10 @@ import static org.adde0109.pcf.forwarding.modern.ModernForwarding.handleHello;
 
 import dev.neuralnexus.taterapi.meta.Mappings;
 import dev.neuralnexus.taterapi.meta.anno.AConstraint;
+import dev.neuralnexus.taterapi.meta.anno.AConstraints;
 import dev.neuralnexus.taterapi.meta.anno.Versions;
 import dev.neuralnexus.taterapi.meta.enums.MinecraftVersion;
+import dev.neuralnexus.taterapi.meta.enums.Platform;
 
 import org.adde0109.pcf.forwarding.modern.ServerLoginPacketListenerBridge;
 import org.jspecify.annotations.NonNull;
@@ -16,12 +18,23 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 // spotless:off
-@AConstraint(version = @Versions(min = MinecraftVersion.V17))
+@AConstraints({
+    @AConstraint(
+            platform = {
+                Platform.ARCLIGHT,
+                Platform.CATSERVER,
+                Platform.KETTING,
+                Platform.MAGMA,
+                Platform.MOHIST
+            },
+            invert = true),
+    @AConstraint(version = @Versions(min = MinecraftVersion.V17))
+})
 @SuppressWarnings({"MixinAnnotationTarget", "UnresolvedMixinReference"})
 @Mixin(targets = "net.minecraft.server.network.ServerLoginPacketListenerImpl")
 public abstract class ServerLoginPacketListenerImplHelloMixin
         implements ServerLoginPacketListenerBridge {
-    @AConstraint(mappings = Mappings.SEARGE, version = @Versions(min = MinecraftVersion.V17, max = MinecraftVersion.V18_2))
+    @AConstraint(mappings = Mappings.SEARGE, version = @Versions(max = MinecraftVersion.V18_2))
     @Inject(method = "m_5990_", cancellable = true, at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD, ordinal = 1,
             target = "Lnet/minecraft/server/network/ServerLoginPacketListenerImpl;f_10019_:Lnet/minecraft/server/network/ServerLoginPacketListenerImpl$State;"))
     private void onHandleHello_17(final @NonNull CallbackInfo ci) {

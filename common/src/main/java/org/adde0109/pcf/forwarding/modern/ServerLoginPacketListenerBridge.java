@@ -16,6 +16,8 @@ public interface ServerLoginPacketListenerBridge {
 
     void bridge$disconnect(final @NonNull Object reason);
 
+    void bridge$setGameProfile(final @NonNull GameProfile profile);
+
     void bridge$startClientVerification(final @NonNull GameProfile profile);
 
     void bridge$logger_info(final @NonNull String text, final Object... params);

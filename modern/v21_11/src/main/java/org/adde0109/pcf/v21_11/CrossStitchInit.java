@@ -33,7 +33,7 @@ public final class CrossStitchInit implements PCFInitializer {
 
         CrossStitch.INFO_DUMP =
                 () -> {
-                    PCF.logger.info("Registered Command Argument Types:");
+                    PCF.logger.debug("Registered Command Argument Types:");
                     for (final Map.Entry<
                                     ResourceKey<ArgumentTypeInfo<?, ?>>, ArgumentTypeInfo<?, ?>>
                             entry : BuiltInRegistries.COMMAND_ARGUMENT_TYPE.entrySet()) {

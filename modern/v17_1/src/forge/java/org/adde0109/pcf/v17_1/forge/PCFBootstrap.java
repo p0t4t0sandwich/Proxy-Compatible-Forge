@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 public final class PCFBootstrap {
     public static Supplier<@NonNull String> IGNORE_SERVER_ONLY =
             () -> {
-                throw new IllegalStateException("Not initialized");
+                throw new IllegalStateException("DisplayTest value Not initialized");
             };
 
     public static final BiPredicate<@NonNull String, Boolean> REMOTE_VERSION_TEST =

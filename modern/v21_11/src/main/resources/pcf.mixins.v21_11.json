@@ -12,6 +12,7 @@
     "v21_11.crossstich.ArgumentTypeInfoMixin",
     "v21_11.forwarding.modern.ConnectionMixin",
     "v21_11.forwarding.modern.ServerboundCustomQueryAnswerPacketMixin",
+    "v21_11.forwarding.modern.ServerLoginPacketListenerImplHelloHybridMixin",
     "v21_11.forwarding.modern.ServerLoginPacketListenerImplHelloMixin",
     "v21_11.forwarding.modern.ServerLoginPacketListenerImplMixin",
     "v21_11.forwarding.modern.ServerLoginPacketListenerImplQueryMixin"

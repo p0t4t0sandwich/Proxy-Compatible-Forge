@@ -23,7 +23,7 @@ public final class CrossStitchInit implements PCFInitializer {
 
         CrossStitch.INFO_DUMP =
                 () -> {
-                    PCF.logger.info("Registered Command Argument Types:");
+                    PCF.logger.debug("Registered Command Argument Types:");
                     for (final ArgumentTypes.Entry<?> entry :
                             ArgumentTypesAccessor.pcf$getByClass().values()) {
                         PCF.logger.debug(" - " + entry.name + " -> " + entry.serializer.getClass());

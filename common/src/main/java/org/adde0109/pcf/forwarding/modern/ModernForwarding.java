@@ -6,15 +6,13 @@ import static dev.neuralnexus.taterapi.network.chat.Component.translatable;
 import static org.adde0109.pcf.forwarding.modern.ReflectionUtils.enforceSecureProfile;
 import static org.adde0109.pcf.forwarding.modern.VelocityProxy.MODERN_MAX_VERSION;
 import static org.adde0109.pcf.forwarding.modern.VelocityProxy.PLAYER_INFO_PAYLOAD;
-import static org.adde0109.pcf.forwarding.modern.VelocityProxy.Version.MODERN_DEFAULT;
-import static org.adde0109.pcf.forwarding.modern.VelocityProxy.Version.MODERN_FORWARDING_WITH_KEY;
-import static org.adde0109.pcf.forwarding.modern.VelocityProxy.Version.MODERN_FORWARDING_WITH_KEY_V2;
 import static org.adde0109.pcf.forwarding.modern.VelocityProxy.checkIntegrity;
+
+import com.mojang.authlib.GameProfile;
 
 import dev.neuralnexus.taterapi.event.Cancellable;
 import dev.neuralnexus.taterapi.meta.Constraint;
 import dev.neuralnexus.taterapi.meta.MinecraftVersions;
-import dev.neuralnexus.taterapi.meta.Platforms;
 import dev.neuralnexus.taterapi.mixin.CancellableMixin;
 import dev.neuralnexus.taterapi.network.chat.ThrowingComponent;
 import dev.neuralnexus.taterapi.network.protocol.login.ClientboundCustomQueryPacket;
@@ -26,18 +24,17 @@ import io.netty.handler.codec.DecoderException;
 
 import org.adde0109.pcf.PCF;
 import org.adde0109.pcf.forwarding.Mode;
-import org.adde0109.pcf.forwarding.compat.ArclightBridge;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.net.InetSocketAddress;
 import java.security.InvalidKeyException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.BiConsumer;
 
 /**
  * Utility class for modern forwarding handling. <br>
@@ -103,8 +100,43 @@ public final class ModernForwarding {
     }
 
     @ApiStatus.Internal
-    public static BiConsumer<@NonNull ServerLoginPacketListenerBridge, @NonNull ByteBuf>
-            preProcessor = (slpl, buf) -> {};
+    @FunctionalInterface
+    public interface PreProcessor {
+        void process(
+                final @NonNull ServerLoginPacketListenerBridge slpl, final @NonNull ByteBuf buf);
+    }
+
+    @ApiStatus.Internal
+    @FunctionalInterface
+    public interface PostProcessor {
+        /**
+         * Process the forwarded profile
+         *
+         * @param slpl the ServerLoginPacketListener
+         * @param profile the forwarded GameProfile
+         * @param c the cancellable wrapper
+         * @throws Exception if an error occurs
+         */
+        void process(
+                final @NonNull ServerLoginPacketListenerBridge slpl,
+                final @NonNull GameProfile profile,
+                final @NonNull Cancellable c)
+                throws Exception;
+    }
+
+    @ApiStatus.Internal public static PreProcessor preProcessor = (slpl, buf) -> {};
+
+    private static final PostProcessor DEFAULT_POST_PROCESSOR =
+            (slpl, profile, c) -> {
+                final NameAndId nameAndId = new NameAndId(profile);
+                slpl.bridge$logger_info(
+                        "UUID of player {} is {}", nameAndId.name(), nameAndId.id());
+                slpl.bridge$startClientVerification(profile);
+            };
+
+    @ApiStatus.Internal
+    public static final List<PostProcessor> postProcessors =
+            new ArrayList<>(List.of(DEFAULT_POST_PROCESSOR));
 
     private static final Object DIRECT_CONNECT_ERR =
             literal("This server requires you to connect with Velocity.");
@@ -154,24 +186,24 @@ public final class ModernForwarding {
      * @param slpl The ServerLoginPacketListenerImpl
      * @param transactionId The transaction ID
      * @param mcPacket The Minecraft packet
-     * @param ci The callback info wrapper
+     * @param c The cancellable wrapper
      */
     public static void handleCustomQueryPacket(
             final @NonNull ServerLoginPacketListenerBridge slpl,
             final int transactionId,
             final @NonNull Object mcPacket,
-            final @NonNull Cancellable ci) {
+            final @NonNull Cancellable c) {
         if (transactionId != slpl.bridge$velocityLoginMessageId()) {
             return;
         }
         final ServerboundCustomQueryAnswerPacket packet =
                 ServerboundCustomQueryAnswerPacket.fromMC(mcPacket);
         try {
-            handleCustomQueryPacket(slpl, packet);
-        } catch (ThrowingComponent e) {
+            handleCustomQueryPacket(slpl, packet, c);
+        } catch (final ThrowingComponent e) {
             slpl.bridge$disconnect(e.getComponent());
         }
-        ci.cancel();
+        c.cancel();
     }
 
     /**
@@ -179,10 +211,12 @@ public final class ModernForwarding {
      *
      * @param slpl The ServerLoginPacketListenerImpl
      * @param packet The Minecraft packet
+     * @param c The cancellable wrapper
      */
     public static void handleCustomQueryPacket(
             final @NonNull ServerLoginPacketListenerBridge slpl,
-            final @NonNull ServerboundCustomQueryAnswerPacket packet) {
+            final @NonNull ServerboundCustomQueryAnswerPacket packet,
+            final @NonNull Cancellable c) {
         // Validate payload presence
         if (packet.payload() == null) {
             throw new ThrowingComponent(DIRECT_CONNECT_ERR);
@@ -193,7 +227,7 @@ public final class ModernForwarding {
         }
 
         // Apply fixes
-        preProcessor.accept(slpl, packet.payload().data());
+        preProcessor.process(slpl, packet.payload().data());
 
         // Remove transaction ID from pending set
         TRANSACTION_IDS.remove(packet.transactionId());
@@ -203,7 +237,7 @@ public final class ModernForwarding {
             if (!checkIntegrity(packet.payload().data())) {
                 throw new ThrowingComponent(PLAYER_INFO_ERR);
             }
-        } catch (AssertionError e) {
+        } catch (final AssertionError e) {
             if (e.getCause() instanceof InvalidKeyException
                     && PCF.instance().forwarding().secret().isBlank()) {
                 PCF.logger.error(
@@ -220,7 +254,7 @@ public final class ModernForwarding {
                 PlayerInfoQueryAnswerPayload.STREAM_CODEC.decode(packet.payload().data());
 
         // Validate version
-        VelocityProxy.Version version = payload.version();
+        final VelocityProxy.Version version = payload.version();
         if (version.id() > MODERN_MAX_VERSION) {
             throw new IllegalStateException(
                     "Unsupported forwarding version "
@@ -251,7 +285,7 @@ public final class ModernForwarding {
                     }
                     ((ServerLoginPacketListenerBridge.KeyV1) slpl)
                             .bridge$setPlayerProfilePublicKey(payload.key());
-                } catch (DecoderException e) {
+                } catch (final DecoderException e) {
                     PCF.logger.error("Public key read failed.", e);
                     if (enforceSecureProfile) {
                         throw new ThrowingComponent(INVALID_SIGNATURE, e);
@@ -265,7 +299,7 @@ public final class ModernForwarding {
                     try {
                         keyV2.bridge$validatePublicKey(payload.key(), payload.signer());
                         keyV2.bridge$setProfilePublicKeyData(payload.key());
-                    } catch (Exception e) {
+                    } catch (final Exception e) {
                         slpl.bridge$logger_error(
                                 "Failed to validate profile key: {}", e.getMessage());
                         throw new ThrowingComponent(INVALID_SIGNATURE, e);
@@ -275,16 +309,15 @@ public final class ModernForwarding {
         }
 
         // Proceed with login
-        final NameAndId nameAndId = new NameAndId(payload.profile());
         try {
-            // TODO: Pull this into a common compat class when other hybrids are supported
-            if (Constraint.builder().platform(Platforms.ARCLIGHT).result()) {
-                ((ArclightBridge) slpl).arclight$preLogin();
-                return;
+            for (final PostProcessor processor : postProcessors) {
+                processor.process(slpl, payload.profile(), c);
+                if (c.cancelled()) {
+                    break;
+                }
             }
-            slpl.bridge$logger_info("UUID of player {} is {}", nameAndId.name(), nameAndId.id());
-            slpl.bridge$startClientVerification(payload.profile());
         } catch (Exception e) {
+            final NameAndId nameAndId = new NameAndId(payload.profile());
             PCF.logger.warn("Exception while forwarding user " + nameAndId.name());
             e.printStackTrace();
             throw new ThrowingComponent(FAILED_TO_VERIFY, e);

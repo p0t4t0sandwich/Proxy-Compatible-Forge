@@ -23,7 +23,7 @@ public final class SCustomQueryAnswerPacketAdapter
         if (object.payload() == null) {
             return Result.success(new ServerboundCustomQueryAnswerPacket(transactionId));
         }
-        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        final FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         object.payload().write(buf);
         return Result.success(
                 new ServerboundCustomQueryAnswerPacket(
