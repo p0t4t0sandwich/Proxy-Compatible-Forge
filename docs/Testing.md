@@ -33,7 +33,6 @@ Used when swathing changes are made to ensure no regressions across supported ve
 | 1.17.1     | Forge           | Forge           |
 | 1.18.2     | Forge           | Forge           |
 | 1.19       | Forge           | Forge           |
-| 1.19.1     | Forge           | Forge           |
 | 1.19.2     | Forge           | Forge           |
 | 1.19.4     | Forge           | Forge           |
 | 1.20.1     | Forge           | Forge           |
