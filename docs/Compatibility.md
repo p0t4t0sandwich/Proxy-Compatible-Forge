@@ -30,19 +30,19 @@
 
 In most cases PCF shouldn't be needed, as Sponge supports legacy+modern forwarding and command argument wrapping. Known exceptions to this rule are listed below.
 
-| MC Version | SpongeAPI Version | SpongeForge | SpongeNeo | Notes                                                                                                                                                      |
-|------------|-------------------|-------------|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 1.16.5     | 8                 | ✅           | N/A       | SF's modern forwarding doesn't work                                                                                                                        |
-| 1.18.2     | 9                 | TBD         | N/A       |                                                                                                                                                            |
-| 1.19.4     | 10                | TBD         | N/A       |                                                                                                                                                            |
-| 1.20.6     | 11                | TBD         | TBD       |                                                                                                                                                            |
-| 1.21.1     | 12                | TBD         | ✅         | SpongeNeo's modern forwarding doesn't work due to an incompatibility caused by Forgified Fabric API is installed (specifically `fabric_networking_api_v1`) |
-| 1.21.3     | 13                | TBD         | TBD       |                                                                                                                                                            |
-| 1.21.4     | 14                | TBD         | TBD       |                                                                                                                                                            |
-| 1.21.5     | 15                | TBD         | TBD       |                                                                                                                                                            |
-| 1.21.8     | 16                | TBD         | TBD       |                                                                                                                                                            |
-| 1.21.10    | 17                | TBD         | TBD       |                                                                                                                                                            |
-| 1.21.11    | 18                | TBD         | TBD       |                                                                                                                                                            |
+| MC Version | SpongeAPI Version | SpongeForge | SpongeNeo | Notes                                                                                                         |
+|------------|-------------------|-------------|-----------|---------------------------------------------------------------------------------------------------------------|
+| 1.16.5     | 8                 | ✅           | N/A       | SF's modern forwarding doesn't work                                                                           |
+| 1.18.2     | 9                 | TBD         | N/A       |                                                                                                               |
+| 1.19.4     | 10                | TBD         | N/A       |                                                                                                               |
+| 1.20.6     | 11                | TBD         | TBD       |                                                                                                               |
+| 1.21.1     | 12                | TBD         | ✅         | SN's modern forwarding doesn't work if Connector/FFAPI is installed (specifically `fabric_networking_api_v1`) |
+| 1.21.3     | 13                | TBD         | TBD       |                                                                                                               |
+| 1.21.4     | 14                | TBD         | TBD       |                                                                                                               |
+| 1.21.5     | 15                | TBD         | TBD       |                                                                                                               |
+| 1.21.8     | 16                | TBD         | TBD       |                                                                                                               |
+| 1.21.10    | 17                | TBD         | TBD       |                                                                                                               |
+| 1.21.11    | 18                | TBD         | TBD       |                                                                                                               |
 
 ## Modpack Compatibility
 
