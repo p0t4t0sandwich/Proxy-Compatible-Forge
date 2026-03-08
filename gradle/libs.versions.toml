@@ -1,4 +1,5 @@
 [versions]
+blossom = "2.2.0"
 jvmdowngrader = "1.3.5"
 netty = "4.1.128.Final"
 shadow = "9.2.2"
@@ -23,6 +24,7 @@ taterlib-lite-metadata = { group = "dev.neuralnexus.taterlib.lite", name = "meta
 taterlib-lite-muxins = { group = "dev.neuralnexus.taterlib.lite", name = "muxins", version.ref = "taterlib-lite" }
 
 [plugins]
+blossom = { id = "net.kyori.blossom", version.ref = "blossom" }
 jvmdowngrader = { id = "xyz.wagyourtail.jvmdowngrader", version.ref = "jvmdowngrader" }
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }

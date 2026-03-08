@@ -1,9 +1,22 @@
 plugins {
+    alias(libs.plugins.blossom)
     alias(libs.plugins.shadow)
 }
 
 base {
     archivesName = "$modId-common"
+}
+
+sourceSets.main {
+    blossom.javaSources {
+        property("mod_id", modId)
+        property("mod_name", modName)
+        property("version", version.toString())
+        property("license", license)
+        property("authors", authors)
+        property("description", description)
+        property("homepage_url", homepageUrl)
+    }
 }
 
 dependencies {

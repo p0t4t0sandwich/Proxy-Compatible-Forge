@@ -12,7 +12,7 @@ import java.io.File
 
 object PCF
 
-val Project.author: String get() = properties["author"].toString()
+val Project.authors: String get() = properties["authors"].toString()
 val Project.modName: String get() = properties["mod_name"].toString()
 val Project.modId: String get() = properties["mod_id"].toString()
 val Project.description: String get() = properties["description"].toString()

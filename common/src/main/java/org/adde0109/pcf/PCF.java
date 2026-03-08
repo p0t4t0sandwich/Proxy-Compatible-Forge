@@ -1,7 +1,6 @@
 package org.adde0109.pcf;
 
 import dev.neuralnexus.taterapi.loader.EntrypointLoader;
-import dev.neuralnexus.taterapi.logger.Logger;
 import dev.neuralnexus.taterapi.meta.Constraint;
 import dev.neuralnexus.taterapi.meta.Constraints;
 import dev.neuralnexus.taterapi.meta.MetaAPI;
@@ -29,15 +28,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 import java.util.List;
 
-public final class PCF {
+public final class PCF extends Constants {
     private PCF() {}
 
-    public static final String MOD_ID = "pcf";
-    public static final String MOD_NAME = "Proxy Compatible Forge";
-    public static final String CONFIG_FILE_NAME = "proxy-compatible-forge.toml";
-
     private static final PCF INSTANCE = new PCF();
-    public static final Logger logger = Logger.create(MOD_ID);
 
     public static PCF instance() {
         return INSTANCE;
