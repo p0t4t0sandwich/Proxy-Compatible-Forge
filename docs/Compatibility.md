@@ -1,5 +1,11 @@
 # Compatibility
 
+## Incompatible Mods
+
+| Mod Name                     | Issue                                                                                             | Solution                                                                                          |
+|------------------------------|---------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| Better Compatibility Checker | Alters the serverlist ping packet in a way that causes Velocity to be unable to read the response | Remove the mod from the backend server, or use an alternate method of querying the backend server |
+
 ## Modern Forwarding and CrossStitch Command Wrapping
 
 | MC Version | Forge | NeoForge | Modern Forwarding | CrossStitch | Notes                                                                                      |
