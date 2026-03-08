@@ -24,7 +24,7 @@
 | 1.10.x     | ✅     | N/A      | ✅                 | N/A         | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy |
 | 1.9.x      | ✅     | N/A      | ✅                 | N/A         | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy |
 | 1.8.x      | ✅     | N/A      | ✅                 | N/A         | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy |
-| 1.7.x      | ✅     | N/A      | ✅                 | N/A         | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy |
+| 1.7.x      | ✅     | N/A      | ✅                 | N/A         | Requires [UniMixins](https://modrinth.com/mod/unimixins) and a modified Velocity proxy     |
 
 ## SpongeForge and SpongeNeo Compatibility
 
