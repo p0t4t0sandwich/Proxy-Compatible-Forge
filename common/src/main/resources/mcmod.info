@@ -10,10 +10,6 @@
     "authorList": [
       "${authors}"
     ],
-    "credits": "${authors}",
-    "screenshots": [],
-    "useDependencyInformation": true,
-    "dependencies": [],
-    "dependants": []
+    "credits": "${authors}"
   }
 ]
