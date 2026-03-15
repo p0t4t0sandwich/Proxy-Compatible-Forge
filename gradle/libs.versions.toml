@@ -4,7 +4,7 @@ jvmdowngrader = "1.3.5"
 netty = "4.1.128.Final"
 shadow = "9.2.2"
 spotless = "8.1.0"
-taterlib-lite = "0.2.0"
+taterlib-lite = "0.2.1-SNAPSHOT"
 unimined = "1.3.16-SNAPSHOT"
 
 [libraries]
