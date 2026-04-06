@@ -138,12 +138,18 @@ public final class CrossStitch {
 
         final FriendlyByteBuf buf = FriendlyByteBuf.wrap(buffer);
         Optional<String> identifier = commandArgumentResourceKey(serializer);
-        if (identifier.isEmpty()) {
-            PCF.logger.debug("Not wrapping argument with unknown identifier.");
+        final int id = commandArgumentTypeId(serializer);
+
+        // Argument is unregistered - so we need to wrap it
+        if (identifier.isEmpty() || id == -1) {
+            PCF.logger.debug(
+                    "Wrapping argument with unknown identifier of Type: "
+                            + serializer.getClass().getName());
+            serializeArgumentType(buf, serializer, properties, id);
+            ci.cancel();
             return;
         }
 
-        final int id = commandArgumentTypeId(serializer);
         if (shouldNotWrapArgument(identifier.get())) {
             PCF.logger.debug(
                     "Not wrapping argument with identifier: " + identifier.get() + " and id " + id);
@@ -155,6 +161,15 @@ public final class CrossStitch {
                 "Wrapping argument with identifier: " + identifier.get() + " and id " + id);
 
         // Serialize the wrapped argument type
+        serializeArgumentType(buf, serializer, properties, id);
+        ci.cancel();
+    }
+
+    private static void serializeArgumentType(
+            final @NonNull FriendlyByteBuf buf,
+            final @NonNull SerializerBridge serializer,
+            final @NonNull Object properties,
+            final int id) {
         buf.writeVarInt(MOD_ARGUMENT_INDICATOR_V2);
         buf.writeVarInt(id);
 
@@ -165,7 +180,5 @@ public final class CrossStitch {
         buf.writeBytes(extraData);
 
         extraData.release();
-
-        ci.cancel();
     }
 }
