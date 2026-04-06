@@ -145,6 +145,7 @@ val shadeAndRelocate = tasks.register<ShadowJar>("shadeAndRelocate") {
                 "Implementation-Vendor" to "adde0109",
                 "Implementation-Timestamp" to Instant.now().toString(),
                 "FMLCorePluginContainsFMLMod" to "true",
+                "ForceLoadAsMod" to "true",
                 "TweakClass" to "org.spongepowered.asm.launch.MixinTweaker",
                 "MixinConfigs" to "$modId.mixins.json"
             )

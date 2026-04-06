@@ -10,7 +10,6 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.login.client.C01PacketEncryptionResponse;
 import net.minecraft.network.login.server.S02PacketLoginSuccess;
 
-import org.adde0109.pcf.v7_10.forge.AdapterRegistryInit;
 import org.adde0109.pcf.v7_10.forge.forwarding.network.C2SCustomQueryAnswerPacket;
 import org.adde0109.pcf.v7_10.forge.forwarding.network.S2CCustomQueryPacket;
 import org.adde0109.pcf.v7_10.forge.forwarding.network.S2CDummyPacket;
@@ -33,7 +32,6 @@ public abstract class EnumConnectionStateMixin {
     private void onRegisterC2S(int id, Class<? extends Packet> packetClass, CallbackInfoReturnable<EnumConnectionState> cir) {
         if (packetClass == C01PacketEncryptionResponse.class) {
             this.shadow$func_150751_a(0x2, C2SCustomQueryAnswerPacket.class);
-            new AdapterRegistryInit(); // TODO: Remove this and figure out why it isn't being loaded
         }
     }
 

@@ -11,7 +11,6 @@ import net.minecraft.network.EnumConnectionState;
 import net.minecraft.network.EnumPacketDirection;
 import net.minecraft.network.Packet;
 
-import org.adde0109.pcf.v12_2.forge.AdapterRegistryInit;
 import org.adde0109.pcf.v12_2.forge.forwarding.network.C2SCustomQueryAnswerPacket;
 import org.adde0109.pcf.v12_2.forge.forwarding.network.S2CCustomQueryPacket;
 import org.spongepowered.asm.mixin.Mixin;
@@ -74,7 +73,6 @@ public abstract class EnumConnectionStateMixin {
         } else if (packetClass == this.pcf$CCheckClass) {
             this.shadow$registerPacket(
                     EnumPacketDirection.SERVERBOUND, C2SCustomQueryAnswerPacket.class);
-            new AdapterRegistryInit(); // TODO: Remove this and figure out why it isn't being loaded
         }
     }
 }
