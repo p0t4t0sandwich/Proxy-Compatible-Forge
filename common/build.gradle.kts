@@ -38,6 +38,7 @@ dependencies {
 }
 
 tasks.withType<ProcessResources> {
+    filteringCharset = Charsets.UTF_8.name()
     filesMatching(listOf(
             "META-INF/mods.toml",
             "META-INF/neoforge.mods.toml",

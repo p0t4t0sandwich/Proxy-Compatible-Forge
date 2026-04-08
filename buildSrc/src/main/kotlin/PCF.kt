@@ -32,7 +32,7 @@ val Project.mcpVersion: String get() = properties["mcp_version"].toString()
 val Project.forgeVersion: String get() = properties["forge_version"].toString()
 val Project.neoforgeVersion: String get() = properties["neoforge_version"].toString()
 
-val Project.javaVersion: String get() = properties["java_version"].toString()
+val Project.javaVersion: Int get() = properties["java_version"].toString().toInt()
 
 fun Project.jarToFiles(taskName: String): FileCollection {
     val jar: Jar = when (val task = tasks.getByName(taskName)) {

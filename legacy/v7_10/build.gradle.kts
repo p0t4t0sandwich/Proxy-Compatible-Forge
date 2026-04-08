@@ -4,23 +4,17 @@ val forgeCompileOnly: Configuration by configurations.getting {
     extendsFrom(mainCompileOnly)
 }
 
-unimined.minecraft(sourceSets.main.get()) {
+unimined.minecraft(forge) {
     version(minecraftVersion)
     mappings {
         searge()
         mcp(mcpChannel, mcpVersion)
     }
-    defaultRemapJar = false
-}
-
-unimined.minecraft(forge) {
-    combineWith(sourceSets.main.get())
     minecraftForge {
         loader(forgeVersion)
         mixinConfig("$modId.mixins.v7_10.forge.json")
         accessTransformer(aw2at(rootProject.file("common/src/main/resources/accessWidener.aw")))
     }
-    defaultRemapJar = true
 }
 
 dependencies {

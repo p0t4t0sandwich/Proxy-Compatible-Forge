@@ -15,7 +15,9 @@ unimined.minecraft(sourceSets.main.get()) {
         mojmap()
         devFallbackNamespace("official")
     }
-    defaultRemapJar = false
+    if (sourceSet == sourceSets.main.get()) {
+        defaultRemapJar = false
+    }
 }
 
 unimined.minecraft(forge) {
@@ -23,7 +25,6 @@ unimined.minecraft(forge) {
     minecraftForge {
         loader(forgeVersion)
     }
-    defaultRemapJar = true
 }
 
 unimined.minecraft(neoforge) {
@@ -31,7 +32,6 @@ unimined.minecraft(neoforge) {
     neoForge {
         loader(neoforgeVersion)
     }
-    defaultRemapJar = true
 }
 
 dependencies {
