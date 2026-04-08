@@ -61,7 +61,7 @@ public abstract class ServerLoginPacketListenerImplMixin
     @AConstraint(
             platform = {Platform.ARCLIGHT, Platform.CATSERVER, Platform.MAGMA, Platform.MOHIST})
     @Inject(method = "handleHello", cancellable = true, at = @At(value = "HEAD"))
-    private void onHandleHelloArclight(final @NonNull CallbackInfo ci) {
+    private void onHandleHelloHybrid(final @NonNull CallbackInfo ci) {
         Validate.validState(
                 this.state == ServerLoginPacketListenerImpl.State.HELLO, "Unexpected hello packet");
         handleHello(this, ci);
