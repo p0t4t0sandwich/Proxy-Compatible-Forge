@@ -14,7 +14,7 @@ sourceSets.main {
         property("version", version.toString())
         property("license", license)
         property("authors", authors)
-        property("description", description)
+        property("description", description ?: "")
         property("homepage_url", homepageUrl)
     }
 }
