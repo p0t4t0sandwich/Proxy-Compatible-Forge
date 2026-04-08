@@ -1,5 +1,9 @@
 import xyz.wagyourtail.unimined.api.minecraft.task.RemapJarTask
 
+plugins {
+    alias(libs.plugins.unimined) apply(false)
+}
+
 subprojects {
     apply(plugin = rootProject.libs.plugins.unimined.get().pluginId)
 

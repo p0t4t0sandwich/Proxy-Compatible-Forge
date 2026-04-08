@@ -8,7 +8,6 @@ plugins {
     alias(libs.plugins.jvmdowngrader)
     alias(libs.plugins.shadow)
     alias(libs.plugins.spotless)
-    alias(libs.plugins.unimined) apply(false)
 }
 
 allprojects {
@@ -97,8 +96,7 @@ val projs = listOf(
     ":modern:v19_2",
     ":modern:v20_2",
     ":modern:v20_4",
-    ":modern:v21_10",
-    ":modern:v21_11"
+    ":deobsf:v26_1_1",
 )
 
 val mergeMixins = tasks.register<MergeMixinConfigs>("mergeMixins") {
@@ -125,7 +123,7 @@ val mergeMixins = tasks.register<MergeMixinConfigs>("mergeMixins") {
 val shadeAndRelocate = tasks.register<ShadowJar>("shadeAndRelocate") {
     relocate("dev.neuralnexus.taterapi", "org.adde0109.pcf.lib.taterapi")
 
-    var mcVersion = "1.14-1.21.x"
+    var mcVersion = "1.7.2-26.1.x"
     archiveFileName = "proxy-compatible-forge-${version}-mono.jar"
     destinationDirectory = file("./build/libs")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
