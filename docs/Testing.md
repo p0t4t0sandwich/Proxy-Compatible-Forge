@@ -13,6 +13,8 @@ Used before a release to check for obvious regressions.
 
 | MC Version | Server          | Client          |
 |------------|-----------------|-----------------|
+| 1.7.10     | Forge           | Forge           |
+| 1.12.2     | Forge           | Forge           |
 | 1.14.4     | Forge           | Forge           |
 | 1.16.5     | Forge           | Forge           |
 | 1.17.1     | Forge           | Forge           |
@@ -27,6 +29,8 @@ Used when swathing changes are made to ensure no regressions across supported ve
 
 | MC Version | Server          | Client          |
 |------------|-----------------|-----------------|
+| 1.7.10     | Forge           | Forge           |
+| 1.12.2     | Forge           | Forge           |
 | 1.14.4     | Forge           | Forge           |
 | 1.15.2     | Forge           | Forge           |
 | 1.16.5     | Forge           | Forge           |
