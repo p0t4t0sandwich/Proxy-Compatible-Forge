@@ -1,0 +1,20 @@
+{
+  "compatibilityLevel": "JAVA_8",
+  "minVersion": "0.8",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "required": true,
+  "plugin": "org.adde0109.pcf.mixin.plugin.PCFMixinPlugin",
+  "package": "org.adde0109.pcf.mixin",
+  "server": [
+    "v26_1.crossstich.ArgumentNodeStubMixin",
+    "v26_1.crossstich.ArgumentTypeInfoMixin",
+    "v26_1.forwarding.modern.ConnectionMixin",
+    "v26_1.forwarding.modern.ServerboundCustomQueryAnswerPacketMixin",
+    "v26_1.forwarding.modern.ServerLoginPacketListenerImplHelloHybridMixin",
+    "v26_1.forwarding.modern.ServerLoginPacketListenerImplHelloMixin",
+    "v26_1.forwarding.modern.ServerLoginPacketListenerImplMixin",
+    "v26_1.forwarding.modern.ServerLoginPacketListenerImplQueryMixin"
+  ]
+}

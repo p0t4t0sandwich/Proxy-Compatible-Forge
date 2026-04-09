@@ -1,4 +1,4 @@
-package org.adde0109.pcf.v20_4.forge.forwarding.network;
+package org.adde0109.pcf.v26_1.forwarding.network;
 
 import dev.neuralnexus.taterapi.network.protocol.login.ServerboundCustomQueryAnswerPacket;
 import dev.neuralnexus.taterapi.network.protocol.login.custom.CustomQueryAnswerPayload;
@@ -8,8 +8,6 @@ import dev.neuralnexus.taterapi.serialization.codecs.ReversibleCodec;
 import io.netty.buffer.Unpooled;
 
 import net.minecraft.network.FriendlyByteBuf;
-
-import org.adde0109.pcf.v26_1.forwarding.network.MCQueryAnswerPayload;
 
 public final class SCustomQueryAnswerPacketAdapter
         implements ReversibleCodec<

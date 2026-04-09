@@ -46,7 +46,7 @@ val modernVersions = listOf(
 
 include(":deobsf")
 val deobsfVersions = listOf(
-    "26_1_1"
+    "26_1"
 ).forEach { version ->
     include(":deobsf:v$version")
 }
