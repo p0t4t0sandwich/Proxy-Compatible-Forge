@@ -19,7 +19,7 @@
 | 1.16.x     | ✅     | N/A      | ✅                 | ✅           | Requires [MixinBootstrap](https://modrinth.com/mod/mixinbootstrap) on 1.16 - 1.16.1        |
 | 1.15.x     | ✅     | N/A      | ✅                 | ✅           | Requires [MixinBootstrap](https://modrinth.com/mod/mixinbootstrap) on 1.15 - 1.15.1        |
 | 1.14.x     | ✅     | N/A      | ✅                 | ✅           | Requires [MixinBootstrap](https://modrinth.com/mod/mixinbootstrap)                         |
-| 1.13.x     | ❌     | N/A      | ❌                 | ❌           |                                                                                            |
+| 1.13.x     | ✅     | N/A      | ✅                 | ✅           | Requires [ModernMixins](https://modrinth.com/mod/modernmixins) on 1.13 - 1.13.2            |
 | 1.12.x     | ✅     | N/A      | ✅                 | N/A         | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy |
 | 1.11.x     | ✅     | N/A      | ✅                 | N/A         | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy |
 | 1.10.x     | ✅     | N/A      | ✅                 | N/A         | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy |

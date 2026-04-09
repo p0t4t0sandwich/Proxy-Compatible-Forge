@@ -17,7 +17,7 @@ import org.adde0109.pcf.v16_5.forge.Config;
 
 @AConstraint(
         platform = Platform.FORGE,
-        version = @Versions(min = MinecraftVersion.V14, max = MinecraftVersion.V14_4))
+        version = @Versions(min = MinecraftVersion.V13, max = MinecraftVersion.V14_4))
 public final class ReloadConfigInit implements PCFInitializer {
     @Override
     public void onInit() {

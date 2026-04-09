@@ -18,7 +18,7 @@ import java.util.Map;
 
 @AConstraint(
         mappings = Mappings.LEGACY_SEARGE,
-        version = @Versions(min = MinecraftVersion.V14, max = MinecraftVersion.V16_5))
+        version = @Versions(min = MinecraftVersion.V13, max = MinecraftVersion.V16_5))
 @Mixin(ArgumentTypes.class)
 public interface ArgumentTypesAccessor {
     @Invoker("get")

@@ -19,7 +19,7 @@ This mod brings Velocity's [modern forwarding](<https://docs.papermc.io/velocity
 
 - Forge versions 1.7.2 - 26.1.1
   - [MixinBootstrap](https://modrinth.com/mod/mixinbootstrap) is required on Forge 1.14.x - 1.15.1
-  - Forge 1.13.x isn't supported (yet)
+  - [ModernMixins](https://modrinth.com/mod/modernmixins) is required on Forge 1.13.x
   - [MixinBooter](https://modrinth.com/mod/mixinbooter) is required on Forge 1.8.x - 1.12.2
   - [UniMixins](https://modrinth.com/mod/unimixins) is required on Forge 1.7.x
   - 1.7.2 - 1.12.2 also require a modified Velocity proxy

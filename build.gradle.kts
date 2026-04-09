@@ -90,6 +90,7 @@ repositories {
 val projs = listOf(
     ":legacy:v7_10",
     ":legacy:v12_2",
+    ":modern:v13_2",
     ":modern:v14_4",
     ":modern:v16_5",
     ":modern:v17_1",

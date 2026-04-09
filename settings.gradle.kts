@@ -33,6 +33,7 @@ val legacyVersions = listOf(
 
 include(":modern")
 val modernVersions = listOf(
+    "13_2",
     "14_4",
     "16_5",
     "17_1",
