@@ -1,5 +1,3 @@
-import xyz.wagyourtail.unimined.internal.minecraft.patch.merged.MergedMinecraftTransformer
-
 val forge: SourceSet by sourceSets.creating
 val neoforge: SourceSet by sourceSets.creating
 val mainCompileOnly: Configuration by configurations.getting

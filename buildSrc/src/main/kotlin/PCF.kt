@@ -2,13 +2,9 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.FileTree
-import org.gradle.api.file.RegularFile
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.bundling.Jar
-import groovy.json.JsonSlurper;
-import groovy.json.JsonOutput;
-import java.io.File
 
 object PCF
 
