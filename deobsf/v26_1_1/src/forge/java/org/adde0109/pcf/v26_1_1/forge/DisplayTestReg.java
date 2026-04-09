@@ -41,6 +41,7 @@ import org.adde0109.pcf.PCFInitializer;
             invert = true)
 })
 public final class DisplayTestReg implements PCFInitializer {
+    @SuppressWarnings("removal")
     @Override
     public void onInit() {
         ModLoadingContext.get().registerDisplayTest(IGNORE_SERVER_VERSION);

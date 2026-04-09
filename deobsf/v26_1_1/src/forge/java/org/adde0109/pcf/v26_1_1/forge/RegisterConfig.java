@@ -14,6 +14,7 @@ import org.adde0109.pcf.v16_5.forge.Config;
 
 @AConstraint(platform = Platform.FORGE, version = @Versions(min = MinecraftVersion.V17))
 public final class RegisterConfig implements PCFInitializer {
+    @SuppressWarnings("removal")
     @Override
     public void onInit() {
         ModLoadingContext.get()
