@@ -44,6 +44,7 @@ In most cases PCF shouldn't be needed, as Sponge supports legacy+modern forwardi
 | 1.21.8     | 16                | TBD         | TBD       |                                                                                                               |
 | 1.21.10    | 17                | TBD         | TBD       |                                                                                                               |
 | 1.21.11    | 18                | TBD         | TBD       |                                                                                                               |
+| 26.1.x     | 19                | TBD         | TBD       |                                                                                                               |
 
 ## Modpack Compatibility
 

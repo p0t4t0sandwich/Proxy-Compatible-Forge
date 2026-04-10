@@ -22,7 +22,7 @@ Used before a release to check for obvious regressions.
 | 1.20.4     | Forge, NeoForge | Forge, NeoForge |
 | 1.21.1     | Forge, NeoForge | Forge, NeoForge |
 | 1.21.5     | Forge, NeoForge | Forge, NeoForge |
-| 26.1.1     | Forge, NeoForge | Forge, NeoForge |
+| 26.1.2     | Forge, NeoForge | Forge, NeoForge |
 
 ## Full Test Matrix
 
@@ -46,4 +46,4 @@ Used when swathing changes are made to ensure no regressions across supported ve
 | 1.20.4     | Forge, NeoForge | Forge, NeoForge |
 | 1.21.1     | Forge, NeoForge | Forge, NeoForge |
 | 1.21.5     | Forge, NeoForge | Forge, NeoForge |
-| 26.1.1     | Forge, NeoForge | Forge, NeoForge |
+| 26.1.2     | Forge, NeoForge | Forge, NeoForge |
