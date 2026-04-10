@@ -118,7 +118,9 @@ public final class VelocityProxy {
             if (!MessageDigest.isEqual(signature, mySignature)) {
                 return false;
             }
-        } catch (final InvalidKeyException | NoSuchAlgorithmException e) {
+        } catch (final IllegalArgumentException
+                | InvalidKeyException
+                | NoSuchAlgorithmException e) {
             throw new AssertionError(e);
         }
 

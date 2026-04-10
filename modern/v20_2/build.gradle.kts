@@ -12,7 +12,6 @@ unimined.minecraft(sourceSets.main.get()) {
         mojmap()
         devFallbackNamespace("official")
     }
-    defaultRemapJar = true
 }
 
 repositories {

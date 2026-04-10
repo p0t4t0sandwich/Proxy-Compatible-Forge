@@ -2,13 +2,9 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.FileTree
-import org.gradle.api.file.RegularFile
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.bundling.Jar
-import groovy.json.JsonSlurper;
-import groovy.json.JsonOutput;
-import java.io.File
 
 object PCF
 
@@ -32,7 +28,7 @@ val Project.mcpVersion: String get() = properties["mcp_version"].toString()
 val Project.forgeVersion: String get() = properties["forge_version"].toString()
 val Project.neoforgeVersion: String get() = properties["neoforge_version"].toString()
 
-val Project.javaVersion: String get() = properties["java_version"].toString()
+val Project.javaVersion: Int get() = properties["java_version"].toString().toInt()
 
 fun Project.jarToFiles(taskName: String): FileCollection {
     val jar: Jar = when (val task = tasks.getByName(taskName)) {

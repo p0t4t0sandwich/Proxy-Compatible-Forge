@@ -39,6 +39,8 @@ public final class PCF extends Constants {
 
     private static final @NonNull String SERVICE_PATH =
             "META-INF/services/org.adde0109.pcf.PCFInitializer";
+
+    @SuppressWarnings("FieldCanBeLocal")
     private static EntrypointLoader<PCFInitializer> loader;
 
     @ApiStatus.Internal

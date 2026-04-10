@@ -225,6 +225,7 @@ public final class ModernForwarding {
                     "Received empty forwarding payload. Has Velocity been configured to use modern forwarding?");
             throw new ThrowingComponent(EMPTY_PAYLOAD_ERR);
         }
+        PCF.logger.debug("Received Forward Response");
 
         // Apply fixes
         preProcessor.process(slpl, packet.payload().data());
@@ -235,11 +236,17 @@ public final class ModernForwarding {
         // Validate data
         try {
             if (!checkIntegrity(packet.payload().data())) {
+                if (Constraint.noGreaterThan(MinecraftVersions.V12_2).result()) {
+                    PCF.logger.error(
+                            "Ensure the `forwarding.secret` setting's value in PCF's config file doesn't have quotes around it!");
+                }
                 throw new ThrowingComponent(PLAYER_INFO_ERR);
             }
         } catch (final AssertionError e) {
-            if (e.getCause() instanceof InvalidKeyException
-                    && PCF.instance().forwarding().secret().isBlank()) {
+            if ((e.getCause() instanceof InvalidKeyException
+                            && PCF.instance().forwarding().secret().isBlank())
+                    || (e.getCause() instanceof IllegalArgumentException
+                            && e.getCause().getMessage().contains("Empty key"))) {
                 PCF.logger.error(
                         "Please configure the `forwarding.secret` setting in PCF's config file!");
             } else {

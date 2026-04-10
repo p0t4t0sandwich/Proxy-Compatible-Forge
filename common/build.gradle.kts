@@ -14,7 +14,7 @@ sourceSets.main {
         property("version", version.toString())
         property("license", license)
         property("authors", authors)
-        property("description", description)
+        property("description", description ?: "")
         property("homepage_url", homepageUrl)
     }
 }
@@ -38,6 +38,7 @@ dependencies {
 }
 
 tasks.withType<ProcessResources> {
+    filteringCharset = Charsets.UTF_8.name()
     filesMatching(listOf(
             "META-INF/mods.toml",
             "META-INF/neoforge.mods.toml",

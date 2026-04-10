@@ -4,29 +4,57 @@ import xyz.wagyourtail.jvmdg.gradle.task.ShadeJar
 import java.time.Instant
 
 plugins {
-    id("java")
-    id("idea")
-    id("eclipse")
+    java
     alias(libs.plugins.jvmdowngrader)
     alias(libs.plugins.shadow)
     alias(libs.plugins.spotless)
-    alias(libs.plugins.unimined) apply(false)
 }
 
-subprojects {
+allprojects {
     apply(plugin = "java")
     apply(plugin = "idea")
     apply(plugin = "eclipse")
     apply(plugin = rootProject.libs.plugins.spotless.get().pluginId)
 
-    java.toolchain.languageVersion = JavaLanguageVersion.of(javaVersion)
-    java.sourceCompatibility = JavaVersion.toVersion(javaVersion)
-    java.targetCompatibility = JavaVersion.toVersion(javaVersion)
-
-    tasks.withType<JavaCompile> {
-        options.encoding = "UTF-8"
+    java {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(javaVersion))
+        }
     }
 
+    tasks.withType<JavaCompile> {
+        options.encoding = Charsets.UTF_8.name()
+        options.release.set(javaVersion)
+    }
+
+    spotless {
+        format("misc") {
+            target("*.gradle.kts", ".gitattributes", ".gitignore")
+            trimTrailingWhitespace()
+            leadingTabsToSpaces()
+            endWithNewline()
+        }
+        java {
+            target("src/**/*.java", "src/**/*.java.peb")
+            toggleOffOn()
+            importOrder()
+            removeUnusedImports()
+            cleanthat()
+            googleJavaFormat("1.35.0")
+                .aosp()
+                .formatJavadoc(true)
+                .reorderImports(true)
+            formatAnnotations()
+            trimTrailingWhitespace()
+            leadingTabsToSpaces()
+            endWithNewline()
+        }
+    }
+
+    tasks.assemble.get().dependsOn(tasks.spotlessApply)
+}
+
+subprojects {
     repositories {
         mavenLocal()
         mavenCentral()
@@ -51,40 +79,6 @@ subprojects {
             mainCompileOnly(it)
         }
     }
-
-    spotless {
-        format("misc") {
-            target("*.gradle.kts", ".gitattributes", ".gitignore")
-            trimTrailingWhitespace()
-            leadingTabsToSpaces()
-            endWithNewline()
-        }
-        java {
-            target("src/**/*.java", "src/**/*.java.peb")
-            toggleOffOn()
-            importOrder()
-            removeUnusedImports()
-            cleanthat()
-            googleJavaFormat("1.24.0")
-                    .aosp()
-                    .formatJavadoc(true)
-                    .reorderImports(true)
-            formatAnnotations()
-            trimTrailingWhitespace()
-            leadingTabsToSpaces()
-            endWithNewline()
-        }
-    }
-
-    tasks.assemble.get().dependsOn(tasks.spotlessApply)
-}
-
-java.toolchain.languageVersion = JavaLanguageVersion.of(javaVersion)
-java.sourceCompatibility = JavaVersion.toVersion(javaVersion)
-java.targetCompatibility = JavaVersion.toVersion(javaVersion)
-
-tasks.withType<JavaCompile> {
-    options.encoding = "UTF-8"
 }
 
 repositories {
@@ -96,14 +90,14 @@ repositories {
 val projs = listOf(
     ":legacy:v7_10",
     ":legacy:v12_2",
+    ":modern:v13_2",
     ":modern:v14_4",
     ":modern:v16_5",
     ":modern:v17_1",
     ":modern:v19_2",
     ":modern:v20_2",
     ":modern:v20_4",
-    ":modern:v21_10",
-    ":modern:v21_11"
+    ":deobsf:v26_1",
 )
 
 val mergeMixins = tasks.register<MergeMixinConfigs>("mergeMixins") {
@@ -130,7 +124,7 @@ val mergeMixins = tasks.register<MergeMixinConfigs>("mergeMixins") {
 val shadeAndRelocate = tasks.register<ShadowJar>("shadeAndRelocate") {
     relocate("dev.neuralnexus.taterapi", "org.adde0109.pcf.lib.taterapi")
 
-    var mcVersion = "1.14-1.21.x"
+    var mcVersion = "1.7.2-26.1.x"
     archiveFileName = "proxy-compatible-forge-${version}-mono.jar"
     destinationDirectory = file("./build/libs")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -145,6 +139,7 @@ val shadeAndRelocate = tasks.register<ShadowJar>("shadeAndRelocate") {
                 "Implementation-Vendor" to "adde0109",
                 "Implementation-Timestamp" to Instant.now().toString(),
                 "FMLCorePluginContainsFMLMod" to "true",
+                "ForceLoadAsMod" to "true",
                 "TweakClass" to "org.spongepowered.asm.launch.MixinTweaker",
                 "MixinConfigs" to "$modId.mixins.json"
             )

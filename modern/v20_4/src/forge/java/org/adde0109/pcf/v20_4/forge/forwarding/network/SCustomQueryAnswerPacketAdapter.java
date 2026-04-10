@@ -9,7 +9,7 @@ import io.netty.buffer.Unpooled;
 
 import net.minecraft.network.FriendlyByteBuf;
 
-import org.adde0109.pcf.v21_11.forwarding.network.MCQueryAnswerPayload;
+import org.adde0109.pcf.v26_1.forwarding.network.MCQueryAnswerPayload;
 
 public final class SCustomQueryAnswerPacketAdapter
         implements ReversibleCodec<

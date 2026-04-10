@@ -1,0 +1,17 @@
+{
+  "compatibilityLevel": "JAVA_8",
+  "minVersion": "0.8",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "required": true,
+  "plugin": "org.adde0109.pcf.mixin.plugin.PCFMixinPlugin",
+  "package": "org.adde0109.pcf.mixin",
+  "server": [
+    "v13_2.forge.crossstitch.CommandsPacketMixin",
+    "v13_2.forge.forwarding.modern.ClientboundCustomQueryPacketAccessor",
+    "v13_2.forge.forwarding.modern.ConnectionMixin",
+    "v13_2.forge.forwarding.modern.ServerboundCustomQueryPacketAccessor",
+    "v13_2.forge.forwarding.modern.ServerLoginPacketListenerImplMixin"
+  ]
+}

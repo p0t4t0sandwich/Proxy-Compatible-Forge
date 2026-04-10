@@ -27,6 +27,7 @@ abstract class MergeMixinConfigs : DefaultTask() {
     @get:Input
     abstract val match: Property<String>
 
+    @Suppress("UNCHECKED_CAST")
     @TaskAction
     fun merge() {
         val mixinConfigs = mutableListOf<File>()

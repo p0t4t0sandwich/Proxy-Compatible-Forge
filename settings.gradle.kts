@@ -33,14 +33,20 @@ val legacyVersions = listOf(
 
 include(":modern")
 val modernVersions = listOf(
+    "13_2",
     "14_4",
     "16_5",
     "17_1",
     "19_2",
     "20_2",
-    "20_4",
-    "21_10",
-    "21_11"
+    "20_4"
 ).forEach { version ->
     include(":modern:v$version")
+}
+
+include(":deobsf")
+val deobsfVersions = listOf(
+    "26_1"
+).forEach { version ->
+    include(":deobsf:v$version")
 }

@@ -3,13 +3,18 @@ package org.adde0109.pcf.crossstitch.compatibility;
 import dev.neuralnexus.taterapi.meta.Constraint;
 import dev.neuralnexus.taterapi.meta.MinecraftVersions;
 
+import org.jspecify.annotations.NonNull;
+
 import java.util.List;
 
 public final class ArgumentEdgeCases {
     private ArgumentEdgeCases() {}
 
-    public static boolean isArgumentEdgeCase(String identifier) {
-        return isBookshelfEdgeCase(identifier);
+    private static final List<String> TEST_EDGE_CASES =
+            List.of("minecraft:test_argument", "minecraft:test_class");
+
+    public static boolean isArgumentEdgeCase(final @NonNull String identifier) {
+        return isBookshelfEdgeCase(identifier) || TEST_EDGE_CASES.contains(identifier);
     }
 
     private static final List<String> BOOKSHELF_EDGE_CASES =
@@ -25,7 +30,7 @@ public final class ArgumentEdgeCases {
      * @param identifier the argument type resource location
      * @return true if the identifier matches and Bookshelf is loaded
      */
-    private static boolean isBookshelfEdgeCase(String identifier) {
+    private static boolean isBookshelfEdgeCase(final @NonNull String identifier) {
         return Constraint.range(MinecraftVersions.V14, MinecraftVersions.V17_1)
                         .deps("bookshelf")
                         .result()
