@@ -10,11 +10,8 @@ import org.adde0109.pcf.forwarding.modern.ModernForwarding;
 import org.adde0109.pcf.v20_2.neoforge.Compatibility;
 
 @AConstraint(mappings = Mappings.MOJANG, version = @Versions(min = MinecraftVersion.V20_2))
-public final class AdapterRegistryInit implements PCFInitializer {
-    public AdapterRegistryInit() {
-        //        NetworkRegistry.registerAdapter(
-        //                CCustomQueryPacketAdapter.INSTANCE,
-        // SCustomQueryAnswerPacketAdapter.INSTANCE);
+public final class ModernForwardingInit implements PCFInitializer {
+    public ModernForwardingInit() {
         if (Compatibility.NEOFORGE_V20_2.result()) {
             ModernForwarding.preProcessor = Compatibility::neoForgeReadSimpleQueryPayload;
         } else if (Compatibility.FFAPI_V21_1.result()) {

@@ -7,8 +7,8 @@ org.adde0109.pcf.v17_1.forge.CrossStitchInit
 org.adde0109.pcf.v17_1.forge.DisplayTestInit
 org.adde0109.pcf.v17_1.forge.DisplayTestReg
 
-org.adde0109.pcf.v19_2.forge.AdapterRegistryInit
 org.adde0109.pcf.v19_2.forge.CrossStitchInit
+org.adde0109.pcf.v19_2.forge.ModernForwardingInit
 
 org.adde0109.pcf.v20_4.forge.CrossStitchInit
 org.adde0109.pcf.v20_4.forge.ReloadConfigInit
@@ -24,5 +24,5 @@ org.adde0109.pcf.v20_2.neoforge.RegisterConfig
 org.adde0109.pcf.v26_1.neoforge.RegisterConfig
 org.adde0109.pcf.v26_1.neoforge.ReloadConfigInit
 
-org.adde0109.pcf.v26_1.AdapterRegistryInit
 org.adde0109.pcf.v26_1.CrossStitchInit
+org.adde0109.pcf.v26_1.ModernForwardingInit
