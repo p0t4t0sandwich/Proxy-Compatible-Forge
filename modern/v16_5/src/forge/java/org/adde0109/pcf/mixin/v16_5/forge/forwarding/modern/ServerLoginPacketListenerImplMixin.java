@@ -1,6 +1,5 @@
 package org.adde0109.pcf.mixin.v16_5.forge.forwarding.modern;
 
-import static org.adde0109.pcf.forwarding.modern.ModernForwarding.handleCustomQueryPacket;
 import static org.adde0109.pcf.forwarding.modern.ModernForwarding.handleHello;
 
 import com.mojang.authlib.GameProfile;
@@ -13,7 +12,6 @@ import dev.neuralnexus.taterapi.meta.enums.Platform;
 
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.login.ServerboundCustomQueryPacket;
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;
 
 import org.adde0109.pcf.forwarding.modern.ConnectionBridge;
@@ -65,16 +63,6 @@ public abstract class ServerLoginPacketListenerImplMixin
         Validate.validState(
                 this.state == ServerLoginPacketListenerImpl.State.HELLO, "Unexpected hello packet");
         handleHello(this, ci);
-    }
-
-    @Inject(method = "handleCustomQueryPacket", at = @At("HEAD"), cancellable = true)
-    private void onHandleCustomQueryPacket(
-            final @NonNull ServerboundCustomQueryPacket packet, final @NonNull CallbackInfo ci) {
-        handleCustomQueryPacket(
-                this,
-                ((ServerboundCustomQueryPacketAccessor) packet).pcf$getTransactionId(),
-                packet,
-                ci);
     }
 
     @Override

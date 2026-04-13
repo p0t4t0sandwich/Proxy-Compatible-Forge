@@ -11,10 +11,8 @@
     "v26_1.crossstich.ArgumentNodeStubMixin",
     "v26_1.crossstich.ArgumentTypeInfoMixin",
     "v26_1.forwarding.modern.ConnectionMixin",
-    "v26_1.forwarding.modern.ServerboundCustomQueryAnswerPacketMixin",
     "v26_1.forwarding.modern.ServerLoginPacketListenerImplHelloHybridMixin",
     "v26_1.forwarding.modern.ServerLoginPacketListenerImplHelloMixin",
-    "v26_1.forwarding.modern.ServerLoginPacketListenerImplMixin",
-    "v26_1.forwarding.modern.ServerLoginPacketListenerImplQueryMixin"
+    "v26_1.forwarding.modern.ServerLoginPacketListenerImplMixin"
   ]
 }

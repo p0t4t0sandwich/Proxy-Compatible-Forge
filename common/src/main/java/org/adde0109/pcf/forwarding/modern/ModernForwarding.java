@@ -13,13 +13,13 @@ import com.mojang.authlib.GameProfile;
 import dev.neuralnexus.taterapi.event.Cancellable;
 import dev.neuralnexus.taterapi.meta.Constraint;
 import dev.neuralnexus.taterapi.meta.MinecraftVersions;
-import dev.neuralnexus.taterapi.mixin.CancellableMixin;
 import dev.neuralnexus.taterapi.network.chat.ThrowingComponent;
 import dev.neuralnexus.taterapi.network.protocol.login.ClientboundCustomQueryPacket;
 import dev.neuralnexus.taterapi.network.protocol.login.ServerboundCustomQueryAnswerPacket;
 import dev.neuralnexus.taterapi.server.players.NameAndId;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.DecoderException;
 
 import org.adde0109.pcf.PCF;
@@ -57,6 +57,31 @@ public final class ModernForwarding {
 
     private static final Object REJECTED_PROXY_ERR = literal("Unapproved proxy host.");
 
+    private static final String HANDLER_SPLITTER = "splitter";
+    private static final String HANDLER_PREPENDER = "prepender";
+
+    /**
+     * Injects the packet encoder and decoder into the pipeline to handle login query packets
+     *
+     * @param connection the connection
+     * @param ctx the channel handler context
+     */
+    public static void injectIntoPipeline(
+            final @NonNull ConnectionBridge connection, final @NonNull ChannelHandlerContext ctx) {
+        if (ctx.pipeline().get(PacketDecoder.NAME) != null
+                || ctx.pipeline().get(PacketEncoder.NAME) != null) {
+            return;
+        }
+        PCF.logger.debug(
+                "Injecting packet handlers into pipeline of " + ctx.channel().remoteAddress());
+        ctx.channel()
+                .pipeline()
+                .addAfter(HANDLER_SPLITTER, PacketDecoder.NAME, new PacketDecoder(connection));
+        ctx.channel()
+                .pipeline()
+                .addAfter(HANDLER_PREPENDER, PacketEncoder.NAME, new PacketEncoder());
+    }
+
     /**
      * Abstract implementation of the hello packet handler
      *
@@ -93,8 +118,7 @@ public final class ModernForwarding {
         slpl.bridge$connection()
                 .bridge$send(
                         new ClientboundCustomQueryPacket(
-                                        slpl.bridge$velocityLoginMessageId(), PLAYER_INFO_PAYLOAD)
-                                .toMC());
+                                slpl.bridge$velocityLoginMessageId(), PLAYER_INFO_PAYLOAD));
         PCF.logger.debug("Sent Forward Request");
         ci.cancel();
     }
@@ -124,10 +148,10 @@ public final class ModernForwarding {
                 throws Exception;
     }
 
-    @ApiStatus.Internal public static PreProcessor preProcessor = (slpl, buf) -> {};
+    @ApiStatus.Internal public static PreProcessor preProcessor = (_, _) -> {};
 
     private static final PostProcessor DEFAULT_POST_PROCESSOR =
-            (slpl, profile, c) -> {
+            (slpl, profile, _) -> {
                 final NameAndId nameAndId = new NameAndId(profile);
                 slpl.bridge$logger_info(
                         "UUID of player {} is {}", nameAndId.name(), nameAndId.id());
@@ -149,62 +173,6 @@ public final class ModernForwarding {
             translatable("multiplayer.disconnect.missing_public_key");
     private static final Object INVALID_SIGNATURE =
             translatable("multiplayer.disconnect.invalid_public_key_signature");
-
-    /**
-     * Abstract implementation of the custom query packet handler
-     *
-     * @param slpl The ServerLoginPacketListenerImpl
-     * @param transactionId The transaction ID
-     * @param mcPacket The Minecraft packet
-     */
-    public static void handleCustomQueryPacket(
-            final @NonNull ServerLoginPacketListenerBridge slpl,
-            final int transactionId,
-            final @NonNull Object mcPacket) {
-        handleCustomQueryPacket(slpl, transactionId, mcPacket, Cancellable.DUMMY);
-    }
-
-    /**
-     * Abstract implementation of the custom query packet handler
-     *
-     * @param slpl The ServerLoginPacketListenerImpl
-     * @param transactionId The transaction ID
-     * @param mcPacket The Minecraft packet
-     * @param ci The callback info
-     */
-    public static void handleCustomQueryPacket(
-            final @NonNull ServerLoginPacketListenerBridge slpl,
-            final int transactionId,
-            final @NonNull Object mcPacket,
-            final @NonNull CallbackInfo ci) {
-        handleCustomQueryPacket(slpl, transactionId, mcPacket, new CancellableMixin(ci));
-    }
-
-    /**
-     * Abstract implementation of the custom query packet handler
-     *
-     * @param slpl The ServerLoginPacketListenerImpl
-     * @param transactionId The transaction ID
-     * @param mcPacket The Minecraft packet
-     * @param c The cancellable wrapper
-     */
-    public static void handleCustomQueryPacket(
-            final @NonNull ServerLoginPacketListenerBridge slpl,
-            final int transactionId,
-            final @NonNull Object mcPacket,
-            final @NonNull Cancellable c) {
-        if (transactionId != slpl.bridge$velocityLoginMessageId()) {
-            return;
-        }
-        final ServerboundCustomQueryAnswerPacket packet =
-                ServerboundCustomQueryAnswerPacket.fromMC(mcPacket);
-        try {
-            handleCustomQueryPacket(slpl, packet, c);
-        } catch (final ThrowingComponent e) {
-            slpl.bridge$disconnect(e.getComponent());
-        }
-        c.cancel();
-    }
 
     /**
      * Abstract implementation of the custom query packet handler
@@ -323,7 +291,7 @@ public final class ModernForwarding {
                     break;
                 }
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             final NameAndId nameAndId = new NameAndId(payload.profile());
             PCF.logger.warn("Exception while forwarding user " + nameAndId.name());
             e.printStackTrace();

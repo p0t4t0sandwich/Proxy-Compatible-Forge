@@ -1,16 +1,27 @@
 package org.adde0109.pcf.mixin.v13_2.forge.forwarding.modern;
 
+import static org.adde0109.pcf.forwarding.modern.ModernForwarding.injectIntoPipeline;
+
 import dev.neuralnexus.taterapi.meta.Mappings;
 import dev.neuralnexus.taterapi.meta.anno.AConstraint;
 import dev.neuralnexus.taterapi.meta.anno.Versions;
 import dev.neuralnexus.taterapi.meta.enums.MinecraftVersion;
 
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+
+import net.minecraft.network.INetHandler;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 
 import org.adde0109.pcf.forwarding.modern.ConnectionBridge;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -23,22 +34,39 @@ public abstract class ConnectionMixin implements ConnectionBridge {
     // spotless:off
     @Shadow private SocketAddress socketAddress;
 
-    // TODO: Find a way to swap just this method and merge with v16_5
+    // TODO: Find a way to swap these methods and merge with v16_5
     @Shadow public abstract void shadow$sendPacket(Packet<?> packet);
+    @Shadow public abstract INetHandler shadow$getNetHandler();
+    @Shadow public abstract Channel shadow$channel();
     // spotless:on
 
     @Override
-    public InetSocketAddress bridge$address() {
+    public @NonNull InetSocketAddress bridge$address() {
         return (InetSocketAddress) this.socketAddress;
     }
 
     @Override
-    public void bridge$address(InetSocketAddress address) {
+    public void bridge$address(final @NonNull InetSocketAddress address) {
         this.socketAddress = address;
     }
 
     @Override
-    public void bridge$send(Object packet) {
-        this.shadow$sendPacket((Packet<?>) packet);
+    public void bridge$send(final @NonNull Object packet) {
+        if (packet instanceof Packet<?> mcPacket) {
+            this.shadow$sendPacket(mcPacket);
+        } else {
+            this.shadow$channel().writeAndFlush(packet);
+        }
+    }
+
+    @Override
+    public @Nullable Object bridge$getPacketListener() {
+        return this.shadow$getNetHandler();
+    }
+
+    @Inject(method = "channelActive", at = @At("TAIL"), remap = false)
+    private void onChannelActive(
+            final @NonNull ChannelHandlerContext ctx, final @NonNull CallbackInfo ci) {
+        injectIntoPipeline(this, ctx);
     }
 }

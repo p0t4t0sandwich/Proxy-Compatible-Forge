@@ -7,13 +7,10 @@ import dev.neuralnexus.taterapi.meta.anno.AConstraint;
 import dev.neuralnexus.taterapi.meta.anno.Versions;
 import dev.neuralnexus.taterapi.meta.enums.MinecraftVersion;
 import dev.neuralnexus.taterapi.meta.enums.Platform;
-import dev.neuralnexus.taterapi.network.NetworkRegistry;
 
 import org.adde0109.pcf.PCF;
 import org.adde0109.pcf.PCFInitializer;
 import org.adde0109.pcf.v19_2.forge.forwarding.modern.ProfilePublicKeyDataAdapter;
-import org.adde0109.pcf.v19_2.forge.forwarding.network.CCustomQueryPacketAdapter;
-import org.adde0109.pcf.v19_2.forge.forwarding.network.SCustomQueryAnswerPacketAdapter;
 
 @AConstraint(
         mappings = Mappings.SEARGE,
@@ -24,8 +21,8 @@ public final class AdapterRegistryInit implements PCFInitializer {
         if (Constraint.range(MinecraftVersions.V19, MinecraftVersions.V19_2).result()) {
             PCF.instance().adapters().register(ProfilePublicKeyDataAdapter.INSTANCE);
         }
-        NetworkRegistry.registerAdapter(
-                CCustomQueryPacketAdapter.INSTANCE, SCustomQueryAnswerPacketAdapter.INSTANCE);
+        // NetworkRegistry.registerAdapter(
+        //     CCustomQueryPacketAdapter.INSTANCE, SCustomQueryAnswerPacketAdapter.INSTANCE);
     }
 
     @Override
