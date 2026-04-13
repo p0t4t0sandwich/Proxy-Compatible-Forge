@@ -60,6 +60,7 @@ public final class VelocityProxy {
     public static final byte MODERN_MAX_VERSION;
     public static final ByteBuf PLAYER_INFO_PACKET;
     public static final Object PLAYER_INFO_CHANNEL = identifier("velocity:player_info");
+    public static final int SIGNATURE_SIZE = 32;
 
     static {
         if (PCF.instance().advanced().modernForwardingVersion() != Version.NO_OVERRIDE) {
@@ -102,10 +103,18 @@ public final class VelocityProxy {
      * @throws AssertionError if the algorithm is not found or the key is invalid
      */
     public static boolean checkIntegrity(final @NonNull ByteBuf buf) {
-        final byte[] signature = new byte[32];
+        final int readableBytes = buf.readableBytes();
+        if (readableBytes < SIGNATURE_SIZE) {
+            throw new AssertionError(
+                    "Not enough bytes to read signature, expected at least "
+                            + SIGNATURE_SIZE
+                            + " but got "
+                            + readableBytes);
+        }
+        final byte[] signature = new byte[SIGNATURE_SIZE];
         buf.readBytes(signature);
 
-        final byte[] data = new byte[buf.readableBytes()];
+        final byte[] data = new byte[readableBytes - SIGNATURE_SIZE];
         buf.getBytes(buf.readerIndex(), data);
 
         try {
