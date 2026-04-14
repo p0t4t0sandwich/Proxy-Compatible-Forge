@@ -5,7 +5,6 @@ unimined.minecraft(sourceSets.main.get()) {
     version(minecraftVersion)
     neoForge {
         loader(neoforgeVersion)
-        accessTransformer(aw2at(rootProject.file("common/src/main/resources/accessWidener.aw")))
     }
     mappings {
         parchment(parchmentMinecraft, parchmentVersion)

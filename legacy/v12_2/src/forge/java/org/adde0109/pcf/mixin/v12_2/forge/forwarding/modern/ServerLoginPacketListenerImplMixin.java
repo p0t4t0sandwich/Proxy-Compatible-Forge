@@ -66,12 +66,12 @@ public abstract class ServerLoginPacketListenerImplMixin
     public abstract static class SLPLIMixin_12 implements ServerLoginPacketListenerBridge {
         // spotless:off
         @Shadow @Final private static Logger LOGGER;
-        @Shadow public abstract void shadow$onDisconnect(ITextComponent reason);
+        @Shadow public abstract void shadow$disconnect(ITextComponent reason);
         // spotless:on
 
         @Override
         public void bridge$disconnect(final @NonNull Object reason) {
-            this.shadow$onDisconnect((ITextComponent) reason);
+            this.shadow$disconnect((ITextComponent) reason);
         }
 
         @Override

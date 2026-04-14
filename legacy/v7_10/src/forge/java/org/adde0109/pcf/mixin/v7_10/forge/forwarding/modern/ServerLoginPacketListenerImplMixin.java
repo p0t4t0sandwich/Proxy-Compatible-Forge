@@ -23,12 +23,12 @@ public abstract class ServerLoginPacketListenerImplMixin
         implements ServerLoginPacketListenerBridge {
     // spotless:off
     @Shadow @Final private static Logger logger;
-    @Shadow public abstract void shadow$onDisconnect(IChatComponent reason);
+    @Shadow public abstract void shadow$closeConnection(String reason);
     // spotless:on
 
     @Override
     public void bridge$disconnect(final @NonNull Object reason) {
-        this.shadow$onDisconnect((IChatComponent) reason);
+        this.shadow$closeConnection(((IChatComponent) reason).getFormattedText());
     }
 
     @Override

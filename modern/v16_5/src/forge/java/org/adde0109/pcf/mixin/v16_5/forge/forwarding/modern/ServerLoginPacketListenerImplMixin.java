@@ -38,7 +38,7 @@ public abstract class ServerLoginPacketListenerImplMixin
     @Shadow @Nullable private GameProfile gameProfile;
     @Shadow private ServerLoginPacketListenerImpl.State state;
     @Shadow @Final private static Logger LOGGER;
-    @Shadow public abstract void shadow$onDisconnect(Component reason);
+    @Shadow public abstract void shadow$disconnect(Component reason);
     @Unique private int pcf$velocityLoginMessageId = -1;
     // spotless:on
 
@@ -82,7 +82,7 @@ public abstract class ServerLoginPacketListenerImplMixin
 
     @Override
     public void bridge$disconnect(final @NonNull Object reason) {
-        this.shadow$onDisconnect((Component) reason);
+        this.shadow$disconnect((Component) reason);
     }
 
     @Override
