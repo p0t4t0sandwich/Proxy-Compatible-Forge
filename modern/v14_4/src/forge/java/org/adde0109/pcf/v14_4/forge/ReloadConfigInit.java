@@ -13,7 +13,7 @@ import net.minecraftforge.fml.javafmlmod.FMLModContainer;
 
 import org.adde0109.pcf.PCF;
 import org.adde0109.pcf.PCFInitializer;
-import org.adde0109.pcf.v16_5.forge.Config;
+import org.adde0109.pcf.v26_1.forge.Config;
 
 @AConstraint(
         platform = Platform.FORGE,
@@ -21,13 +21,13 @@ import org.adde0109.pcf.v16_5.forge.Config;
 public final class ReloadConfigInit implements PCFInitializer {
     @Override
     public void onInit() {
-        IEventBus eventBus =
+        final IEventBus eventBus =
                 MetaAPI.instance()
                         .meta()
                         .<FMLModContainer>mod(PCF.MOD_ID)
                         .map(Wrapped::unwrap)
                         .map(FMLModContainer::getEventBus)
                         .orElseThrow();
-        eventBus.addListener((ModConfig.ConfigReloading event) -> Config.reload());
+        eventBus.addListener((ModConfig.ConfigReloading _) -> Config.reload());
     }
 }

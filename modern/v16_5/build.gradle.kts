@@ -19,6 +19,7 @@ unimined.minecraft(forge) {
 }
 
 dependencies {
+    forgeCompileOnly(srcSetAsDep(":deobsf:v26_1", "forge"))
     forgeCompileOnly(project(":common"))
 }
 

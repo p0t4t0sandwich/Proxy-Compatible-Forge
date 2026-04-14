@@ -20,13 +20,14 @@ import org.adde0109.pcf.PCFInitializer;
 public final class ReloadConfigInit implements PCFInitializer {
     @Override
     public void onInit() {
-        IEventBus eventBus =
+        final IEventBus eventBus =
                 MetaAPI.instance()
                         .meta()
                         .<FMLModContainer>mod(PCF.MOD_ID)
                         .map(Wrapped::unwrap)
-                        .orElseThrow()
-                        .getEventBus();
-        eventBus.addListener((ModConfig.Reloading event) -> Config.reload());
+                        .map(FMLModContainer::getEventBus)
+                        .orElseThrow();
+        eventBus.addListener(
+                (ModConfig.Reloading _) -> org.adde0109.pcf.v26_1.forge.Config.reload());
     }
 }

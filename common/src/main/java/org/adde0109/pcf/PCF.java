@@ -198,12 +198,12 @@ public final class PCF extends Constants {
                             .getMethod("reload")
                             .invoke(null);
                 } else {
-                    Class.forName("org.adde0109.pcf.v16_5.forge.Config")
+                    Class.forName("org.adde0109.pcf.v26_1.forge.Config")
                             .getMethod("reload")
                             .invoke(null);
                 }
             } else if (Constraint.builder().platform(Platforms.NEOFORGE).result()) {
-                Class.forName("org.adde0109.pcf.v20_2.neoforge.Config")
+                Class.forName("org.adde0109.pcf.v26_1.neoforge.Config")
                         .getMethod("reload")
                         .invoke(null);
             }

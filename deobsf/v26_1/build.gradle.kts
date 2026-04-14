@@ -31,8 +31,6 @@ unimined.minecraft(neoforge) {
 }
 
 dependencies {
-    evaluationDependsOn(":modern:v16_5")
-    forgeCompileOnly(srcSetAsDep(":modern:v16_5", "forge"))
     forgeCompileOnly(project(":common"))
     neoforgeCompileOnly(project(":common"))
     mainCompileOnly(libs.asm.tree)

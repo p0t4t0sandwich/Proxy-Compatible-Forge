@@ -18,6 +18,7 @@ import org.adde0109.pcf.PCF;
 import org.adde0109.pcf.PCFInitializer;
 import org.adde0109.pcf.crossstitch.CrossStitch;
 import org.adde0109.pcf.mixin.v16_5.forge.crossstitch.ArgumentTypesAccessor;
+import org.adde0109.pcf.v26_1.forge.Config;
 import org.apache.commons.lang3.tuple.Pair;
 
 @AConstraint(
@@ -46,6 +47,7 @@ public final class Initializer implements PCFInitializer {
     }
 
     private void displayTest() {
+        //noinspection unused
         ModLoadingContext.get()
                 .registerExtensionPoint(
                         ExtensionPoint.DISPLAYTEST,
