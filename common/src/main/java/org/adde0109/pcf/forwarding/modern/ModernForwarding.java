@@ -137,13 +137,6 @@ public final class ModernForwarding {
 
     @ApiStatus.Internal
     @FunctionalInterface
-    public interface PreProcessor {
-        void process(
-                final @NonNull ServerLoginPacketListenerBridge slpl, final @NonNull ByteBuf buf);
-    }
-
-    @ApiStatus.Internal
-    @FunctionalInterface
     public interface PostProcessor {
         /**
          * Process the forwarded profile
@@ -159,8 +152,6 @@ public final class ModernForwarding {
                 final @NonNull Cancellable c)
                 throws Exception;
     }
-
-    @ApiStatus.Internal public static PreProcessor preProcessor = (_, _) -> {};
 
     private static final PostProcessor DEFAULT_POST_PROCESSOR =
             (slpl, profile, _) -> {
@@ -206,9 +197,6 @@ public final class ModernForwarding {
             throw new ThrowingComponent(EMPTY_PAYLOAD_ERR);
         }
         PCF.logger.debug("Received Forward Response");
-
-        // Apply fixes
-        preProcessor.process(slpl, packet.payload().data());
 
         // Remove transaction ID from pending set
         TRANSACTION_IDS.remove(packet.transactionId());
