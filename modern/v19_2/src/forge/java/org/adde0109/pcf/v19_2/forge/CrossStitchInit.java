@@ -23,6 +23,8 @@ public final class CrossStitchInit implements PCFInitializer {
     @SuppressWarnings("deprecation")
     @Override
     public void onInit() {
+        if (!PCF.instance().crossStitch().enabled()) return;
+
         CrossStitch.COMMAND_ARGUMENT_IDENTIFIER =
                 (type) ->
                         Registry.COMMAND_ARGUMENT_TYPE

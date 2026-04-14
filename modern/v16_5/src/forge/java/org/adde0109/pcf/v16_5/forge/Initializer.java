@@ -26,7 +26,16 @@ import org.apache.commons.lang3.tuple.Pair;
         platform = Platform.FORGE,
         version = @Versions(min = MinecraftVersion.V13, max = MinecraftVersion.V16_5))
 public final class Initializer implements PCFInitializer {
-    public Initializer() {
+    @Override
+    public void onInit() {
+        this.displayTest();
+        this.registerConfig();
+        this.crossStitch();
+    }
+
+    public void crossStitch() {
+        if (!PCF.instance().crossStitch().enabled()) return;
+
         CrossStitch.GET_ARGUMENT_TYPE_ENTRY =
                 (argumentType) -> ArgumentTypesAccessor.pcf$get((ArgumentType<?>) argumentType);
 
@@ -38,12 +47,6 @@ public final class Initializer implements PCFInitializer {
                         PCF.logger.debug(" - " + entry.name + " -> " + entry.serializer.getClass());
                     }
                 };
-    }
-
-    @Override
-    public void onInit() {
-        this.displayTest();
-        this.registerConfig();
     }
 
     private void displayTest() {

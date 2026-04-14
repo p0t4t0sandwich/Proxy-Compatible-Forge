@@ -18,6 +18,8 @@ import org.adde0109.pcf.mixin.v17_1.forge.crossstitch.ArgumentTypesAccessor;
 public final class CrossStitchInit implements PCFInitializer {
     @Override
     public void onInit() {
+        if (!PCF.instance().crossStitch().enabled()) return;
+
         CrossStitch.GET_ARGUMENT_TYPE_ENTRY =
                 (argumentType) -> ArgumentTypesAccessor.pcf$get((ArgumentType<?>) argumentType);
 

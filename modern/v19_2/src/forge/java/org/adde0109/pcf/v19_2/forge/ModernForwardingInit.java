@@ -15,10 +15,9 @@ import org.adde0109.pcf.v19_2.forge.forwarding.modern.ProfilePublicKeyDataAdapte
         platform = Platform.FORGE,
         version = @Versions(min = MinecraftVersion.V19, max = MinecraftVersion.V19_2))
 public final class ModernForwardingInit implements PCFInitializer {
-    public ModernForwardingInit() {
+    @Override
+    public void onInit() {
+        if (!PCF.instance().forwarding().enabled()) return;
         PCF.instance().adapters().register(ProfilePublicKeyDataAdapter.INSTANCE);
     }
-
-    @Override
-    public void onInit() {}
 }
