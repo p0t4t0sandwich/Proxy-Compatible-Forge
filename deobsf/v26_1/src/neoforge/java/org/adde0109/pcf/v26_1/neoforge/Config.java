@@ -1,4 +1,4 @@
-package org.adde0109.pcf.v20_2.neoforge;
+package org.adde0109.pcf.v26_1.neoforge;
 
 import static org.adde0109.pcf.PCF.CONFIG_FILE_NAME;
 

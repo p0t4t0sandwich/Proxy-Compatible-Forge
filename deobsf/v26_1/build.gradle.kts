@@ -35,14 +35,10 @@ dependencies {
     forgeCompileOnly(srcSetAsDep(":modern:v16_5", "forge"))
     evaluationDependsOn(":modern:v17_1")
     forgeCompileOnly(srcSetAsDep(":modern:v17_1", "forge"))
-    evaluationDependsOn(":modern:v20_2")
-    forgeCompileOnly(project(":modern:v20_2"))
     forgeCompileOnly(project(":common"))
-    neoforgeCompileOnly(project(":modern:v20_2"))
     neoforgeCompileOnly(project(":common"))
     mainCompileOnly(libs.asm.tree)
     mainCompileOnly(libs.mixin)
-    mainCompileOnly(project(":modern:v20_2"))
 }
 
 tasks.jar {
