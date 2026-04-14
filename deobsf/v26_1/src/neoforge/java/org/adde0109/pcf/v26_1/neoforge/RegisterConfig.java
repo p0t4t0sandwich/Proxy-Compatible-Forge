@@ -17,7 +17,7 @@ import org.adde0109.pcf.PCFInitializer;
 public final class RegisterConfig implements PCFInitializer {
     @Override
     public void onInit() {
-        ModContainer container =
+        final ModContainer container =
                 MetaAPI.instance()
                         .meta()
                         .<ModContainer>mod(PCF.MOD_ID)

@@ -10,6 +10,7 @@ import dev.neuralnexus.taterapi.meta.enums.Platform;
 
 import net.minecraftforge.fml.IExtensionPoint;
 
+import net.minecraftforge.fml.ModLoadingContext;
 import org.adde0109.pcf.PCFInitializer;
 
 @AConstraints({
@@ -46,6 +47,9 @@ public final class DisplayTestInit implements PCFInitializer {
         IGNORE_SERVER_VERSION = IExtensionPoint.DisplayTest.IGNORE_SERVER_VERSION;
     }
 
+    @SuppressWarnings("removal")
     @Override
-    public void onInit() {}
+    public void onInit() {
+        ModLoadingContext.get().registerDisplayTest(IGNORE_SERVER_VERSION);
+    }
 }

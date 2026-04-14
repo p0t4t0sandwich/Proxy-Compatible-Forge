@@ -18,7 +18,7 @@ import org.adde0109.pcf.PCFInitializer;
 public final class ReloadConfigInit implements PCFInitializer {
     @Override
     public void onInit() {
-        IEventBus eventBus =
+        final IEventBus eventBus =
                 MetaAPI.instance()
                         .meta()
                         .<ModContainer>mod(PCF.MOD_ID)
