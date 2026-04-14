@@ -1,5 +1,4 @@
 val mainCompileOnly: Configuration by configurations.getting
-val modImplementation: Configuration by configurations.creating
 
 unimined.minecraft(sourceSets.main.get()) {
     version(minecraftVersion)
@@ -13,12 +12,6 @@ unimined.minecraft(sourceSets.main.get()) {
     }
 }
 
-repositories {
-    // Forgified Fabric API
-    maven("https://maven.su5ed.dev/releases")
-}
-
 dependencies {
-    compileOnly(project(":common"))
-    modImplementation("org.sinytra.forgified-fabric-api:fabric-networking-api-v1:4.3.0+ab6ec1d119")
+    mainCompileOnly(project(":common"))
 }
