@@ -12,7 +12,6 @@ import io.netty.channel.ChannelHandlerContext;
 
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketListener;
-import net.minecraft.network.protocol.Packet;
 
 import org.adde0109.pcf.forwarding.modern.ConnectionBridge;
 import org.jspecify.annotations.NonNull;
@@ -33,7 +32,6 @@ import java.net.SocketAddress;
 public abstract class ConnectionMixin implements ConnectionBridge {
     // spotless:off
     @Shadow private SocketAddress address;
-    @Shadow public abstract void shadow$send(Packet<?> packet);
     @Shadow public abstract PacketListener shadow$getPacketListener();
     @Shadow public abstract Channel shadow$channel();
     // spotless:on
@@ -49,12 +47,8 @@ public abstract class ConnectionMixin implements ConnectionBridge {
     }
 
     @Override
-    public void bridge$send(final @NonNull Object packet) {
-        if (packet instanceof Packet<?> mcPacket) {
-            this.shadow$send(mcPacket);
-        } else {
-            this.shadow$channel().writeAndFlush(packet);
-        }
+    public @NonNull Channel bridge$channel() {
+        return this.shadow$channel();
     }
 
     @Override

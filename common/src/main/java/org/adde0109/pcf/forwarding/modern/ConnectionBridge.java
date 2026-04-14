@@ -1,5 +1,7 @@
 package org.adde0109.pcf.forwarding.modern;
 
+import io.netty.channel.Channel;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -10,7 +12,11 @@ public interface ConnectionBridge {
 
     void bridge$address(final @NonNull InetSocketAddress address);
 
-    void bridge$send(final @NonNull Object packet);
+    @NonNull Channel bridge$channel();
 
     @Nullable Object bridge$getPacketListener();
+
+    default void bridge$send(final @NonNull Object packet) {
+        this.bridge$channel().writeAndFlush(packet).addListener(ModernForwarding::errorListener);
+    }
 }

@@ -12,7 +12,6 @@ import io.netty.channel.ChannelHandlerContext;
 
 import net.minecraft.network.INetHandler;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
 
 import org.adde0109.pcf.forwarding.modern.ConnectionBridge;
 import org.jspecify.annotations.NonNull;
@@ -35,7 +34,6 @@ public abstract class ConnectionMixin implements ConnectionBridge {
     @Shadow private SocketAddress socketAddress;
 
     // TODO: Find a way to swap these methods and merge with v16_5
-    @Shadow public abstract void shadow$sendPacket(Packet<?> packet);
     @Shadow public abstract INetHandler shadow$getNetHandler();
     @Shadow public abstract Channel shadow$channel();
     // spotless:on
@@ -51,12 +49,8 @@ public abstract class ConnectionMixin implements ConnectionBridge {
     }
 
     @Override
-    public void bridge$send(final @NonNull Object packet) {
-        if (packet instanceof Packet<?> mcPacket) {
-            this.shadow$sendPacket(mcPacket);
-        } else {
-            this.shadow$channel().writeAndFlush(packet);
-        }
+    public @NonNull Channel bridge$channel() {
+        return this.shadow$channel();
     }
 
     @Override

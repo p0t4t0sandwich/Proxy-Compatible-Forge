@@ -21,6 +21,7 @@ import dev.neuralnexus.taterapi.server.players.NameAndId;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.DecoderException;
+import io.netty.util.concurrent.Future;
 
 import org.adde0109.pcf.PCF;
 import org.adde0109.pcf.forwarding.Mode;
@@ -80,6 +81,17 @@ public final class ModernForwarding {
         ctx.channel()
                 .pipeline()
                 .addAfter(HANDLER_PREPENDER, PacketEncoder.NAME, new PacketEncoder());
+    }
+
+    /**
+     * Listener for logging errors during packet handling
+     *
+     * @param future the future to check for success or failure
+     */
+    public static void errorListener(Future<? super Void> future) {
+        if (!future.isSuccess()) {
+            PCF.logger.error("An error occurred during packet handling", future.cause());
+        }
     }
 
     /**

@@ -6,10 +6,8 @@ import dev.neuralnexus.taterapi.meta.anno.Versions;
 import dev.neuralnexus.taterapi.meta.enums.MinecraftVersion;
 
 import io.netty.channel.Channel;
-import io.netty.util.concurrent.GenericFutureListener;
 
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
 
 import org.adde0109.pcf.forwarding.modern.ConnectionBridge;
 import org.jspecify.annotations.NonNull;
@@ -22,16 +20,11 @@ import org.spongepowered.asm.mixin.Shadow;
 @Mixin(NetworkManager.class)
 public abstract class ConnectionMixin implements ConnectionBridge {
     // spotless:off
-    @Shadow public abstract void shadow$scheduleOutboundPacket(Packet packet, GenericFutureListener<?>... futureListeners);
     @Shadow public abstract Channel shadow$channel();
+    // spotless:on
 
     @Override
-    public void bridge$send(final @NonNull Object packet) {
-        if (packet instanceof Packet mcPacket) {
-            this.shadow$scheduleOutboundPacket(mcPacket);
-        } else {
-            this.shadow$channel().writeAndFlush(packet);
-        }
+    public @NonNull Channel bridge$channel() {
+        return this.shadow$channel();
     }
-    // spotless:on
 }
