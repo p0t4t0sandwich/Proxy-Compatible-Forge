@@ -20,7 +20,6 @@ unimined.minecraft(forge) {
 
 dependencies {
     forgeCompileOnly(srcSetAsDep(":modern:v16_5", "forge"))
-    forgeCompileOnly(srcSetAsDep(":modern:v17_1", "forge"))
     forgeCompileOnly(project(":common"))
 }
 

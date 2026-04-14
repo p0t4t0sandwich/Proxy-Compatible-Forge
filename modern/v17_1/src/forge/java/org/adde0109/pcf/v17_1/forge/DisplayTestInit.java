@@ -1,6 +1,6 @@
 package org.adde0109.pcf.v17_1.forge;
 
-import static org.adde0109.pcf.v17_1.forge.PCFBootstrap.IGNORE_SERVER_ONLY;
+import static org.adde0109.pcf.v26_1.forge.DisplayTestBootstrap.IGNORE_SERVER_ONLY;
 
 import dev.neuralnexus.taterapi.meta.anno.AConstraint;
 import dev.neuralnexus.taterapi.meta.anno.AConstraints;
