@@ -18,7 +18,6 @@ import dev.neuralnexus.taterapi.network.protocol.login.ClientboundCustomQueryPac
 import dev.neuralnexus.taterapi.network.protocol.login.ServerboundCustomQueryAnswerPacket;
 import dev.neuralnexus.taterapi.server.players.NameAndId;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.DecoderException;
 import io.netty.util.concurrent.Future;
@@ -33,8 +32,6 @@ import java.net.InetSocketAddress;
 import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -54,8 +51,6 @@ import java.util.concurrent.ThreadLocalRandom;
  * 1.20.x</a>
  */
 public final class ModernForwarding {
-    public static final Set<Integer> TRANSACTION_IDS = ConcurrentHashMap.newKeySet();
-
     private static final Object REJECTED_PROXY_ERR = literal("Unapproved proxy host.");
 
     private static final String HANDLER_SPLITTER = "splitter";
@@ -126,7 +121,6 @@ public final class ModernForwarding {
         }
 
         slpl.bridge$setVelocityLoginMessageId(ThreadLocalRandom.current().nextInt());
-        TRANSACTION_IDS.add(slpl.bridge$velocityLoginMessageId());
         slpl.bridge$connection()
                 .bridge$send(
                         new ClientboundCustomQueryPacket(
@@ -197,9 +191,6 @@ public final class ModernForwarding {
             throw new ThrowingComponent(EMPTY_PAYLOAD_ERR);
         }
         PCF.logger.debug("Received Forward Response");
-
-        // Remove transaction ID from pending set
-        TRANSACTION_IDS.remove(packet.transactionId());
 
         // Validate data
         try {
