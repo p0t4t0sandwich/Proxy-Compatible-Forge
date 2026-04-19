@@ -43,18 +43,12 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
         }
 
         final int readerIndex = msg.readerIndex();
-        final int id;
-        try {
-            id = readVarInt(msg);
-            PCF.logger.debug(
-                    "Received packet with ID 0x"
-                            + Integer.toHexString(id)
-                            + " from "
-                            + ctx.channel().remoteAddress());
-        } catch (final Exception e) {
-            PCF.logger.error("Failed to read packet ID from incoming packet", e);
-            throw e;
-        }
+        final int id = readVarInt(msg);
+        PCF.logger.debug(
+                "Received packet with ID 0x"
+                        + Integer.toHexString(id)
+                        + " from "
+                        + ctx.channel().remoteAddress());
 
         //noinspection SwitchStatementWithTooFewBranches
         switch (id) {
@@ -76,12 +70,6 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
                     handleCustomQueryPacket(slpl, packet, callback);
                 } catch (final ThrowingComponent e) {
                     slpl.bridge$disconnect(e.getComponent());
-                } catch (final Exception e) {
-                    PCF.logger.error(
-                            "Failed to decode ServerboundCustomQueryAnswerPacket from "
-                                    + ctx.channel().remoteAddress(),
-                            e);
-                    throw e;
                 } finally {
                     msg.clear();
                 }
