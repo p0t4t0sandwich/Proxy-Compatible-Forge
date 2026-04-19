@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @AConstraint(
-        mappings = Mappings.LEGACY_SEARGE,
+        mappings = Mappings.SEARGE,
         version = @Versions(min = MinecraftVersion.V7, max = MinecraftVersion.V12_2))
 @Mixin(NetHandlerLoginServer.class)
 public abstract class ServerLoginPacketListenerImplHelloMixin

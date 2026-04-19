@@ -22,7 +22,7 @@ import org.adde0109.pcf.v26_1.forge.Config;
 import org.apache.commons.lang3.tuple.Pair;
 
 @AConstraint(
-        mappings = Mappings.LEGACY_SEARGE,
+        mappings = Mappings.SEARGE,
         platform = Platform.FORGE,
         version = @Versions(min = MinecraftVersion.V13, max = MinecraftVersion.V16_5))
 public final class Initializer implements PCFInitializer {

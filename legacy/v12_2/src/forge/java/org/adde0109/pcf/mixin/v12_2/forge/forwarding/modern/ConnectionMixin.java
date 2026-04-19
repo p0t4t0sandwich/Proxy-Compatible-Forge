@@ -18,7 +18,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 @AConstraint(
-        mappings = Mappings.LEGACY_SEARGE,
+        mappings = Mappings.SEARGE,
         version = @Versions(min = MinecraftVersion.V7, max = MinecraftVersion.V12_2))
 @Mixin(NetworkManager.class)
 public abstract class ConnectionMixin implements ConnectionBridge {

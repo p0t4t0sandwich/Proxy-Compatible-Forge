@@ -1,10 +1,9 @@
 package org.adde0109.pcf.forwarding.modern;
 
-import static dev.neuralnexus.taterapi.network.FriendlyByteBuf.readVarInt;
-
 import static org.adde0109.pcf.forwarding.modern.ModernForwarding.handleCustomQueryPacket;
 
 import dev.neuralnexus.taterapi.event.Cancellable;
+import dev.neuralnexus.taterapi.network.FriendlyByteBuf;
 import dev.neuralnexus.taterapi.network.chat.ThrowingComponent;
 import dev.neuralnexus.taterapi.network.protocol.login.ServerboundCustomQueryAnswerPacket;
 
@@ -43,7 +42,8 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
         }
 
         final int readerIndex = msg.readerIndex();
-        final int id = readVarInt(msg);
+        final FriendlyByteBuf data = new FriendlyByteBuf(msg);
+        final int id = data.readVarInt();
         PCF.logger.debug(
                 "Received packet with ID 0x"
                         + Integer.toHexString(id)
@@ -54,7 +54,7 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
         switch (id) {
             case 0x02 -> {
                 final ServerboundCustomQueryAnswerPacket packet =
-                        ServerboundCustomQueryAnswerPacket.STREAM_CODEC.decode(msg);
+                        ServerboundCustomQueryAnswerPacket.STREAM_CODEC.decode(data);
 
                 // Check if the packet should be handled
                 if (packet.transactionId() != slpl.bridge$velocityLoginMessageId()) {

@@ -46,7 +46,7 @@ public final class ConnectionMixin {
     }
 
     @AConstraint(
-            mappings = Mappings.LEGACY_SEARGE,
+            mappings = Mappings.SEARGE,
             version = @Versions(min = MinecraftVersion.V7, max = MinecraftVersion.V16_5))
     @Mixin(targets = "net.minecraft.network.NetworkManager")
     public abstract static class Searge implements ConnectionBridge {

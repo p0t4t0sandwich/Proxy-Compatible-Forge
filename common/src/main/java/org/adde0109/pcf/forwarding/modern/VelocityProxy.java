@@ -1,13 +1,5 @@
 package org.adde0109.pcf.forwarding.modern;
 
-import static dev.neuralnexus.taterapi.network.FriendlyByteBuf.Crypt.MAX_KEY_SIGNATURE_SIZE;
-import static dev.neuralnexus.taterapi.network.FriendlyByteBuf.readByteArray;
-import static dev.neuralnexus.taterapi.network.FriendlyByteBuf.readInstant;
-import static dev.neuralnexus.taterapi.network.FriendlyByteBuf.readNullable;
-import static dev.neuralnexus.taterapi.network.FriendlyByteBuf.readOrElse;
-import static dev.neuralnexus.taterapi.network.FriendlyByteBuf.readPublicKey;
-import static dev.neuralnexus.taterapi.network.FriendlyByteBuf.readUtf;
-import static dev.neuralnexus.taterapi.network.FriendlyByteBuf.readVarInt;
 import static dev.neuralnexus.taterapi.resources.Identifier.identifier;
 
 import static org.adde0109.pcf.forwarding.modern.ReflectionUtils.getProperties;
@@ -25,7 +17,6 @@ import dev.neuralnexus.taterapi.network.protocol.login.custom.CustomQueryPayload
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.DecoderException;
 
 import org.adde0109.pcf.PCF;
 import org.jspecify.annotations.NonNull;
@@ -147,7 +138,7 @@ public final class VelocityProxy {
     public static @NonNull GameProfile createProfile(
             final @NonNull UUID playerId,
             final @NonNull String playerName,
-            final @NonNull ByteBuf buf) {
+            final @NonNull FriendlyByteBuf buf) {
         final GameProfile profile;
         // com.mojang:authlib:7.0.0 or newer
         if (Constraint.noLessThan(MinecraftVersions.V21_9).result()) {
@@ -169,14 +160,15 @@ public final class VelocityProxy {
      * @param buf the buffer
      * @return a multimap of properties
      */
-    private static @NonNull Multimap<String, Property> readProperties(final @NonNull ByteBuf buf) {
-        final int count = readVarInt(buf);
+    private static @NonNull Multimap<String, Property> readProperties(
+            final @NonNull FriendlyByteBuf buf) {
+        final int count = buf.readVarInt();
         final ImmutableMultimap.Builder<String, Property> propertiesBuilder =
                 ImmutableMultimap.builder();
         for (int i = 0; i < count; i++) {
-            final String name = readUtf(buf);
-            final String value = readUtf(buf);
-            final String signature = readNullable(buf, FriendlyByteBuf::readUtf);
+            final String name = buf.readUtf();
+            final String value = buf.readUtf();
+            final String signature = buf.readNullable(FriendlyByteBuf::readUtf);
             propertiesBuilder.put(name, new Property(name, value, signature));
         }
         return propertiesBuilder.build();
@@ -189,13 +181,13 @@ public final class VelocityProxy {
      * @return a list of properties
      */
     private static @NonNull List<Map.Entry<String, Property>> readProperties_7(
-            final @NonNull ByteBuf buf) {
-        final int count = readVarInt(buf);
+            final @NonNull FriendlyByteBuf buf) {
+        final int count = buf.readVarInt();
         final List<Map.Entry<String, Property>> properties = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
-            final String name = readUtf(buf);
-            final String value = readUtf(buf);
-            final String signature = readNullable(buf, FriendlyByteBuf::readUtf);
+            final String name = buf.readUtf();
+            final String value = buf.readUtf();
+            final String signature = buf.readNullable(FriendlyByteBuf::readUtf);
             properties.add(new SimpleImmutableEntry<>(name, new Property(name, value, signature)));
         }
         return properties;
@@ -209,22 +201,8 @@ public final class VelocityProxy {
      * @return The UUID read from the ByteBuf, or the given UUID if none is present
      */
     public static @NonNull UUID readSignerUuidOrElse(
-            final @NonNull ByteBuf buf, final @NonNull UUID orElse) {
-        return readOrElse(buf, FriendlyByteBuf::readUUID, orElse);
-    }
-
-    /**
-     * Modern Forwarding v2 - 1.19 - when using ProfilePublicKey::new <br>
-     * Modern Forwarding v3 - 1.19.1 - 1.19.2 <br>
-     *
-     * @param buf The ByteBuf to read from
-     * @return The ProfilePublicKey.Data read from the ByteBuf
-     * @throws DecoderException If there was an error reading the key
-     */
-    public static @NonNull ProfilePublicKeyData readForwardedKey(final @NonNull ByteBuf buf)
-            throws DecoderException {
-        return new ProfilePublicKeyData(
-                readInstant(buf), readPublicKey(buf), readByteArray(buf, MAX_KEY_SIGNATURE_SIZE));
+            final @NonNull FriendlyByteBuf buf, final @NonNull UUID orElse) {
+        return buf.readOrElse(FriendlyByteBuf::readUUID, orElse);
     }
 
     public enum Version {

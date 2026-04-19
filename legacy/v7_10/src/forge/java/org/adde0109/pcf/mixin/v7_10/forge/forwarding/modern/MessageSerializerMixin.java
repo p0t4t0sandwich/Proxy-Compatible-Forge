@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.Mixin;
 
 @SuppressWarnings("rawtypes")
 @AConstraint(
-        mappings = Mappings.LEGACY_SEARGE,
+        mappings = Mappings.SEARGE,
         version = @Versions(min = MinecraftVersion.V7, max = MinecraftVersion.V7_10))
 @Mixin(MessageSerializer.class)
 public abstract class MessageSerializerMixin extends MessageToByteEncoder {

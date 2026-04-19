@@ -1,5 +1,7 @@
 package org.adde0109.pcf;
 
+import static dev.neuralnexus.taterapi.network.Protocol.map;
+
 import dev.neuralnexus.taterapi.loader.EntrypointLoader;
 import dev.neuralnexus.taterapi.meta.Constraint;
 import dev.neuralnexus.taterapi.meta.Constraints;
@@ -10,8 +12,7 @@ import dev.neuralnexus.taterapi.meta.ModContainer;
 import dev.neuralnexus.taterapi.meta.ModResource;
 import dev.neuralnexus.taterapi.meta.Platform;
 import dev.neuralnexus.taterapi.meta.Platforms;
-import dev.neuralnexus.taterapi.network.NetworkRegistry;
-import dev.neuralnexus.taterapi.registries.AdapterRegistry;
+import dev.neuralnexus.taterapi.network.PayloadRegistry;
 
 import org.adde0109.pcf.forwarding.Mode;
 import org.adde0109.pcf.forwarding.compatibility.prelogin.ArclightPreLogin;
@@ -79,8 +80,9 @@ public final class PCF extends Constants {
 
         // Modern forwarding init
         if (this.forwarding().enabled() && this.forwarding().mode().equals(Mode.MODERN)) {
-            NetworkRegistry.registerQueryPayload(
-                    PlayerInfoQueryPayload.IDENTIFIER, PlayerInfoQueryPayload.STREAM_CODEC);
+            PayloadRegistry.register(
+                    PlayerInfoQueryPayload.TYPE,
+                    map(PlayerInfoQueryPayload.IDENTIFIER, MinecraftVersions.V7_2));
 
             if (Constraint.builder().platform(Platforms.ARCLIGHT).result()) {
                 logger.debug("Arclight detected, applying pre-login post processor");
@@ -213,13 +215,6 @@ public final class PCF extends Constants {
                 | NoSuchMethodException e) {
             logger.error("Failed to load Config class", e);
         }
-    }
-
-    private static final AdapterRegistry ADAPTER_REGISTRY = new AdapterRegistry();
-
-    @ApiStatus.Internal
-    public AdapterRegistry adapters() {
-        return ADAPTER_REGISTRY;
     }
 
     private Forwarding forwarding;

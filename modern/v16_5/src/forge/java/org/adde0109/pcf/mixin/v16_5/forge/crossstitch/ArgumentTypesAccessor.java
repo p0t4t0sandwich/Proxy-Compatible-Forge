@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 import java.util.Map;
 
 @AConstraint(
-        mappings = Mappings.LEGACY_SEARGE,
+        mappings = Mappings.SEARGE,
         version = @Versions(min = MinecraftVersion.V13, max = MinecraftVersion.V16_5))
 @Mixin(ArgumentTypes.class)
 public interface ArgumentTypesAccessor {

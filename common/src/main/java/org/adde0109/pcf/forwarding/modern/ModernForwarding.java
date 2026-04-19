@@ -11,12 +11,13 @@ import static org.adde0109.pcf.forwarding.modern.VelocityProxy.checkIntegrity;
 import com.mojang.authlib.GameProfile;
 
 import dev.neuralnexus.taterapi.event.Cancellable;
+import dev.neuralnexus.taterapi.mc.server.players.NameAndId;
 import dev.neuralnexus.taterapi.meta.Constraint;
 import dev.neuralnexus.taterapi.meta.MinecraftVersions;
 import dev.neuralnexus.taterapi.network.chat.ThrowingComponent;
 import dev.neuralnexus.taterapi.network.protocol.login.ClientboundCustomQueryPacket;
 import dev.neuralnexus.taterapi.network.protocol.login.ServerboundCustomQueryAnswerPacket;
-import dev.neuralnexus.taterapi.server.players.NameAndId;
+import dev.neuralnexus.taterapi.network.protocol.login.custom.CustomQueryAnswerPayload;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.DecoderException;
@@ -182,10 +183,13 @@ public final class ModernForwarding {
             final @NonNull ServerLoginPacketListenerBridge slpl,
             final @NonNull ServerboundCustomQueryAnswerPacket packet,
             final @NonNull Cancellable c) {
+        final CustomQueryAnswerPayload.Raw rawPayload =
+                packet.payload() instanceof CustomQueryAnswerPayload.Raw raw ? raw : null;
+
         // Validate payload presence
-        if (packet.payload() == null) {
+        if (rawPayload == null) {
             throw new ThrowingComponent(DIRECT_CONNECT_ERR);
-        } else if (packet.payload().data().readableBytes() == 0) {
+        } else if (rawPayload.data().readableBytes() == 0) {
             PCF.logger.error(
                     "Received empty forwarding payload. Has Velocity been configured to use modern forwarding?");
             throw new ThrowingComponent(EMPTY_PAYLOAD_ERR);
@@ -194,7 +198,7 @@ public final class ModernForwarding {
 
         // Validate data
         try {
-            if (!checkIntegrity(packet.payload().data())) {
+            if (!checkIntegrity(rawPayload.data())) {
                 if (Constraint.noGreaterThan(MinecraftVersions.V12_2).result()) {
                     PCF.logger.error(
                             "Ensure the `forwarding.secret` setting's value in PCF's config file doesn't have quotes around it!");
@@ -217,7 +221,7 @@ public final class ModernForwarding {
 
         // Decode payload
         final PlayerInfoQueryAnswerPayload payload =
-                PlayerInfoQueryAnswerPayload.STREAM_CODEC.decode(packet.payload().data());
+                PlayerInfoQueryAnswerPayload.TYPE.codec().decode(rawPayload.data());
 
         // Validate version
         final VelocityProxy.Version version = payload.version();

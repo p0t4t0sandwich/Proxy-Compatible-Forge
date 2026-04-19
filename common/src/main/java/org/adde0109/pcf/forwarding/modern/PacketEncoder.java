@@ -1,7 +1,6 @@
 package org.adde0109.pcf.forwarding.modern;
 
-import static dev.neuralnexus.taterapi.network.FriendlyByteBuf.writeVarInt;
-
+import dev.neuralnexus.taterapi.network.FriendlyByteBuf;
 import dev.neuralnexus.taterapi.network.protocol.login.ClientboundCustomQueryPacket;
 
 import io.netty.buffer.ByteBuf;
@@ -31,8 +30,9 @@ public final class PacketEncoder extends MessageToByteEncoder<ClientboundCustomQ
                             + msg.getClass().getSimpleName()
                             + " to "
                             + ctx.channel().remoteAddress());
-            writeVarInt(buf, 0x04);
-            ClientboundCustomQueryPacket.STREAM_CODEC.encode(buf, msg);
+            final FriendlyByteBuf data = new FriendlyByteBuf(buf);
+            data.writeVarInt(0x04);
+            ClientboundCustomQueryPacket.STREAM_CODEC.encode(data, msg);
         } catch (final Exception e) {
             PCF.logger.error("Failed to encode packet " + msg.getClass().getName(), e);
             throw e;

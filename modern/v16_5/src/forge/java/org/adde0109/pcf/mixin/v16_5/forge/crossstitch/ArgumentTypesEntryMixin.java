@@ -22,7 +22,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @AConstraint(
-        mappings = Mappings.LEGACY_SEARGE,
+        mappings = Mappings.SEARGE,
         version = @Versions(min = MinecraftVersion.V13, max = MinecraftVersion.V16_5))
 @Mixin(ArgumentTypes.Entry.class)
 public class ArgumentTypesEntryMixin<T extends ArgumentType<?>>

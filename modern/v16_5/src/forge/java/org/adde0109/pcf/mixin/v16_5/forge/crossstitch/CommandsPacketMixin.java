@@ -23,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
  * Adapted from <a
  * href="https://github.com/VelocityPowered/CrossStitch/blob/fe3f3be49c52dc9c1b6b7cd3cafefb953adf4486/src/main/java/com/velocitypowered/crossstitch/mixin/command/CommandTreeSerializationMixin.java">CrossStitch</a>
  */
-@AConstraint(mappings = Mappings.LEGACY_SEARGE, version = @Versions(MinecraftVersion.V16_5))
+@AConstraint(mappings = Mappings.SEARGE, version = @Versions(MinecraftVersion.V16_5))
 @Mixin(ClientboundCommandsPacket.class)
 public abstract class CommandsPacketMixin {
     // spotless:off

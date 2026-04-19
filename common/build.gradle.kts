@@ -28,6 +28,7 @@ dependencies {
     compileOnly(libs.mixin)
     compileOnly(libs.netty.buffer)
     compileOnly(libs.netty.codec)
+    compileOnly(libs.netty.unix.common)
     compileOnly(libs.asm.tree)
 
     compileOnly(libs.entrypoint.spoof)

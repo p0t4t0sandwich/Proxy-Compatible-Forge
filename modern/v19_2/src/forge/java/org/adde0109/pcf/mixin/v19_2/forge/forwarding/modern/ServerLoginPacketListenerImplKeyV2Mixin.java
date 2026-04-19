@@ -1,5 +1,8 @@
 package org.adde0109.pcf.mixin.v19_2.forge.forwarding.modern;
 
+import static org.adde0109.pcf.v19_2.forge.forwarding.modern.ProfilePublicKeyDataAdapter.INSTANCE;
+
+import dev.neuralnexus.taterapi.mc.world.entity.player.ProfilePublicKey;
 import dev.neuralnexus.taterapi.meta.Mappings;
 import dev.neuralnexus.taterapi.meta.MetaAPI;
 import dev.neuralnexus.taterapi.meta.anno.AConstraint;
@@ -9,9 +12,7 @@ import dev.neuralnexus.taterapi.meta.enums.MinecraftVersion;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;
 import net.minecraft.util.SignatureValidator;
-import net.minecraft.world.entity.player.ProfilePublicKey;
 
-import org.adde0109.pcf.forwarding.modern.ProfilePublicKeyData;
 import org.adde0109.pcf.forwarding.modern.ServerLoginPacketListenerBridge;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -26,12 +27,12 @@ import java.util.UUID;
 public abstract class ServerLoginPacketListenerImplKeyV2Mixin
         implements ServerLoginPacketListenerBridge.KeyV2 {
     // spotless:off
-    @Shadow private ProfilePublicKey.Data profilePublicKeyData;
+    @Shadow private net.minecraft.world.entity.player.ProfilePublicKey.Data profilePublicKeyData;
 
     // ProfilePublicKey.ValidationException Doesn't exist on 1.19.1
     @SuppressWarnings("RedundantThrows")
-    @Shadow private static ProfilePublicKey validatePublicKey(
-            ProfilePublicKey.Data keyData,
+    @Shadow private static net.minecraft.world.entity.player.ProfilePublicKey validatePublicKey(
+            net.minecraft.world.entity.player.ProfilePublicKey.Data keyData,
             UUID signer,
             SignatureValidator validator,
             boolean enforceSecureProfile)
@@ -41,29 +42,30 @@ public abstract class ServerLoginPacketListenerImplKeyV2Mixin
     // spotless:on
 
     @Override
-    public @Nullable ProfilePublicKeyData bridge$profilePublicKeyData() {
+    public ProfilePublicKey.@Nullable Data bridge$profilePublicKeyData() {
         if (this.profilePublicKeyData == null) {
             return null;
         }
-        return ProfilePublicKeyData.fromMC(this.profilePublicKeyData);
+        return INSTANCE.encode(this.profilePublicKeyData).unwrap();
     }
 
     @Override
-    public void bridge$setProfilePublicKeyData(final @Nullable ProfilePublicKeyData publicKeyData) {
+    public void bridge$setProfilePublicKeyData(
+            final ProfilePublicKey.@Nullable Data publicKeyData) {
         if (publicKeyData == null) {
             this.profilePublicKeyData = null;
         } else {
-            this.profilePublicKeyData = publicKeyData.toMC();
+            this.profilePublicKeyData = INSTANCE.decode(publicKeyData).unwrap();
         }
     }
 
     @Override
     public void bridge$validatePublicKey(
-            final @Nullable ProfilePublicKeyData keyData, final @Nullable UUID signer)
+            final ProfilePublicKey.@Nullable Data keyData, final @Nullable UUID signer)
             throws Exception {
         MinecraftServer server = (MinecraftServer) MetaAPI.instance().server();
         validatePublicKey(
-                keyData != null ? keyData.toMC() : null,
+                keyData != null ? INSTANCE.decode(keyData).unwrap() : null,
                 signer != null ? signer : UUID.randomUUID(),
                 server.getServiceSignatureValidator(),
                 server.enforceSecureProfile());
