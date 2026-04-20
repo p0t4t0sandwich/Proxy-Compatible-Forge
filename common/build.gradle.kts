@@ -36,6 +36,7 @@ dependencies {
     implementation(libs.taterlib.lite.core)
     implementation(libs.taterlib.lite.metadata)
     implementation(libs.taterlib.lite.muxins)
+    implementation(libs.taterlib.lite.network)
 }
 
 tasks.withType<ProcessResources> {
