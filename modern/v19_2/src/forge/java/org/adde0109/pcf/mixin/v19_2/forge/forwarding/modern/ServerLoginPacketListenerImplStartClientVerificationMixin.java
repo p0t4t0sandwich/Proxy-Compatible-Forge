@@ -15,7 +15,9 @@ import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-@AConstraint(mappings = Mappings.SEARGE, version = @Versions(max = MinecraftVersion.V20_1))
+@AConstraint(
+        mappings = Mappings.SEARGE,
+        version = @Versions(min = MinecraftVersion.V17, max = MinecraftVersion.V20_1))
 @Mixin(ServerLoginPacketListenerImpl.class)
 public abstract class ServerLoginPacketListenerImplStartClientVerificationMixin
         implements ServerLoginPacketListenerBridge {
