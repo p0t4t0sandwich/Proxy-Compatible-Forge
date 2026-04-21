@@ -73,9 +73,7 @@ public final class ModernForwarding {
                 "Injecting packet handlers into pipeline of " + ctx.channel().remoteAddress());
         ctx.channel()
                 .pipeline()
-                .addAfter(HANDLER_SPLITTER, PacketDecoder.NAME, new PacketDecoder(connection));
-        ctx.channel()
-                .pipeline()
+                .addAfter(HANDLER_SPLITTER, PacketDecoder.NAME, new PacketDecoder(connection))
                 .addAfter(HANDLER_PREPENDER, PacketEncoder.NAME, new PacketEncoder());
     }
 
@@ -177,12 +175,10 @@ public final class ModernForwarding {
      *
      * @param slpl The ServerLoginPacketListenerImpl
      * @param packet The Minecraft packet
-     * @param c The cancellable wrapper
      */
     public static void handleCustomQueryPacket(
             final @NonNull ServerLoginPacketListenerBridge slpl,
-            final @NonNull ServerboundCustomQueryAnswerPacket packet,
-            final @NonNull Cancellable c) {
+            final @NonNull ServerboundCustomQueryAnswerPacket packet) {
         final CustomQueryAnswerPayload.Raw rawPayload =
                 packet.payload() instanceof CustomQueryAnswerPayload.Raw raw ? raw : null;
 
@@ -280,9 +276,10 @@ public final class ModernForwarding {
 
         // Proceed with login
         try {
+            final Cancellable cancellable = Cancellable.simple();
             for (final PostProcessor processor : postProcessors) {
-                processor.process(slpl, payload.profile(), c);
-                if (c.cancelled()) {
+                processor.process(slpl, payload.profile(), cancellable);
+                if (cancellable.cancelled()) {
                     break;
                 }
             }

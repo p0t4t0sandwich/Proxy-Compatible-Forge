@@ -2,7 +2,6 @@ package org.adde0109.pcf.forwarding.modern;
 
 import static org.adde0109.pcf.forwarding.modern.ModernForwarding.handleCustomQueryPacket;
 
-import dev.neuralnexus.taterapi.event.Cancellable;
 import dev.neuralnexus.taterapi.network.FriendlyByteBuf;
 import dev.neuralnexus.taterapi.network.chat.ThrowingComponent;
 import dev.neuralnexus.taterapi.network.protocol.login.ServerboundCustomQueryAnswerPacket;
@@ -65,9 +64,8 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
                         "Handling ServerboundCustomQueryAnswerPacket from "
                                 + ctx.channel().remoteAddress());
 
-                final CancellableCallback callback = new CancellableCallback(msg::clear);
                 try {
-                    handleCustomQueryPacket(slpl, packet, callback);
+                    handleCustomQueryPacket(slpl, packet);
                 } catch (final ThrowingComponent e) {
                     slpl.bridge$disconnect(e.getComponent());
                 } finally {
@@ -80,29 +78,6 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
 
         if (msg.isReadable()) {
             out.add(msg.retain());
-        }
-    }
-
-    private static class CancellableCallback implements Cancellable {
-        private boolean cancelled = false;
-        private final Runnable action;
-
-        public CancellableCallback(final @NonNull Runnable action) {
-            this.action = action;
-        }
-
-        @Override
-        public boolean cancelled() {
-            return this.cancelled;
-        }
-
-        @Override
-        public void setCancelled(final boolean cancelled) {
-            if (this.cancelled) return;
-            this.cancelled = cancelled;
-            if (cancelled) {
-                this.action.run();
-            }
         }
     }
 }

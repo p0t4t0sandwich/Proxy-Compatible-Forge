@@ -13,11 +13,7 @@ import org.jspecify.annotations.NonNull;
 public final class PacketEncoder extends MessageToByteEncoder<ClientboundCustomQueryPacket> {
     public static final String NAME = "pcf-encoder";
 
-    @Override
-    public boolean acceptOutboundMessage(final @NonNull Object msg) throws Exception {
-        return super.acceptOutboundMessage(msg) || msg instanceof ClientboundCustomQueryPacket;
-    }
-
+    @SuppressWarnings("RedundantThrows")
     @Override
     protected void encode(
             final @NonNull ChannelHandlerContext ctx,
