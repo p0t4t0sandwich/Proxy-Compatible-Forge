@@ -2,6 +2,7 @@ val mainCompileOnly: Configuration by configurations.getting
 
 unimined.minecraft(sourceSets.main.get()) {
     version(minecraftVersion)
+    side("server")
     neoForge {
         loader(neoforgeVersion)
     }

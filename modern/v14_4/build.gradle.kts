@@ -6,6 +6,7 @@ val forgeCompileOnly: Configuration by configurations.getting {
 
 unimined.minecraft(forge) {
     version(minecraftVersion)
+    side("server")
     mappings {
         parchment(parchmentMinecraft, parchmentVersion)
         mojmap()
