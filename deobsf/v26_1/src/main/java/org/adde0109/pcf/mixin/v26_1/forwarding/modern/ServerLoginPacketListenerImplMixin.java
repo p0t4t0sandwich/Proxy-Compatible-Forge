@@ -25,16 +25,11 @@ import org.spongepowered.asm.mixin.Unique;
 public abstract class ServerLoginPacketListenerImplMixin
         implements ServerLoginPacketListenerBridge {
     // spotless:off
-    @Shadow @Final Connection connection;
-    @Shadow @Final static Logger LOGGER;
-
-    @AConstraint(version = @Versions(min = MinecraftVersion.V21))
-    @Shadow public abstract void shadow$onDisconnect(net.minecraft.network.DisconnectionDetails details);
-
-    @Shadow abstract void shadow$startClientVerification(GameProfile profile);
-
-    @Shadow
-    private GameProfile authenticatedProfile;
+    @Shadow @Final private Connection connection;
+    @Shadow @Final private static Logger LOGGER;
+    @Shadow public abstract void shadow$disconnect(Component details);
+    @Shadow protected abstract void shadow$startClientVerification(GameProfile profile);
+    @Shadow private GameProfile authenticatedProfile;
     @Unique private int pcf$velocityLoginMessageId = -1;
     // spotless:on
 
@@ -53,11 +48,9 @@ public abstract class ServerLoginPacketListenerImplMixin
         return (ConnectionBridge) this.connection;
     }
 
-    @AConstraint(version = @Versions(min = MinecraftVersion.V21))
     @Override
     public void bridge$disconnect(final @NonNull Object reason) {
-        this.shadow$onDisconnect(
-                new net.minecraft.network.DisconnectionDetails((Component) reason));
+        this.shadow$disconnect((Component) reason);
     }
 
     @Override

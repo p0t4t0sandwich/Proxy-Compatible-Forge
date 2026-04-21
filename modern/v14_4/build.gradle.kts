@@ -6,6 +6,7 @@ val forgeCompileOnly: Configuration by configurations.getting {
 
 unimined.minecraft(forge) {
     version(minecraftVersion)
+    side("server")
     mappings {
         parchment(parchmentMinecraft, parchmentVersion)
         mojmap()
@@ -20,8 +21,7 @@ unimined.minecraft(forge) {
 
 dependencies {
     forgeCompileOnly(libs.mixin)
-    evaluationDependsOn(":modern:v16_5")
-    forgeCompileOnly(srcSetAsDep(":modern:v16_5", "forge"))
+    forgeCompileOnly(srcSetAsDep(":deobsf:v26_1", "forge"))
     forgeCompileOnly(project(":common"))
 }
 

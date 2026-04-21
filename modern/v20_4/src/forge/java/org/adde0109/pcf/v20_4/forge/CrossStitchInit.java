@@ -21,7 +21,10 @@ import java.util.Map;
         version = @Versions(min = MinecraftVersion.V19_3, max = MinecraftVersion.V20_4))
 public final class CrossStitchInit implements PCFInitializer {
     @SuppressWarnings("deprecation")
-    public CrossStitchInit() {
+    @Override
+    public void onInit() {
+        if (!PCF.instance().crossStitch().enabled()) return;
+
         CrossStitch.COMMAND_ARGUMENT_IDENTIFIER =
                 (type) ->
                         BuiltInRegistries.COMMAND_ARGUMENT_TYPE
@@ -47,7 +50,4 @@ public final class CrossStitchInit implements PCFInitializer {
                     }
                 };
     }
-
-    @Override
-    public void onInit() {}
 }

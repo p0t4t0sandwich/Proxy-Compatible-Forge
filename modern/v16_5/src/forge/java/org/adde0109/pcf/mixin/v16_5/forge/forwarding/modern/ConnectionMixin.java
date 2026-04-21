@@ -6,35 +6,39 @@ import dev.neuralnexus.taterapi.meta.anno.Versions;
 import dev.neuralnexus.taterapi.meta.enums.MinecraftVersion;
 
 import net.minecraft.network.Connection;
-import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.PacketListener;
 
 import org.adde0109.pcf.forwarding.modern.ConnectionBridge;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
-@AConstraint(mappings = Mappings.LEGACY_SEARGE, version = @Versions(min = MinecraftVersion.V14))
+@AConstraint(
+        mappings = Mappings.SEARGE,
+        version = @Versions(min = MinecraftVersion.V13, max = MinecraftVersion.V16_5))
 @Mixin(Connection.class)
 public abstract class ConnectionMixin implements ConnectionBridge {
     // spotless:off
     @Shadow private SocketAddress address;
-    @Shadow public abstract void shadow$send(Packet<?> packet);
+    @Shadow public abstract PacketListener shadow$getPacketListener();
     // spotless:on
 
     @Override
-    public InetSocketAddress bridge$address() {
+    public @NonNull InetSocketAddress bridge$address() {
         return (InetSocketAddress) this.address;
     }
 
     @Override
-    public void bridge$address(InetSocketAddress address) {
+    public void bridge$address(final @NonNull InetSocketAddress address) {
         this.address = address;
     }
 
     @Override
-    public void bridge$send(Object packet) {
-        this.shadow$send((Packet<?>) packet);
+    public @Nullable Object bridge$getPacketListener() {
+        return this.shadow$getPacketListener();
     }
 }

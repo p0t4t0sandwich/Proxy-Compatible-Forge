@@ -5,10 +5,12 @@ import dev.neuralnexus.taterapi.meta.anno.AConstraint;
 import dev.neuralnexus.taterapi.meta.anno.Versions;
 import dev.neuralnexus.taterapi.meta.enums.MinecraftVersion;
 
+import net.minecraft.network.INetHandler;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
 
 import org.adde0109.pcf.forwarding.modern.ConnectionBridge;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
@@ -16,30 +18,27 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 @AConstraint(
-        mappings = Mappings.LEGACY_SEARGE,
+        mappings = Mappings.SEARGE,
         version = @Versions(min = MinecraftVersion.V7, max = MinecraftVersion.V12_2))
 @Mixin(NetworkManager.class)
 public abstract class ConnectionMixin implements ConnectionBridge {
     // spotless:off
     @Shadow private SocketAddress socketAddress;
-
-    @AConstraint(version = @Versions(min = MinecraftVersion.V8, max = MinecraftVersion.V12_2))
-    @Shadow public abstract void shadow$sendPacket(Packet<?> packet);
+    @Shadow public abstract INetHandler shadow$getNetHandler();
     // spotless:on
 
     @Override
-    public InetSocketAddress bridge$address() {
+    public @NonNull InetSocketAddress bridge$address() {
         return (InetSocketAddress) this.socketAddress;
     }
 
     @Override
-    public void bridge$address(InetSocketAddress address) {
+    public void bridge$address(final @NonNull InetSocketAddress address) {
         this.socketAddress = address;
     }
 
-    @AConstraint(version = @Versions(min = MinecraftVersion.V8, max = MinecraftVersion.V12_2))
     @Override
-    public void bridge$send(Object packet) {
-        this.shadow$sendPacket((Packet<?>) packet);
+    public @Nullable Object bridge$getPacketListener() {
+        return this.shadow$getNetHandler();
     }
 }

@@ -6,6 +6,7 @@ import net.minecraftforge.fml.common.Mod;
         value = PCF.MOD_ID,
         modid = PCF.MOD_ID,
         name = PCF.MOD_NAME,
+        version = PCF.VERSION,
         useMetadata = true,
         serverSideOnly = true,
         acceptableRemoteVersions = "*")

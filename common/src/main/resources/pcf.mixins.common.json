@@ -8,6 +8,7 @@
   "plugin": "org.adde0109.pcf.mixin.plugin.PCFMixinPlugin",
   "package": "org.adde0109.pcf.mixin",
   "server": [
-    "v20_2.neoforge.forwarding.modern.ServerLoginPacketListenerImplDisconnectMixin"
+    "common.forwarding.modern.ConnectionMixin$Mojang",
+    "common.forwarding.modern.ConnectionMixin$Searge"
   ]
 }

@@ -28,6 +28,7 @@ dependencies {
     compileOnly(libs.mixin)
     compileOnly(libs.netty.buffer)
     compileOnly(libs.netty.codec)
+    compileOnly(libs.netty.unix.common)
     compileOnly(libs.asm.tree)
 
     compileOnly(libs.entrypoint.spoof)
@@ -35,6 +36,7 @@ dependencies {
     implementation(libs.taterlib.lite.core)
     implementation(libs.taterlib.lite.metadata)
     implementation(libs.taterlib.lite.muxins)
+    implementation(libs.taterlib.lite.network)
 }
 
 tasks.withType<ProcessResources> {

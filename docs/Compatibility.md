@@ -8,24 +8,24 @@
 
 ## Modern Forwarding and CrossStitch Command Wrapping
 
-| MC Version | Forge | NeoForge | Modern Forwarding | CrossStitch | Notes                                                                                      |
-|------------|-------|----------|-------------------|-------------|--------------------------------------------------------------------------------------------|
-| 26.1.x     | ✅     | ✅        | ✅                 | ✅           |                                                                                            |
-| 1.21.x     | ✅     | ✅        | ✅                 | ✅           |                                                                                            |
-| 1.20.x     | ✅     | ✅        | ✅                 | ✅           | NeoForge 1.20.2 is incompatible with Ambassador                                            |
-| 1.19.x     | ✅     | N/A      | ✅                 | ✅           |                                                                                            |
-| 1.18.x     | ✅     | N/A      | ✅                 | ✅           |                                                                                            |
-| 1.17.x     | ✅     | N/A      | ✅                 | ✅           |                                                                                            |
-| 1.16.x     | ✅     | N/A      | ✅                 | ✅           | Requires [MixinBootstrap](https://modrinth.com/mod/mixinbootstrap) on 1.16 - 1.16.1        |
-| 1.15.x     | ✅     | N/A      | ✅                 | ✅           | Requires [MixinBootstrap](https://modrinth.com/mod/mixinbootstrap) on 1.15 - 1.15.1        |
-| 1.14.x     | ✅     | N/A      | ✅                 | ✅           | Requires [MixinBootstrap](https://modrinth.com/mod/mixinbootstrap)                         |
-| 1.13.x     | ✅     | N/A      | ✅                 | ✅           | Requires [ModernMixins](https://modrinth.com/mod/modernmixins) on 1.13 - 1.13.2            |
-| 1.12.x     | ✅     | N/A      | ✅                 | N/A         | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy |
-| 1.11.x     | ✅     | N/A      | ✅                 | N/A         | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy |
-| 1.10.x     | ✅     | N/A      | ✅                 | N/A         | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy |
-| 1.9.x      | ✅     | N/A      | ✅                 | N/A         | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy |
-| 1.8.x      | ✅     | N/A      | ✅                 | N/A         | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy |
-| 1.7.x      | ✅     | N/A      | ✅                 | N/A         | Requires [UniMixins](https://modrinth.com/mod/unimixins) and a modified Velocity proxy     |
+| MC Version | Forge | NeoForge | Modern Forwarding | CrossStitch | Notes                                                                                                                                 |
+|------------|-------|----------|-------------------|-------------|---------------------------------------------------------------------------------------------------------------------------------------|
+| 26.1.x     | ✅     | ✅        | ✅                 | ✅           |                                                                                                                                       |
+| 1.21.x     | ✅     | ✅        | ✅                 | ✅           |                                                                                                                                       |
+| 1.20.x     | ✅     | ✅        | ✅                 | ✅           | NeoForge 1.20.2 is incompatible with Ambassador, and client cannot read the LoginQueryPacket when connecting directly (non-issue)     |
+| 1.19.x     | ✅     | N/A      | ✅                 | ✅           |                                                                                                                                       |
+| 1.18.x     | ✅     | N/A      | ✅                 | ✅           |                                                                                                                                       |
+| 1.17.x     | ✅     | N/A      | ✅                 | ✅           |                                                                                                                                       |
+| 1.16.x     | ✅     | N/A      | ✅                 | ✅           | Requires [MixinBootstrap](https://modrinth.com/mod/mixinbootstrap) on 1.16 - 1.16.1                                                   |
+| 1.15.x     | ✅     | N/A      | ✅                 | ✅           | Requires [MixinBootstrap](https://modrinth.com/mod/mixinbootstrap) on 1.15 - 1.15.1                                                   |
+| 1.14.x     | ✅     | N/A      | ✅                 | ✅           | Requires [MixinBootstrap](https://modrinth.com/mod/mixinbootstrap)                                                                    |
+| 1.13.x     | ✅     | N/A      | ✅                 | ✅           | Requires [ModernMixins](https://modrinth.com/mod/modernmixins) on 1.13 - 1.13.2                                                       |
+| 1.12.x     | ✅     | N/A      | ✅                 | N/A         | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy                                            |
+| 1.11.x     | ✅     | N/A      | ✅                 | N/A         | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy                                            |
+| 1.10.x     | ✅     | N/A      | ✅                 | N/A         | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy                                            |
+| 1.9.x      | ✅     | N/A      | ✅                 | N/A         | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy                                            |
+| 1.8.x      | ✅     | N/A      | ✅                 | N/A         | Requires [MixinBooter](https://modrinth.com/mod/mixinbooter) and a modified Velocity proxy                                            |
+| 1.7.x      | ✅     | N/A      | ✅                 | N/A         | Requires [UniMixins](https://modrinth.com/mod/unimixins) and a modified Velocity proxy                                                |
 
 ## SpongeForge and SpongeNeo Compatibility
 
@@ -84,7 +84,7 @@ Try adding [BeQuietNegotiator](<https://modrinth.com/mod/be-quiet-negotiator>) t
 | Arclight         | 1.17.1     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
 | Arclight         | 1.18.2     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
 | Catserver        | 1.18.2     | Forge     | ?                 | ?           | Wouldn't launch, even without PCF                                                                                                                       |
-| Magma            | 1.18.2     | Forge     | ❌                 | ✅           | Causes PCF's modern forwarding to fail due to the custom query response being null. Magma's built-in modern forwarding works.                           |
+| Magma            | 1.18.2     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
 | Magma Maintained | 1.18.2     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
 | Mohist           | 1.18.2     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
 | Arclight         | 1.19.2     | Forge     | ✅                 | ✅           | Arclight chat handling incompatibility requires a reconnect. Resolved by setting `advanced.modernForwardingVersion = "MODERN_DEFAULT"` in PCF's config. |
@@ -96,7 +96,7 @@ Try adding [BeQuietNegotiator](<https://modrinth.com/mod/be-quiet-negotiator>) t
 | Mohist           | 1.19.4     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
 | Arclight         | 1.20.1     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
 | Ketting          | 1.20.1     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
-| Magma            | 1.20.1     | Forge     | ❌                 | ?           | May be the same issue as 1.18.2, except here Magma's built-in modern forwarding doesn't work.                                                           |
+| Magma            | 1.20.1     | Forge     | ❌                 | ?           | "Bad VarInt decoded" when attempting to connect via Velocity                                                                                            |
 | Magma Maintained | 1.20.1     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
 | Mohist           | 1.20.1     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
 | Arclight         | 1.20.2     | Forge     | ✅                 | ✅           |                                                                                                                                                         |
@@ -109,4 +109,4 @@ Try adding [BeQuietNegotiator](<https://modrinth.com/mod/be-quiet-negotiator>) t
 | Arclight         | 1.21.1     | NeoForge  | ✅                 | ✅           |                                                                                                                                                         |
 | Magma Neo        | 1.21.1     | NeoForge  | ✅                 | ✅           |                                                                                                                                                         |
 | TenetNeo         | 1.21.1     | NeoForge  | ?                 | ?           | Wouldn't start, even without PCF.                                                                                                                       |
-| Youer            | 1.21.1     | NeoForge  | ?                 | ?           | Youer automatically removes PCF, leaving Youer without any way to wrap modded command args.                                                             |
+| Youer            | 1.21.1     | NeoForge  | ?                 | ?           | Youer automatically removes PCF unless disabled in the config                                                                                           |

@@ -18,14 +18,24 @@ import org.adde0109.pcf.PCF;
 import org.adde0109.pcf.PCFInitializer;
 import org.adde0109.pcf.crossstitch.CrossStitch;
 import org.adde0109.pcf.mixin.v16_5.forge.crossstitch.ArgumentTypesAccessor;
+import org.adde0109.pcf.v26_1.forge.Config;
 import org.apache.commons.lang3.tuple.Pair;
 
 @AConstraint(
-        mappings = Mappings.LEGACY_SEARGE,
+        mappings = Mappings.SEARGE,
         platform = Platform.FORGE,
         version = @Versions(min = MinecraftVersion.V13, max = MinecraftVersion.V16_5))
 public final class Initializer implements PCFInitializer {
-    public Initializer() {
+    @Override
+    public void onInit() {
+        this.displayTest();
+        this.registerConfig();
+        this.crossStitch();
+    }
+
+    public void crossStitch() {
+        if (!PCF.instance().crossStitch().enabled()) return;
+
         CrossStitch.GET_ARGUMENT_TYPE_ENTRY =
                 (argumentType) -> ArgumentTypesAccessor.pcf$get((ArgumentType<?>) argumentType);
 
@@ -39,13 +49,8 @@ public final class Initializer implements PCFInitializer {
                 };
     }
 
-    @Override
-    public void onInit() {
-        this.displayTest();
-        this.registerConfig();
-    }
-
     private void displayTest() {
+        //noinspection unused
         ModLoadingContext.get()
                 .registerExtensionPoint(
                         ExtensionPoint.DISPLAYTEST,

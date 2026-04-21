@@ -16,19 +16,19 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 @AConstraint(
-        mappings = Mappings.LEGACY_SEARGE,
+        mappings = Mappings.SEARGE,
         version = @Versions(min = MinecraftVersion.V7, max = MinecraftVersion.V8_9))
 @Mixin(NetHandlerLoginServer.class)
 public abstract class ServerLoginPacketListenerImplMixin
         implements ServerLoginPacketListenerBridge {
     // spotless:off
     @Shadow @Final private static Logger logger;
-    @Shadow public abstract void shadow$onDisconnect(IChatComponent reason);
+    @Shadow public abstract void shadow$closeConnection(String reason);
     // spotless:on
 
     @Override
     public void bridge$disconnect(final @NonNull Object reason) {
-        this.shadow$onDisconnect((IChatComponent) reason);
+        this.shadow$closeConnection(((IChatComponent) reason).getFormattedText());
     }
 
     @Override

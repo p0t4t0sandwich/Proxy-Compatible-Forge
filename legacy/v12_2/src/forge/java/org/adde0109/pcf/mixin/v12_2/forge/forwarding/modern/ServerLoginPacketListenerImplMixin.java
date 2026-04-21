@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
 @AConstraint(
-        mappings = Mappings.LEGACY_SEARGE,
+        mappings = Mappings.SEARGE,
         version = @Versions(min = MinecraftVersion.V7, max = MinecraftVersion.V12_2))
 @Mixin(NetHandlerLoginServer.class)
 public abstract class ServerLoginPacketListenerImplMixin
@@ -60,18 +60,18 @@ public abstract class ServerLoginPacketListenerImplMixin
     }
 
     @AConstraint(
-            mappings = Mappings.LEGACY_SEARGE,
+            mappings = Mappings.SEARGE,
             version = @Versions(min = MinecraftVersion.V9, max = MinecraftVersion.V12_2))
     @Mixin(NetHandlerLoginServer.class)
     public abstract static class SLPLIMixin_12 implements ServerLoginPacketListenerBridge {
         // spotless:off
         @Shadow @Final private static Logger LOGGER;
-        @Shadow public abstract void shadow$onDisconnect(ITextComponent reason);
+        @Shadow public abstract void shadow$disconnect(ITextComponent reason);
         // spotless:on
 
         @Override
         public void bridge$disconnect(final @NonNull Object reason) {
-            this.shadow$onDisconnect((ITextComponent) reason);
+            this.shadow$disconnect((ITextComponent) reason);
         }
 
         @Override

@@ -1,23 +1,15 @@
 package org.adde0109.pcf.forwarding.modern;
 
-import static dev.neuralnexus.taterapi.network.FriendlyByteBuf.readAddress;
-import static dev.neuralnexus.taterapi.network.FriendlyByteBuf.readPayload;
-import static dev.neuralnexus.taterapi.network.FriendlyByteBuf.readUUID;
-import static dev.neuralnexus.taterapi.network.FriendlyByteBuf.readUtf;
-import static dev.neuralnexus.taterapi.network.FriendlyByteBuf.readVarInt;
-
-import static org.adde0109.pcf.forwarding.modern.VelocityProxy.Version.MODERN_FORWARDING_WITH_KEY;
-import static org.adde0109.pcf.forwarding.modern.VelocityProxy.Version.MODERN_FORWARDING_WITH_KEY_V2;
 import static org.adde0109.pcf.forwarding.modern.VelocityProxy.createProfile;
-import static org.adde0109.pcf.forwarding.modern.VelocityProxy.readForwardedKey;
 import static org.adde0109.pcf.forwarding.modern.VelocityProxy.readSignerUuidOrElse;
 
 import com.mojang.authlib.GameProfile;
 
+import dev.neuralnexus.taterapi.mc.world.entity.player.ProfilePublicKey;
+import dev.neuralnexus.taterapi.network.FriendlyByteBuf;
 import dev.neuralnexus.taterapi.network.codec.StreamCodec;
+import dev.neuralnexus.taterapi.network.protocol.PayloadType;
 import dev.neuralnexus.taterapi.network.protocol.login.custom.CustomQueryAnswerPayload;
-
-import io.netty.buffer.ByteBuf;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -38,42 +30,44 @@ public record PlayerInfoQueryAnswerPayload(
         VelocityProxy.Version version,
         @NonNull InetAddress address,
         @NonNull GameProfile profile,
-        @Nullable ProfilePublicKeyData key,
+        ProfilePublicKey.@Nullable Data key,
         @Nullable UUID signer)
         implements CustomQueryAnswerPayload {
-    public static final StreamCodec<@NonNull ByteBuf, @NonNull PlayerInfoQueryAnswerPayload>
+    public static final StreamCodec<@NonNull FriendlyByteBuf, @NonNull PlayerInfoQueryAnswerPayload>
             STREAM_CODEC =
                     CustomQueryAnswerPayload.codec(
-                            PlayerInfoQueryAnswerPayload::write,
-                            PlayerInfoQueryAnswerPayload::read);
+                            PlayerInfoQueryAnswerPayload::encode,
+                            PlayerInfoQueryAnswerPayload::decode);
+    public static final Type<PlayerInfoQueryAnswerPayload> TYPE =
+            PayloadType.answer(PlayerInfoQueryAnswerPayload.class, STREAM_CODEC);
 
-    private static @NonNull PlayerInfoQueryAnswerPayload read(final @NonNull ByteBuf buf) {
-        final ByteBuf data = readPayload(buf);
-        final VelocityProxy.Version version = VelocityProxy.Version.from(readVarInt(data));
-        final InetAddress address = readAddress(data);
-        final UUID playerId = readUUID(data);
-        final String playerName = readUtf(data, 16);
+    private static @NonNull PlayerInfoQueryAnswerPayload decode(
+            final @NonNull FriendlyByteBuf input) {
+        final FriendlyByteBuf data = input.readPayload(); // TODO: See if this is finally removable
+        final VelocityProxy.Version version = VelocityProxy.Version.from(data.readVarInt());
+        final InetAddress address = data.readInetAddress();
+        final UUID playerId = data.readUUID();
+        final String playerName = data.readUtf(16);
         final GameProfile profile = createProfile(playerId, playerName, data);
-        ProfilePublicKeyData key = null;
+        ProfilePublicKey.Data key = null;
         UUID signer = null;
         switch (version) {
-            case MODERN_FORWARDING_WITH_KEY -> key = readForwardedKey(data);
+            case MODERN_FORWARDING_WITH_KEY -> key = new ProfilePublicKey.Data(data);
             case MODERN_FORWARDING_WITH_KEY_V2 -> {
-                key = readForwardedKey(data);
+                key = new ProfilePublicKey.Data(data);
                 signer = readSignerUuidOrElse(data, playerId);
             }
         }
         return new PlayerInfoQueryAnswerPayload(version, address, profile, key, signer);
     }
 
-    private void write(final @NonNull ByteBuf buf) {
+    private void encode(final @NonNull FriendlyByteBuf output) {
         throw new UnsupportedOperationException(
                 this.getClass().getName() + " does not support serialization.");
     }
 
     @Override
-    public @NonNull ByteBuf data() {
-        throw new UnsupportedOperationException(
-                this.getClass().getName() + " does not retain raw data.");
+    public @NonNull Type<PlayerInfoQueryAnswerPayload> type() {
+        return TYPE;
     }
 }

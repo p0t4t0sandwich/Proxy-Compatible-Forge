@@ -12,13 +12,12 @@ import net.neoforged.fml.config.ModConfig;
 
 import org.adde0109.pcf.PCF;
 import org.adde0109.pcf.PCFInitializer;
-import org.adde0109.pcf.v20_2.neoforge.Config;
 
 @AConstraint(platform = Platform.NEOFORGE, version = @Versions(min = MinecraftVersion.V21))
 public final class RegisterConfig implements PCFInitializer {
     @Override
     public void onInit() {
-        ModContainer container =
+        final ModContainer container =
                 MetaAPI.instance()
                         .meta()
                         .<ModContainer>mod(PCF.MOD_ID)

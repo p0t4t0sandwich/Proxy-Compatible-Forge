@@ -13,19 +13,18 @@ import net.neoforged.fml.event.config.ModConfigEvent;
 
 import org.adde0109.pcf.PCF;
 import org.adde0109.pcf.PCFInitializer;
-import org.adde0109.pcf.v20_2.neoforge.Config;
 
 @AConstraint(platform = Platform.NEOFORGE, version = @Versions(min = MinecraftVersion.V20_2))
 public final class ReloadConfigInit implements PCFInitializer {
     @Override
     public void onInit() {
-        IEventBus eventBus =
+        final IEventBus eventBus =
                 MetaAPI.instance()
                         .meta()
                         .<ModContainer>mod(PCF.MOD_ID)
                         .map(Wrapped::unwrap)
                         .map(ModContainer::getEventBus)
                         .orElseThrow();
-        eventBus.addListener((ModConfigEvent.Reloading event) -> Config.reload());
+        eventBus.addListener((ModConfigEvent.Reloading _) -> Config.reload());
     }
 }

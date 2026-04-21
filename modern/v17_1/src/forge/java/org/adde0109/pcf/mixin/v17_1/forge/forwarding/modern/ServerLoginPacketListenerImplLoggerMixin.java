@@ -14,7 +14,9 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-@AConstraint(mappings = Mappings.SEARGE, version = @Versions(max = MinecraftVersion.V18_1))
+@AConstraint(
+        mappings = Mappings.SEARGE,
+        version = @Versions(min = MinecraftVersion.V17, max = MinecraftVersion.V18_1))
 @Mixin(ServerLoginPacketListenerImpl.class)
 public abstract class ServerLoginPacketListenerImplLoggerMixin
         implements ServerLoginPacketListenerBridge {

@@ -18,7 +18,10 @@ import java.util.Map;
 
 @AConstraint(mappings = Mappings.MOJANG, version = @Versions(min = MinecraftVersion.V21_11))
 public final class CrossStitchInit implements PCFInitializer {
-    public CrossStitchInit() {
+    @Override
+    public void onInit() {
+        if (!PCF.instance().crossStitch().enabled()) return;
+
         CrossStitch.COMMAND_ARGUMENT_IDENTIFIER =
                 (type) ->
                         BuiltInRegistries.COMMAND_ARGUMENT_TYPE
@@ -44,7 +47,4 @@ public final class CrossStitchInit implements PCFInitializer {
                     }
                 };
     }
-
-    @Override
-    public void onInit() {}
 }

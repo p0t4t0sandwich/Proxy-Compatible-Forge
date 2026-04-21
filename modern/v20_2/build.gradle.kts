@@ -1,11 +1,10 @@
 val mainCompileOnly: Configuration by configurations.getting
-val modImplementation: Configuration by configurations.creating
 
 unimined.minecraft(sourceSets.main.get()) {
     version(minecraftVersion)
+    side("server")
     neoForge {
         loader(neoforgeVersion)
-        accessTransformer(aw2at(rootProject.file("common/src/main/resources/accessWidener.aw")))
     }
     mappings {
         parchment(parchmentMinecraft, parchmentVersion)
@@ -14,12 +13,7 @@ unimined.minecraft(sourceSets.main.get()) {
     }
 }
 
-repositories {
-    // Forgified Fabric API
-    maven("https://maven.su5ed.dev/releases")
-}
-
 dependencies {
-    compileOnly(project(":common"))
-    modImplementation("org.sinytra.forgified-fabric-api:fabric-networking-api-v1:4.3.0+ab6ec1d119")
+    mainCompileOnly(project(":common"))
+    mainCompileOnly(srcSetAsDep(":deobsf:v26_1", "neoforge"))
 }

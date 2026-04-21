@@ -13,7 +13,6 @@
     "v19_2.forge.forwarding.modern.ServerLoginPacketListenerImplKeyV1Mixin",
     "v19_2.forge.forwarding.modern.ServerLoginPacketListenerImplKeyV2Mixin",
     "v19_2.forge.forwarding.modern.ServerLoginPacketListenerImplStartClientVerificationMixin",
-    "v19_2.forge.forwarding.modern.ServerLoginPacketListenerImplQueryMixin",
     "v19_2.forge.forwarding.modern.SignedMessageChainMixin"
   ]
 }

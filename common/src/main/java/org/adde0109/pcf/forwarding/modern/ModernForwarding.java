@@ -11,16 +11,17 @@ import static org.adde0109.pcf.forwarding.modern.VelocityProxy.checkIntegrity;
 import com.mojang.authlib.GameProfile;
 
 import dev.neuralnexus.taterapi.event.Cancellable;
+import dev.neuralnexus.taterapi.mc.server.players.NameAndId;
 import dev.neuralnexus.taterapi.meta.Constraint;
 import dev.neuralnexus.taterapi.meta.MinecraftVersions;
-import dev.neuralnexus.taterapi.mixin.CancellableMixin;
 import dev.neuralnexus.taterapi.network.chat.ThrowingComponent;
 import dev.neuralnexus.taterapi.network.protocol.login.ClientboundCustomQueryPacket;
 import dev.neuralnexus.taterapi.network.protocol.login.ServerboundCustomQueryAnswerPacket;
-import dev.neuralnexus.taterapi.server.players.NameAndId;
+import dev.neuralnexus.taterapi.network.protocol.login.custom.CustomQueryAnswerPayload;
 
-import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.DecoderException;
+import io.netty.util.concurrent.Future;
 
 import org.adde0109.pcf.PCF;
 import org.adde0109.pcf.forwarding.Mode;
@@ -32,8 +33,6 @@ import java.net.InetSocketAddress;
 import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -53,9 +52,41 @@ import java.util.concurrent.ThreadLocalRandom;
  * 1.20.x</a>
  */
 public final class ModernForwarding {
-    public static final Set<Integer> TRANSACTION_IDS = ConcurrentHashMap.newKeySet();
-
     private static final Object REJECTED_PROXY_ERR = literal("Unapproved proxy host.");
+
+    private static final String HANDLER_SPLITTER = "splitter";
+    private static final String HANDLER_PREPENDER = "prepender";
+
+    /**
+     * Injects the packet encoder and decoder into the pipeline to handle login query packets
+     *
+     * @param connection the connection
+     * @param ctx the channel handler context
+     */
+    public static void injectIntoPipeline(
+            final @NonNull ConnectionBridge connection, final @NonNull ChannelHandlerContext ctx) {
+        if (ctx.pipeline().get(PacketDecoder.NAME) != null
+                || ctx.pipeline().get(PacketEncoder.NAME) != null) {
+            return;
+        }
+        PCF.logger.debug(
+                "Injecting packet handlers into pipeline of " + ctx.channel().remoteAddress());
+        ctx.channel()
+                .pipeline()
+                .addAfter(HANDLER_SPLITTER, PacketDecoder.NAME, new PacketDecoder(connection))
+                .addAfter(HANDLER_PREPENDER, PacketEncoder.NAME, new PacketEncoder());
+    }
+
+    /**
+     * Listener for logging errors during packet handling
+     *
+     * @param future the future to check for success or failure
+     */
+    public static void errorListener(Future<? super Void> future) {
+        if (!future.isSuccess()) {
+            PCF.logger.error("An error occurred during packet handling", future.cause());
+        }
+    }
 
     /**
      * Abstract implementation of the hello packet handler
@@ -89,21 +120,12 @@ public final class ModernForwarding {
         }
 
         slpl.bridge$setVelocityLoginMessageId(ThreadLocalRandom.current().nextInt());
-        TRANSACTION_IDS.add(slpl.bridge$velocityLoginMessageId());
         slpl.bridge$connection()
                 .bridge$send(
                         new ClientboundCustomQueryPacket(
-                                        slpl.bridge$velocityLoginMessageId(), PLAYER_INFO_PAYLOAD)
-                                .toMC());
+                                slpl.bridge$velocityLoginMessageId(), PLAYER_INFO_PAYLOAD));
         PCF.logger.debug("Sent Forward Request");
         ci.cancel();
-    }
-
-    @ApiStatus.Internal
-    @FunctionalInterface
-    public interface PreProcessor {
-        void process(
-                final @NonNull ServerLoginPacketListenerBridge slpl, final @NonNull ByteBuf buf);
     }
 
     @ApiStatus.Internal
@@ -124,10 +146,8 @@ public final class ModernForwarding {
                 throws Exception;
     }
 
-    @ApiStatus.Internal public static PreProcessor preProcessor = (slpl, buf) -> {};
-
     private static final PostProcessor DEFAULT_POST_PROCESSOR =
-            (slpl, profile, c) -> {
+            (slpl, profile, _) -> {
                 final NameAndId nameAndId = new NameAndId(profile);
                 slpl.bridge$logger_info(
                         "UUID of player {} is {}", nameAndId.name(), nameAndId.id());
@@ -154,88 +174,27 @@ public final class ModernForwarding {
      * Abstract implementation of the custom query packet handler
      *
      * @param slpl The ServerLoginPacketListenerImpl
-     * @param transactionId The transaction ID
-     * @param mcPacket The Minecraft packet
-     */
-    public static void handleCustomQueryPacket(
-            final @NonNull ServerLoginPacketListenerBridge slpl,
-            final int transactionId,
-            final @NonNull Object mcPacket) {
-        handleCustomQueryPacket(slpl, transactionId, mcPacket, Cancellable.DUMMY);
-    }
-
-    /**
-     * Abstract implementation of the custom query packet handler
-     *
-     * @param slpl The ServerLoginPacketListenerImpl
-     * @param transactionId The transaction ID
-     * @param mcPacket The Minecraft packet
-     * @param ci The callback info
-     */
-    public static void handleCustomQueryPacket(
-            final @NonNull ServerLoginPacketListenerBridge slpl,
-            final int transactionId,
-            final @NonNull Object mcPacket,
-            final @NonNull CallbackInfo ci) {
-        handleCustomQueryPacket(slpl, transactionId, mcPacket, new CancellableMixin(ci));
-    }
-
-    /**
-     * Abstract implementation of the custom query packet handler
-     *
-     * @param slpl The ServerLoginPacketListenerImpl
-     * @param transactionId The transaction ID
-     * @param mcPacket The Minecraft packet
-     * @param c The cancellable wrapper
-     */
-    public static void handleCustomQueryPacket(
-            final @NonNull ServerLoginPacketListenerBridge slpl,
-            final int transactionId,
-            final @NonNull Object mcPacket,
-            final @NonNull Cancellable c) {
-        if (transactionId != slpl.bridge$velocityLoginMessageId()) {
-            return;
-        }
-        final ServerboundCustomQueryAnswerPacket packet =
-                ServerboundCustomQueryAnswerPacket.fromMC(mcPacket);
-        try {
-            handleCustomQueryPacket(slpl, packet, c);
-        } catch (final ThrowingComponent e) {
-            slpl.bridge$disconnect(e.getComponent());
-        }
-        c.cancel();
-    }
-
-    /**
-     * Abstract implementation of the custom query packet handler
-     *
-     * @param slpl The ServerLoginPacketListenerImpl
      * @param packet The Minecraft packet
-     * @param c The cancellable wrapper
      */
     public static void handleCustomQueryPacket(
             final @NonNull ServerLoginPacketListenerBridge slpl,
-            final @NonNull ServerboundCustomQueryAnswerPacket packet,
-            final @NonNull Cancellable c) {
+            final @NonNull ServerboundCustomQueryAnswerPacket packet) {
+        final CustomQueryAnswerPayload.Raw rawPayload =
+                packet.payload() instanceof CustomQueryAnswerPayload.Raw raw ? raw : null;
+
         // Validate payload presence
-        if (packet.payload() == null) {
+        if (rawPayload == null) {
             throw new ThrowingComponent(DIRECT_CONNECT_ERR);
-        } else if (packet.payload().data().readableBytes() == 0) {
+        } else if (rawPayload.data().readableBytes() == 0) {
             PCF.logger.error(
                     "Received empty forwarding payload. Has Velocity been configured to use modern forwarding?");
             throw new ThrowingComponent(EMPTY_PAYLOAD_ERR);
         }
         PCF.logger.debug("Received Forward Response");
 
-        // Apply fixes
-        preProcessor.process(slpl, packet.payload().data());
-
-        // Remove transaction ID from pending set
-        TRANSACTION_IDS.remove(packet.transactionId());
-
         // Validate data
         try {
-            if (!checkIntegrity(packet.payload().data())) {
+            if (!checkIntegrity(rawPayload.data())) {
                 if (Constraint.noGreaterThan(MinecraftVersions.V12_2).result()) {
                     PCF.logger.error(
                             "Ensure the `forwarding.secret` setting's value in PCF's config file doesn't have quotes around it!");
@@ -258,7 +217,7 @@ public final class ModernForwarding {
 
         // Decode payload
         final PlayerInfoQueryAnswerPayload payload =
-                PlayerInfoQueryAnswerPayload.STREAM_CODEC.decode(packet.payload().data());
+                PlayerInfoQueryAnswerPayload.TYPE.codec().decode(rawPayload.data());
 
         // Validate version
         final VelocityProxy.Version version = payload.version();
@@ -317,13 +276,14 @@ public final class ModernForwarding {
 
         // Proceed with login
         try {
+            final Cancellable cancellable = Cancellable.simple();
             for (final PostProcessor processor : postProcessors) {
-                processor.process(slpl, payload.profile(), c);
-                if (c.cancelled()) {
+                processor.process(slpl, payload.profile(), cancellable);
+                if (cancellable.cancelled()) {
                     break;
                 }
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             final NameAndId nameAndId = new NameAndId(payload.profile());
             PCF.logger.warn("Exception while forwarding user " + nameAndId.name());
             e.printStackTrace();

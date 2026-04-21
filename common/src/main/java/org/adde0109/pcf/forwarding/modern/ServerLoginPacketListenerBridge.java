@@ -2,6 +2,8 @@ package org.adde0109.pcf.forwarding.modern;
 
 import com.mojang.authlib.GameProfile;
 
+import dev.neuralnexus.taterapi.mc.world.entity.player.ProfilePublicKey;
+
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -25,16 +27,16 @@ public interface ServerLoginPacketListenerBridge {
     void bridge$logger_error(final @NonNull String text, final Object... params);
 
     interface KeyV1 {
-        void bridge$setPlayerProfilePublicKey(@Nullable ProfilePublicKeyData publicKeyData);
+        void bridge$setPlayerProfilePublicKey(ProfilePublicKey.@Nullable Data publicKeyData);
     }
 
     interface KeyV2 {
-        @Nullable ProfilePublicKeyData bridge$profilePublicKeyData();
+        ProfilePublicKey.@Nullable Data bridge$profilePublicKeyData();
 
-        void bridge$setProfilePublicKeyData(final @Nullable ProfilePublicKeyData publicKeyData);
+        void bridge$setProfilePublicKeyData(final ProfilePublicKey.@Nullable Data publicKeyData);
 
         void bridge$validatePublicKey(
-                final @Nullable ProfilePublicKeyData keyData, final @Nullable UUID signer)
+                final ProfilePublicKey.@Nullable Data keyData, final @Nullable UUID signer)
                 throws Exception;
     }
 }

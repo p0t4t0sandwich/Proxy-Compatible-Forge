@@ -9,10 +9,8 @@
   "package": "org.adde0109.pcf.mixin",
   "server": [
     "v12_2.forge.forwarding.modern.ConnectionMixin",
-    "v12_2.forge.forwarding.modern.EnumConnectionStateMixin",
     "v12_2.forge.forwarding.modern.ServerLoginPacketListenerImplHelloMixin",
     "v12_2.forge.forwarding.modern.ServerLoginPacketListenerImplMixin",
-    "v12_2.forge.forwarding.modern.ServerLoginPacketListenerImplMixin$SLPLIMixin_12",
-    "v12_2.forge.forwarding.modern.ServerLoginPacketListenerImplQueryMixin"
+    "v12_2.forge.forwarding.modern.ServerLoginPacketListenerImplMixin$SLPLIMixin_12"
   ]
 }

@@ -13,13 +13,12 @@ import net.minecraftforge.fml.javafmlmod.FMLModContainer;
 
 import org.adde0109.pcf.PCF;
 import org.adde0109.pcf.PCFInitializer;
-import org.adde0109.pcf.v16_5.forge.Config;
 
 @AConstraint(platform = Platform.FORGE, version = @Versions(min = MinecraftVersion.V21_6))
 public final class ReloadConfigInit implements PCFInitializer {
     @Override
     public void onInit() {
-        BusGroup modBusGroup =
+        final BusGroup modBusGroup =
                 MetaAPI.instance()
                         .meta()
                         .<FMLModContainer>mod(PCF.MOD_ID)
@@ -27,6 +26,6 @@ public final class ReloadConfigInit implements PCFInitializer {
                         .map(FMLModContainer::getModBusGroup)
                         .orElseThrow();
         ModConfigEvent.Reloading.getBus(modBusGroup)
-                .addListener((ModConfigEvent.Reloading event) -> Config.reload());
+                .addListener((ModConfigEvent.Reloading _) -> Config.reload());
     }
 }

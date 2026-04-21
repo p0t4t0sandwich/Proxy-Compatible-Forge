@@ -71,15 +71,15 @@ public final class CrossStitch {
         if (entry == null) {
             PCF.logger.debug(
                     "Wrapping entryless argument type: " + argumentType.getClass().getName());
-            buf.writeResourceLocation(MOD_ARGUMENT_INDICATOR);
-            buf.writeResourceLocation(EMPTY_IDENTIFIER);
+            buf.writeIdentifier(MOD_ARGUMENT_INDICATOR);
+            buf.writeIdentifier(EMPTY_IDENTIFIER);
             buf.writeVarInt(ZERO_LENGTH);
             return;
         }
 
         final String identifier = entry.bridge$identifier();
         if (shouldNotWrapArgument(identifier)) {
-            buf.writeResourceLocation(identifier);
+            buf.writeIdentifier(identifier);
             serializer.bridge$serializeToNetwork(argumentType, buf);
             PCF.logger.debug("Not wrapping argument with identifier: " + identifier);
             return;
@@ -93,8 +93,8 @@ public final class CrossStitch {
                         + entry.getClass().getName());
 
         // Serialize wrapped argument type
-        buf.writeResourceLocation(MOD_ARGUMENT_INDICATOR);
-        buf.writeResourceLocation(entry.bridge$identifier());
+        buf.writeIdentifier(MOD_ARGUMENT_INDICATOR);
+        buf.writeIdentifier(entry.bridge$identifier());
 
         final ByteBuf extraData = Unpooled.buffer();
         serializer.bridge$serializeToNetwork(argumentType, extraData);

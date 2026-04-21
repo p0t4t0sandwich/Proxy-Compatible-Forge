@@ -1,6 +1,5 @@
 package org.adde0109.pcf.mixin.v16_5.forge.forwarding.modern;
 
-import static org.adde0109.pcf.forwarding.modern.ModernForwarding.handleCustomQueryPacket;
 import static org.adde0109.pcf.forwarding.modern.ModernForwarding.handleHello;
 
 import com.mojang.authlib.GameProfile;
@@ -13,7 +12,6 @@ import dev.neuralnexus.taterapi.meta.enums.Platform;
 
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.login.ServerboundCustomQueryPacket;
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;
 
 import org.adde0109.pcf.forwarding.modern.ConnectionBridge;
@@ -31,7 +29,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@AConstraint(mappings = Mappings.LEGACY_SEARGE, version = @Versions(min = MinecraftVersion.V14))
+@AConstraint(
+        mappings = Mappings.SEARGE,
+        version = @Versions(min = MinecraftVersion.V14, max = MinecraftVersion.V16_5))
 @Mixin(ServerLoginPacketListenerImpl.class)
 public abstract class ServerLoginPacketListenerImplMixin
         implements ServerLoginPacketListenerBridge {
@@ -40,7 +40,7 @@ public abstract class ServerLoginPacketListenerImplMixin
     @Shadow @Nullable private GameProfile gameProfile;
     @Shadow private ServerLoginPacketListenerImpl.State state;
     @Shadow @Final private static Logger LOGGER;
-    @Shadow public abstract void shadow$onDisconnect(Component reason);
+    @Shadow public abstract void shadow$disconnect(Component reason);
     @Unique private int pcf$velocityLoginMessageId = -1;
     // spotless:on
 
@@ -67,16 +67,6 @@ public abstract class ServerLoginPacketListenerImplMixin
         handleHello(this, ci);
     }
 
-    @Inject(method = "handleCustomQueryPacket", at = @At("HEAD"), cancellable = true)
-    private void onHandleCustomQueryPacket(
-            final @NonNull ServerboundCustomQueryPacket packet, final @NonNull CallbackInfo ci) {
-        handleCustomQueryPacket(
-                this,
-                ((ServerboundCustomQueryPacketAccessor) packet).pcf$getTransactionId(),
-                packet,
-                ci);
-    }
-
     @Override
     public int bridge$velocityLoginMessageId() {
         return this.pcf$velocityLoginMessageId;
@@ -94,7 +84,7 @@ public abstract class ServerLoginPacketListenerImplMixin
 
     @Override
     public void bridge$disconnect(final @NonNull Object reason) {
-        this.shadow$onDisconnect((Component) reason);
+        this.shadow$disconnect((Component) reason);
     }
 
     @Override

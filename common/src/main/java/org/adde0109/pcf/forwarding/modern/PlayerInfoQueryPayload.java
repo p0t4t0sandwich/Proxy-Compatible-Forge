@@ -1,9 +1,8 @@
 package org.adde0109.pcf.forwarding.modern;
 
-import static dev.neuralnexus.taterapi.network.FriendlyByteBuf.readPayload;
-import static dev.neuralnexus.taterapi.network.FriendlyByteBuf.writePayload;
-
+import dev.neuralnexus.taterapi.network.FriendlyByteBuf;
 import dev.neuralnexus.taterapi.network.codec.StreamCodec;
+import dev.neuralnexus.taterapi.network.protocol.PayloadType;
 import dev.neuralnexus.taterapi.network.protocol.login.custom.CustomQueryPayload;
 
 import io.netty.buffer.ByteBuf;
@@ -18,20 +17,23 @@ import org.jspecify.annotations.NonNull;
  * @param data the buffer
  */
 public record PlayerInfoQueryPayload(@NonNull ByteBuf data) implements CustomQueryPayload {
-    public static final StreamCodec<ByteBuf, PlayerInfoQueryPayload> STREAM_CODEC =
-            CustomQueryPayload.codec(PlayerInfoQueryPayload::write, PlayerInfoQueryPayload::read);
     public static final String IDENTIFIER = VelocityProxy.PLAYER_INFO_CHANNEL.toString();
+    public static final StreamCodec<FriendlyByteBuf, PlayerInfoQueryPayload> STREAM_CODEC =
+            CustomQueryPayload.codec(
+                    PlayerInfoQueryPayload::encode, PlayerInfoQueryPayload::decode);
+    public static final Type<PlayerInfoQueryPayload> TYPE =
+            PayloadType.query(PlayerInfoQueryPayload.class, IDENTIFIER).codec(STREAM_CODEC).build();
 
-    private static @NonNull PlayerInfoQueryPayload read(final @NonNull ByteBuf buf) {
-        return new PlayerInfoQueryPayload(readPayload(buf));
+    private static @NonNull PlayerInfoQueryPayload decode(final @NonNull FriendlyByteBuf buf) {
+        return new PlayerInfoQueryPayload(buf.readPayload());
     }
 
-    private void write(final @NonNull ByteBuf buf) {
-        writePayload(buf, this.data);
+    private void encode(final @NonNull FriendlyByteBuf buf) {
+        buf.writePayload(this.data);
     }
 
     @Override
-    public @NonNull String id() {
-        return IDENTIFIER;
+    public @NonNull Type<PlayerInfoQueryPayload> type() {
+        return TYPE;
     }
 }

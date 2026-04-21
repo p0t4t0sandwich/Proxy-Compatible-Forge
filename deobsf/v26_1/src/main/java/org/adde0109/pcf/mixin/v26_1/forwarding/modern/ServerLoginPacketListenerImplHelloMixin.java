@@ -34,7 +34,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(targets = "net.minecraft.server.network.ServerLoginPacketListenerImpl")
 public abstract class ServerLoginPacketListenerImplHelloMixin
         implements ServerLoginPacketListenerBridge {
-    @AConstraint(mappings = Mappings.SEARGE, version = @Versions(max = MinecraftVersion.V18_2))
+    @AConstraint(mappings = Mappings.SEARGE, version = @Versions(min = MinecraftVersion.V17, max = MinecraftVersion.V18_2))
     @Inject(method = "m_5990_", cancellable = true, at = @At(value = "FIELD", opcode = Opcodes.PUTFIELD, ordinal = 1,
             target = "Lnet/minecraft/server/network/ServerLoginPacketListenerImpl;f_10019_:Lnet/minecraft/server/network/ServerLoginPacketListenerImpl$State;"))
     private void onHandleHello_17(final @NonNull CallbackInfo ci) {

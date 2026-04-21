@@ -1,6 +1,5 @@
 package org.adde0109.pcf.mixin.v13_2.forge.forwarding.modern;
 
-import static org.adde0109.pcf.forwarding.modern.ModernForwarding.handleCustomQueryPacket;
 import static org.adde0109.pcf.forwarding.modern.ModernForwarding.handleHello;
 
 import com.mojang.authlib.GameProfile;
@@ -12,7 +11,6 @@ import dev.neuralnexus.taterapi.meta.enums.MinecraftVersion;
 
 import net.minecraft.network.NetHandlerLoginServer;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.login.client.CPacketCustomPayloadLogin;
 import net.minecraft.util.text.ITextComponent;
 
 import org.adde0109.pcf.forwarding.modern.ConnectionBridge;
@@ -30,7 +28,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @AConstraint(
-        mappings = Mappings.LEGACY_SEARGE,
+        mappings = Mappings.SEARGE,
         version = @Versions(min = MinecraftVersion.V13, max = MinecraftVersion.V13_2))
 @Mixin(NetHandlerLoginServer.class)
 public abstract class ServerLoginPacketListenerImplMixin
@@ -50,16 +48,6 @@ public abstract class ServerLoginPacketListenerImplMixin
     // spotless:on
     private void onHandleHello(final @NonNull CallbackInfo ci) {
         handleHello(this, ci);
-    }
-
-    @Inject(method = "processCustomPayloadLogin", at = @At("HEAD"), cancellable = true)
-    private void onHandleCustomQueryPacket(
-            final @NonNull CPacketCustomPayloadLogin packet, final @NonNull CallbackInfo ci) {
-        handleCustomQueryPacket(
-                this,
-                ((ServerboundCustomQueryPacketAccessor) packet).pcf$getTransactionId(),
-                packet,
-                ci);
     }
 
     @Override
