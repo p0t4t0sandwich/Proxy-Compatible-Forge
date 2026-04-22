@@ -86,6 +86,10 @@ public final class PCFMixinPlugin implements IMixinConfigPlugin {
             PCF.logger.debug("Skipping mixin " + m + " because forwarding mode is not MODERN.");
             return false;
         }
+        if (forwarding.mode() != Mode.LEGACY && m.contains(".forwarding.legacy.")) {
+            PCF.logger.debug("Skipping mixin " + m + " because forwarding mode is not LEGACY.");
+            return false;
+        }
         if (advanced.modernForwardingVersion() != NO_OVERRIDE
                 && Constraint.builder().version(MinecraftVersions.V19).result()
                 && advanced.modernForwardingVersion() != MODERN_FORWARDING_WITH_KEY
