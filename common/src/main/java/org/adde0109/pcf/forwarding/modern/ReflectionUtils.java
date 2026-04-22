@@ -47,7 +47,7 @@ public final class ReflectionUtils {
      * @param profile the profile
      * @return the properties
      */
-    static @NonNull PropertyMap getProperties(final @NonNull GameProfile profile) {
+    public static @NonNull PropertyMap getProperties(final @NonNull GameProfile profile) {
         try {
             return (PropertyMap) profilePropertiesHandle.invokeExact(profile);
         } catch (final Throwable e) {
