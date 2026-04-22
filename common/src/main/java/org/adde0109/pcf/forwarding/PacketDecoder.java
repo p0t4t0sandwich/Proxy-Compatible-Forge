@@ -2,6 +2,7 @@ package org.adde0109.pcf.forwarding;
 
 import static org.adde0109.pcf.forwarding.ConnectionBridge.HANDLER_PACKET;
 import static org.adde0109.pcf.forwarding.legacy.LegacyForwarding.handleClientIntentionPacket;
+import static org.adde0109.pcf.forwarding.modern.ModernForwarding.LOGIN_MESSAGE_ID;
 import static org.adde0109.pcf.forwarding.modern.ModernForwarding.handleCustomQueryPacket;
 
 import dev.neuralnexus.taterapi.network.FriendlyByteBuf;
@@ -37,8 +38,9 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
         switch (connection.bridge$protocol()) {
             case null -> {}
             case HANDSHAKING -> {
-                if (PCF.instance().forwarding().mode() != Mode.LEGACY
-                        && PCF.instance().forwarding().mode() != Mode.BUNGEEGUARD) {
+                if (!PCF.instance().forwarding().enabled()
+                        || (PCF.instance().forwarding().mode() != Mode.LEGACY
+                                && PCF.instance().forwarding().mode() != Mode.BUNGEEGUARD)) {
                     out.add(msg.retain());
                     return;
                 }
@@ -74,6 +76,12 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
                 }
             }
             case LOGIN -> {
+                if (!PCF.instance().forwarding().enabled()
+                        || !PCF.instance().forwarding().mode().equals(Mode.MODERN)) {
+                    out.add(msg.retain());
+                    return;
+                }
+
                 if (!(connection.bridge$getPacketListener()
                         instanceof ServerLoginPacketListenerBridge slpl)) {
                     out.add(msg.retain());
@@ -96,7 +104,8 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
                                 ServerboundCustomQueryAnswerPacket.STREAM_CODEC.decode(data);
 
                         // Check if the packet should be handled
-                        if (packet.transactionId() != slpl.bridge$velocityLoginMessageId()) {
+                        if (packet.transactionId()
+                                != connection.bridge$channel().attr(LOGIN_MESSAGE_ID).get()) {
                             msg.readerIndex(readerIndex);
                             break;
                         }

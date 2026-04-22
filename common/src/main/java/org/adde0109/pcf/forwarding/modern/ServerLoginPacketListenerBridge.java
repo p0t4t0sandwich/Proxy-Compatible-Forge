@@ -11,10 +11,6 @@ import org.jspecify.annotations.Nullable;
 import java.util.UUID;
 
 public interface ServerLoginPacketListenerBridge {
-    int bridge$velocityLoginMessageId();
-
-    void bridge$setVelocityLoginMessageId(final int id);
-
     @NonNull ConnectionBridge bridge$connection();
 
     void bridge$disconnect(final @NonNull Object reason);

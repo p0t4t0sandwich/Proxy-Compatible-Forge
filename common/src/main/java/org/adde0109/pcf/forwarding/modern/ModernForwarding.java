@@ -20,9 +20,11 @@ import dev.neuralnexus.taterapi.network.protocol.login.ServerboundCustomQueryAns
 import dev.neuralnexus.taterapi.network.protocol.login.custom.CustomQueryAnswerPayload;
 
 import io.netty.handler.codec.DecoderException;
+import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.Future;
 
 import org.adde0109.pcf.PCF;
+import org.adde0109.pcf.forwarding.ConnectionBridge;
 import org.adde0109.pcf.forwarding.Mode;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.NonNull;
@@ -51,6 +53,9 @@ import java.util.concurrent.ThreadLocalRandom;
  * 1.20.x</a>
  */
 public final class ModernForwarding {
+    public static final AttributeKey<Integer> LOGIN_MESSAGE_ID =
+            AttributeKey.valueOf("pcf-login-message-id");
+
     private static final Object REJECTED_PROXY_ERR = literal("Unapproved proxy host.");
 
     /**
@@ -76,10 +81,11 @@ public final class ModernForwarding {
                 || !PCF.instance().forwarding().mode().equals(Mode.MODERN)) {
             return;
         }
+        final ConnectionBridge connection = slpl.bridge$connection();
 
         final List<String> approved = PCF.instance().forwarding().approvedProxyHosts();
         if (!approved.isEmpty()) {
-            final InetSocketAddress address = slpl.bridge$connection().bridge$address();
+            final InetSocketAddress address = connection.bridge$address();
             final String host = address.getHostString();
             final String ip = address.getAddress().getHostAddress();
             if (!approved.contains(host) && !approved.contains(ip)) {
@@ -95,11 +101,9 @@ public final class ModernForwarding {
             }
         }
 
-        slpl.bridge$setVelocityLoginMessageId(ThreadLocalRandom.current().nextInt());
-        slpl.bridge$connection()
-                .bridge$send(
-                        new ClientboundCustomQueryPacket(
-                                slpl.bridge$velocityLoginMessageId(), PLAYER_INFO_PAYLOAD));
+        final int messageId = ThreadLocalRandom.current().nextInt();
+        connection.bridge$channel().attr(LOGIN_MESSAGE_ID).set(messageId);
+        connection.bridge$send(new ClientboundCustomQueryPacket(messageId, PLAYER_INFO_PAYLOAD));
         PCF.logger.debug("Sent Forward Request");
         ci.cancel();
     }

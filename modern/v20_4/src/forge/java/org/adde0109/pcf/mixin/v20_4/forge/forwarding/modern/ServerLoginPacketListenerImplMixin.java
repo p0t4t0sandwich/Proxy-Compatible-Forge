@@ -18,7 +18,6 @@ import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 
 @AConstraint(mappings = Mappings.SEARGE, version = @Versions(min = MinecraftVersion.V17))
 @Mixin(ServerLoginPacketListenerImpl.class)
@@ -33,19 +32,7 @@ public abstract class ServerLoginPacketListenerImplMixin
 
     @AConstraint(version = @Versions(min = MinecraftVersion.V20_2))
     @Shadow private @Nullable GameProfile authenticatedProfile;
-
-    @Unique private int pcf$velocityLoginMessageId = -1;
     // spotless:on
-
-    @Override
-    public int bridge$velocityLoginMessageId() {
-        return this.pcf$velocityLoginMessageId;
-    }
-
-    @Override
-    public void bridge$setVelocityLoginMessageId(final int id) {
-        this.pcf$velocityLoginMessageId = id;
-    }
 
     @Override
     public @NonNull ConnectionBridge bridge$connection() {
