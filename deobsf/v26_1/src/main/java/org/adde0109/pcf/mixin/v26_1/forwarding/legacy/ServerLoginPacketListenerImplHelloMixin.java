@@ -1,5 +1,7 @@
 package org.adde0109.pcf.mixin.v26_1.forwarding.legacy;
 
+import static org.adde0109.pcf.forwarding.legacy.LegacyForwarding.SPOOFED_PROFILE;
+import static org.adde0109.pcf.forwarding.legacy.LegacyForwarding.SPOOFED_UUID;
 import static org.adde0109.pcf.forwarding.modern.ReflectionUtils.getProperties;
 
 import com.mojang.authlib.GameProfile;
@@ -15,7 +17,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.login.ServerboundHelloPacket;
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;
 
-import org.adde0109.pcf.forwarding.legacy.ConnectionBridgeLegacy;
+import org.adde0109.pcf.forwarding.ConnectionBridge;
 import org.adde0109.pcf.forwarding.modern.ServerLoginPacketListenerBridge;
 import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Final;
@@ -47,8 +49,9 @@ public abstract class ServerLoginPacketListenerImplHelloMixin
     // spotless:on
     private void onHandleHello_20_M(
             final ServerboundHelloPacket packet, final @NonNull CallbackInfo ci) {
-        ConnectionBridgeLegacy conn = (ConnectionBridgeLegacy) this.connection;
-        if (conn.bridge$spoofedProfile() == null) {
+        final ConnectionBridge conn = (ConnectionBridge) this.connection;
+
+        if (conn.bridge$channel().attr(SPOOFED_UUID).get() == null) {
             return; // TODO: Provide client-bound disconnect error
         }
 
@@ -59,9 +62,11 @@ public abstract class ServerLoginPacketListenerImplHelloMixin
 
     // Spigot start
     @Unique protected GameProfile pcf$createOfflineProfile(String name) {
+        final ConnectionBridge conn = (ConnectionBridge) this.connection;
+
         final UUID uuid;
-        if (((ConnectionBridgeLegacy) this.connection).bridge$spoofedUUID() != null) {
-            uuid = ((ConnectionBridgeLegacy) this.connection).bridge$spoofedUUID();
+        if (conn.bridge$channel().attr(SPOOFED_UUID).get() != null) {
+            uuid = conn.bridge$channel().attr(SPOOFED_UUID).get();
         } else {
             uuid =
                     UUID.nameUUIDFromBytes(
@@ -71,9 +76,8 @@ public abstract class ServerLoginPacketListenerImplHelloMixin
         // TODO: Add 1.21.9 support
         final GameProfile profile = new GameProfile(uuid, name);
         final PropertyMap propertiesMap = getProperties(profile);
-        if (((ConnectionBridgeLegacy) this.connection).bridge$spoofedProfile() != null) {
-            for (final Property property :
-                    ((ConnectionBridgeLegacy) this.connection).bridge$spoofedProfile()) {
+        if (conn.bridge$channel().attr(SPOOFED_PROFILE).get() != null) {
+            for (final Property property : conn.bridge$channel().attr(SPOOFED_PROFILE).get()) {
                 if (!pcf$PROP_PATTERN.matcher(property.name()).matches()) continue;
                 propertiesMap.put(property.name(), property);
             }
