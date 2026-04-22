@@ -2,12 +2,19 @@ package org.adde0109.pcf.forwarding.legacy;
 
 import static dev.neuralnexus.taterapi.network.chat.Component.literal;
 
+import static org.adde0109.pcf.forwarding.ReflectionUtils.getProperties;
+
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.net.InetAddresses;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.properties.PropertyMap;
 
+import dev.neuralnexus.taterapi.meta.Constraint;
+import dev.neuralnexus.taterapi.meta.MinecraftVersions;
 import dev.neuralnexus.taterapi.network.FriendlyByteBuf;
 import dev.neuralnexus.taterapi.network.chat.ThrowingComponent;
 import dev.neuralnexus.taterapi.network.protocol.handshake.ClientIntent;
@@ -45,6 +52,7 @@ public final class LegacyForwarding {
             literal("This server requires you to connect with Velocity or BungeeCord.");
     private static final Object BG_CONFIG_ERR =
             literal("This server requires the proxy to be configured for BungeeGuard forwarding.");
+    private static final Object PLAYER_INFO_ERR = literal("Unable to verify player details.");
 
     // https://hub.spigotmc.org/stash/projects/SPIGOT/repos/spigot/browse/CraftBukkit-Patches/0024-BungeeCord-Support.patch
     // https://github.com/caunt/BungeeForge/blob/1.20.2/src/main/java/ua/caunt/bungeeforge/mixin/network/protocol/handshake/ClientIntentionPacket.java#L51-L54
@@ -119,5 +127,39 @@ public final class LegacyForwarding {
     private static boolean isFmlMarker(final @NonNull Property property) {
         return Objects.equals(property.name(), "extraData")
                 && property.value().startsWith("\u0001FORGE");
+    }
+
+    private static final Pattern PROP_PATTERN = Pattern.compile("\\w{0,16}");
+
+    public static GameProfile createProfile(
+            final @NonNull ConnectionBridge conn, final @NonNull String name) {
+        final UUID uuid;
+        if (conn.bridge$channel().attr(SPOOFED_UUID).get() != null) {
+            uuid = conn.bridge$channel().attr(SPOOFED_UUID).get();
+        } else {
+            throw new ThrowingComponent(PLAYER_INFO_ERR);
+        }
+
+        final Collection<Property> properties = conn.bridge$channel().attr(SPOOFED_PROFILE).get();
+        if (properties == null) {
+            return new GameProfile(uuid, name);
+            // com.mojang:authlib:7.0.0 or newer
+        } else if (Constraint.noLessThan(MinecraftVersions.V21_9).result()) {
+            final ImmutableMultimap.Builder<String, Property> propertiesBuilder =
+                    ImmutableMultimap.builder();
+            for (final Property property : properties) {
+                if (!PROP_PATTERN.matcher(property.name()).matches()) continue;
+                propertiesBuilder.put(property.name(), property);
+            }
+            return new GameProfile(uuid, name, new PropertyMap(propertiesBuilder.build()));
+        } else {
+            final GameProfile profile = new GameProfile(uuid, name);
+            final PropertyMap propertiesMap = getProperties(profile);
+            for (final Property property : properties) {
+                if (!PROP_PATTERN.matcher(property.name()).matches()) continue;
+                propertiesMap.put(property.name(), property);
+            }
+            return profile;
+        }
     }
 }

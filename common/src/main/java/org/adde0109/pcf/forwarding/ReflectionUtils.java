@@ -1,4 +1,4 @@
-package org.adde0109.pcf.forwarding.modern;
+package org.adde0109.pcf.forwarding;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.PropertyMap;
@@ -77,7 +77,7 @@ public final class ReflectionUtils {
         ENFORCE_SECURE_PROFILE = enforceSecureProfileHandle;
     }
 
-    static boolean enforceSecureProfile() {
+    public static boolean enforceSecureProfile() {
         if (ENFORCE_SECURE_PROFILE == null) {
             return false;
         }

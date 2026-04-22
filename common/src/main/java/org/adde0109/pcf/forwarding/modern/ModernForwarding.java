@@ -3,7 +3,7 @@ package org.adde0109.pcf.forwarding.modern;
 import static dev.neuralnexus.taterapi.network.chat.Component.literal;
 import static dev.neuralnexus.taterapi.network.chat.Component.translatable;
 
-import static org.adde0109.pcf.forwarding.modern.ReflectionUtils.enforceSecureProfile;
+import static org.adde0109.pcf.forwarding.ReflectionUtils.enforceSecureProfile;
 import static org.adde0109.pcf.forwarding.modern.VelocityProxy.MODERN_MAX_VERSION;
 import static org.adde0109.pcf.forwarding.modern.VelocityProxy.PLAYER_INFO_PAYLOAD;
 import static org.adde0109.pcf.forwarding.modern.VelocityProxy.checkIntegrity;
