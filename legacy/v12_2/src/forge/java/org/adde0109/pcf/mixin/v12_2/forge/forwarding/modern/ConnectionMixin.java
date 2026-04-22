@@ -4,13 +4,18 @@ import dev.neuralnexus.taterapi.meta.Mappings;
 import dev.neuralnexus.taterapi.meta.anno.AConstraint;
 import dev.neuralnexus.taterapi.meta.anno.Versions;
 import dev.neuralnexus.taterapi.meta.enums.MinecraftVersion;
+import dev.neuralnexus.taterapi.network.Protocol;
 
+import io.netty.util.AttributeKey;
+
+import net.minecraft.network.EnumConnectionState;
 import net.minecraft.network.INetHandler;
 import net.minecraft.network.NetworkManager;
 
 import org.adde0109.pcf.forwarding.modern.ConnectionBridge;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
@@ -27,6 +32,8 @@ public abstract class ConnectionMixin implements ConnectionBridge {
     @Shadow public abstract INetHandler shadow$getNetHandler();
     // spotless:on
 
+    @Shadow @Final public static AttributeKey<EnumConnectionState> PROTOCOL_ATTRIBUTE_KEY;
+
     @Override
     public @NonNull InetSocketAddress bridge$address() {
         return (InetSocketAddress) this.socketAddress;
@@ -40,5 +47,15 @@ public abstract class ConnectionMixin implements ConnectionBridge {
     @Override
     public @Nullable Object bridge$getPacketListener() {
         return this.shadow$getNetHandler();
+    }
+
+    @Override
+    public Protocol bridge$protocol() {
+        final INetHandler listener = this.shadow$getNetHandler();
+        if (listener == null) {
+            return null;
+        }
+        return Protocol.fromLegacyId(
+                this.bridge$channel().attr(PROTOCOL_ATTRIBUTE_KEY).get().getId());
     }
 }

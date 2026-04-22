@@ -60,11 +60,9 @@ public final class ModernForwarding {
     /**
      * Injects the packet encoder and decoder into the pipeline to handle login query packets
      *
-     * @param connection the connection
      * @param ctx the channel handler context
      */
-    public static void injectIntoPipeline(
-            final @NonNull ConnectionBridge connection, final @NonNull ChannelHandlerContext ctx) {
+    public static void injectIntoPipeline(final @NonNull ChannelHandlerContext ctx) {
         if (ctx.pipeline().get(PacketDecoder.NAME) != null
                 || ctx.pipeline().get(PacketEncoder.NAME) != null) {
             return;
@@ -73,7 +71,7 @@ public final class ModernForwarding {
                 "Injecting packet handlers into pipeline of " + ctx.channel().remoteAddress());
         ctx.channel()
                 .pipeline()
-                .addAfter(HANDLER_SPLITTER, PacketDecoder.NAME, new PacketDecoder(connection))
+                .addAfter(HANDLER_SPLITTER, PacketDecoder.NAME, new PacketDecoder())
                 .addAfter(HANDLER_PREPENDER, PacketEncoder.NAME, new PacketEncoder());
     }
 

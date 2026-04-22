@@ -4,6 +4,7 @@ import dev.neuralnexus.taterapi.meta.Mappings;
 import dev.neuralnexus.taterapi.meta.anno.AConstraint;
 import dev.neuralnexus.taterapi.meta.anno.Versions;
 import dev.neuralnexus.taterapi.meta.enums.MinecraftVersion;
+import dev.neuralnexus.taterapi.network.Protocol;
 
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketListener;
@@ -40,5 +41,17 @@ public abstract class ConnectionMixin implements ConnectionBridge {
     @Override
     public @Nullable Object bridge$getPacketListener() {
         return this.shadow$getPacketListener();
+    }
+
+    @AConstraint(
+            mappings = Mappings.SEARGE,
+            version = @Versions(min = MinecraftVersion.V20_2, max = MinecraftVersion.V20_4))
+    @Override
+    public Protocol bridge$protocol() {
+        final PacketListener listener = this.shadow$getPacketListener();
+        if (listener == null) {
+            return null;
+        }
+        return Protocol.fromId(listener.protocol().id());
     }
 }

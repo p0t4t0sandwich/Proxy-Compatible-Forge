@@ -8,6 +8,7 @@
   "plugin": "org.adde0109.pcf.mixin.plugin.PCFMixinPlugin",
   "package": "org.adde0109.pcf.mixin",
   "server": [
+    "v19_2.forge.forwarding.modern.ConnectionMixin",
     "v19_2.forge.forwarding.modern.LastSeenMessagesValidatorMixin",
     "v19_2.forge.forwarding.modern.PlayerChatMessageMixin",
     "v19_2.forge.forwarding.modern.ServerLoginPacketListenerImplKeyV1Mixin",
