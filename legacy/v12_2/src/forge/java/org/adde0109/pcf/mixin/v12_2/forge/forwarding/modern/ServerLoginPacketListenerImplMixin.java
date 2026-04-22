@@ -18,7 +18,6 @@ import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 
 @AConstraint(
         mappings = Mappings.SEARGE,
@@ -30,18 +29,7 @@ public abstract class ServerLoginPacketListenerImplMixin
     @Shadow @Final public NetworkManager networkManager;
     @Shadow private GameProfile loginGameProfile;
     @Shadow private NetHandlerLoginServer.LoginState currentLoginState;
-    @Unique private int pcf$velocityLoginMessageId = -1;
     // spotless:on
-
-    @Override
-    public int bridge$velocityLoginMessageId() {
-        return this.pcf$velocityLoginMessageId;
-    }
-
-    @Override
-    public void bridge$setVelocityLoginMessageId(final int id) {
-        this.pcf$velocityLoginMessageId = id;
-    }
 
     @Override
     public @NonNull ConnectionBridge bridge$connection() {

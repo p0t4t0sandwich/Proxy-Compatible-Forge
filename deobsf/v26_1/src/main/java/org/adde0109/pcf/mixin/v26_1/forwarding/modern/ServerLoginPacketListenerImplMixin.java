@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 
 @AConstraint(mappings = Mappings.MOJANG, version = @Versions(min = MinecraftVersion.V20_2))
 @Mixin(ServerLoginPacketListenerImpl.class)
@@ -30,18 +29,7 @@ public abstract class ServerLoginPacketListenerImplMixin
     @Shadow public abstract void shadow$disconnect(Component details);
     @Shadow protected abstract void shadow$startClientVerification(GameProfile profile);
     @Shadow private GameProfile authenticatedProfile;
-    @Unique private int pcf$velocityLoginMessageId = -1;
     // spotless:on
-
-    @Override
-    public int bridge$velocityLoginMessageId() {
-        return this.pcf$velocityLoginMessageId;
-    }
-
-    @Override
-    public void bridge$setVelocityLoginMessageId(final int id) {
-        this.pcf$velocityLoginMessageId = id;
-    }
 
     @Override
     public @NonNull ConnectionBridge bridge$connection() {

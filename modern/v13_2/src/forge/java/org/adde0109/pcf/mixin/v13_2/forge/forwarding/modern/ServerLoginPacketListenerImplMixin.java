@@ -22,7 +22,6 @@ import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -39,7 +38,6 @@ public abstract class ServerLoginPacketListenerImplMixin
     @Shadow private NetHandlerLoginServer.LoginState currentLoginState;
     @Shadow @Final private static Logger LOGGER;
     @Shadow public abstract void shadow$disconnect(ITextComponent reason);
-    @Unique private int pcf$velocityLoginMessageId = -1;
     // spotless:on
 
     // spotless:off
@@ -48,16 +46,6 @@ public abstract class ServerLoginPacketListenerImplMixin
     // spotless:on
     private void onHandleHello(final @NonNull CallbackInfo ci) {
         handleHello(this, ci);
-    }
-
-    @Override
-    public int bridge$velocityLoginMessageId() {
-        return this.pcf$velocityLoginMessageId;
-    }
-
-    @Override
-    public void bridge$setVelocityLoginMessageId(final int id) {
-        this.pcf$velocityLoginMessageId = id;
     }
 
     @Override
