@@ -9,11 +9,11 @@
   "package": "org.adde0109.pcf.mixin",
   "server": [
     "v19_2.forge.forwarding.ConnectionMixin",
+    "v19_2.forge.forwarding.ServerLoginPacketListenerImplStartClientVerificationMixin",
     "v19_2.forge.forwarding.modern.LastSeenMessagesValidatorMixin",
     "v19_2.forge.forwarding.modern.PlayerChatMessageMixin",
     "v19_2.forge.forwarding.modern.ServerLoginPacketListenerImplKeyV1Mixin",
     "v19_2.forge.forwarding.modern.ServerLoginPacketListenerImplKeyV2Mixin",
-    "v19_2.forge.forwarding.modern.ServerLoginPacketListenerImplStartClientVerificationMixin",
     "v19_2.forge.forwarding.modern.SignedMessageChainMixin"
   ]
 }

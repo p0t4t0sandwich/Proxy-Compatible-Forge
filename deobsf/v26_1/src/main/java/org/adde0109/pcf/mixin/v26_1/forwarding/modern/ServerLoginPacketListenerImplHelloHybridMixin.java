@@ -10,7 +10,7 @@ import dev.neuralnexus.taterapi.meta.enums.Platform;
 
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;
 
-import org.adde0109.pcf.forwarding.modern.ServerLoginPacketListenerBridge;
+import org.adde0109.pcf.forwarding.ServerLoginPacketListenerBridge;
 import org.apache.commons.lang3.Validate;
 import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Mixin;

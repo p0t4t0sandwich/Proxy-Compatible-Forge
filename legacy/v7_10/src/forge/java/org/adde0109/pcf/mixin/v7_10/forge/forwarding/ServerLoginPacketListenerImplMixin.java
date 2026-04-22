@@ -1,4 +1,4 @@
-package org.adde0109.pcf.mixin.v7_10.forge.forwarding.modern;
+package org.adde0109.pcf.mixin.v7_10.forge.forwarding;
 
 import dev.neuralnexus.taterapi.meta.Mappings;
 import dev.neuralnexus.taterapi.meta.anno.AConstraint;
@@ -8,7 +8,7 @@ import dev.neuralnexus.taterapi.meta.enums.MinecraftVersion;
 import net.minecraft.server.network.NetHandlerLoginServer;
 import net.minecraft.util.IChatComponent;
 
-import org.adde0109.pcf.forwarding.modern.ServerLoginPacketListenerBridge;
+import org.adde0109.pcf.forwarding.ServerLoginPacketListenerBridge;
 import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Final;

@@ -1,10 +1,9 @@
-package org.adde0109.pcf.forwarding.modern;
+package org.adde0109.pcf.forwarding;
 
 import com.mojang.authlib.GameProfile;
 
 import dev.neuralnexus.taterapi.mc.world.entity.player.ProfilePublicKey;
 
-import org.adde0109.pcf.forwarding.ConnectionBridge;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 

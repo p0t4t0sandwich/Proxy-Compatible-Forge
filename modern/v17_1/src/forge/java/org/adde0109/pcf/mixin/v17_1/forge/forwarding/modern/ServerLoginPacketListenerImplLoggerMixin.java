@@ -7,7 +7,7 @@ import dev.neuralnexus.taterapi.meta.enums.MinecraftVersion;
 
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;
 
-import org.adde0109.pcf.forwarding.modern.ServerLoginPacketListenerBridge;
+import org.adde0109.pcf.forwarding.ServerLoginPacketListenerBridge;
 import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Final;

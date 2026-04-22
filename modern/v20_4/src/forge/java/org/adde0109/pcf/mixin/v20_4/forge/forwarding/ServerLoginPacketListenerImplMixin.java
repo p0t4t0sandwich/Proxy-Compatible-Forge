@@ -1,4 +1,4 @@
-package org.adde0109.pcf.mixin.v20_4.forge.forwarding.modern;
+package org.adde0109.pcf.mixin.v20_4.forge.forwarding;
 
 import com.mojang.authlib.GameProfile;
 
@@ -12,7 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;
 
 import org.adde0109.pcf.forwarding.ConnectionBridge;
-import org.adde0109.pcf.forwarding.modern.ServerLoginPacketListenerBridge;
+import org.adde0109.pcf.forwarding.ServerLoginPacketListenerBridge;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
