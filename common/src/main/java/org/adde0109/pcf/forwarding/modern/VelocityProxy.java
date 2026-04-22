@@ -2,7 +2,7 @@ package org.adde0109.pcf.forwarding.modern;
 
 import static dev.neuralnexus.taterapi.resources.Identifier.identifier;
 
-import static org.adde0109.pcf.forwarding.modern.ReflectionUtils.getProperties;
+import static org.adde0109.pcf.forwarding.ReflectionUtils.getProperties;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
