@@ -1,6 +1,4 @@
-package org.adde0109.pcf.mixin.common.forwarding.modern;
-
-import static org.adde0109.pcf.forwarding.modern.ModernForwarding.injectIntoPipeline;
+package org.adde0109.pcf.mixin.common.forwarding;
 
 import dev.neuralnexus.taterapi.meta.Mappings;
 import dev.neuralnexus.taterapi.meta.anno.AConstraint;
@@ -11,7 +9,7 @@ import dev.neuralnexus.taterapi.meta.enums.MinecraftVersion;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 
-import org.adde0109.pcf.forwarding.modern.ConnectionBridge;
+import org.adde0109.pcf.forwarding.ConnectionBridge;
 import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -41,7 +39,7 @@ public final class ConnectionMixin {
         @Inject(method = "channelActive", at = @At("TAIL"), remap = false)
         private void onChannelActive(
                 final @NonNull ChannelHandlerContext ctx, final @NonNull CallbackInfo ci) {
-            injectIntoPipeline(ctx);
+            ConnectionBridge.injectIntoPipeline(ctx);
         }
     }
 
@@ -61,7 +59,7 @@ public final class ConnectionMixin {
         @Inject(method = "channelActive", at = @At("TAIL"), remap = false)
         private void onChannelActive(
                 final @NonNull ChannelHandlerContext ctx, final @NonNull CallbackInfo ci) {
-            injectIntoPipeline(ctx);
+            ConnectionBridge.injectIntoPipeline(ctx);
         }
     }
 }

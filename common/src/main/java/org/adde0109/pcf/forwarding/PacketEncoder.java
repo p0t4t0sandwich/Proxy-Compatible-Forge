@@ -1,4 +1,4 @@
-package org.adde0109.pcf.forwarding.modern;
+package org.adde0109.pcf.forwarding;
 
 import dev.neuralnexus.taterapi.network.FriendlyByteBuf;
 import dev.neuralnexus.taterapi.network.protocol.login.ClientboundCustomQueryPacket;

@@ -1,35 +1,26 @@
-package org.adde0109.pcf.mixin.v16_5.forge.forwarding.modern;
+package org.adde0109.pcf.mixin.v26_1.forwarding;
 
 import dev.neuralnexus.taterapi.meta.Mappings;
 import dev.neuralnexus.taterapi.meta.anno.AConstraint;
-import dev.neuralnexus.taterapi.meta.anno.Versions;
-import dev.neuralnexus.taterapi.meta.enums.MinecraftVersion;
 import dev.neuralnexus.taterapi.network.Protocol;
 
-import io.netty.util.AttributeKey;
-
 import net.minecraft.network.Connection;
-import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.PacketListener;
 
-import org.adde0109.pcf.forwarding.modern.ConnectionBridge;
+import org.adde0109.pcf.forwarding.ConnectionBridge;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
-@AConstraint(
-        mappings = Mappings.SEARGE,
-        version = @Versions(min = MinecraftVersion.V13, max = MinecraftVersion.V16_5))
+@AConstraint(mappings = Mappings.MOJANG)
 @Mixin(Connection.class)
 public abstract class ConnectionMixin implements ConnectionBridge {
     // spotless:off
     @Shadow private SocketAddress address;
-    @Shadow @Final public static AttributeKey<ConnectionProtocol> ATTRIBUTE_PROTOCOL;
     @Shadow public abstract PacketListener shadow$getPacketListener();
     // spotless:on
 
@@ -54,6 +45,6 @@ public abstract class ConnectionMixin implements ConnectionBridge {
         if (listener == null) {
             return null;
         }
-        return Protocol.fromLegacyId(this.bridge$channel().attr(ATTRIBUTE_PROTOCOL).get().getId());
+        return Protocol.fromId(listener.protocol().id());
     }
 }

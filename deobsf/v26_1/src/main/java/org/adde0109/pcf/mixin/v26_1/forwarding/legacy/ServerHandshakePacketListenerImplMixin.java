@@ -13,9 +13,9 @@ import net.minecraft.network.protocol.login.ClientboundLoginDisconnectPacket;
 import net.minecraft.server.network.ServerHandshakePacketListenerImpl;
 
 import org.adde0109.pcf.PCF;
+import org.adde0109.pcf.forwarding.ConnectionBridge;
 import org.adde0109.pcf.forwarding.Mode;
 import org.adde0109.pcf.forwarding.legacy.ConnectionBridgeLegacy;
-import org.adde0109.pcf.forwarding.modern.ConnectionBridge;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

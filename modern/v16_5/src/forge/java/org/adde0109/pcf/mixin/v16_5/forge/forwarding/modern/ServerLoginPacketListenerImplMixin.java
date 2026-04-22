@@ -14,7 +14,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.network.ServerLoginPacketListenerImpl;
 
-import org.adde0109.pcf.forwarding.modern.ConnectionBridge;
+import org.adde0109.pcf.forwarding.ConnectionBridge;
 import org.adde0109.pcf.forwarding.modern.ServerLoginPacketListenerBridge;
 import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.Logger;

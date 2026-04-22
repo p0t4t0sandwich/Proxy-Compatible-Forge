@@ -19,7 +19,6 @@ import dev.neuralnexus.taterapi.network.protocol.login.ClientboundCustomQueryPac
 import dev.neuralnexus.taterapi.network.protocol.login.ServerboundCustomQueryAnswerPacket;
 import dev.neuralnexus.taterapi.network.protocol.login.custom.CustomQueryAnswerPayload;
 
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.DecoderException;
 import io.netty.util.concurrent.Future;
 
@@ -53,27 +52,6 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public final class ModernForwarding {
     private static final Object REJECTED_PROXY_ERR = literal("Unapproved proxy host.");
-
-    private static final String HANDLER_SPLITTER = "splitter";
-    private static final String HANDLER_PREPENDER = "prepender";
-
-    /**
-     * Injects the packet encoder and decoder into the pipeline to handle login query packets
-     *
-     * @param ctx the channel handler context
-     */
-    public static void injectIntoPipeline(final @NonNull ChannelHandlerContext ctx) {
-        if (ctx.pipeline().get(PacketDecoder.NAME) != null
-                || ctx.pipeline().get(PacketEncoder.NAME) != null) {
-            return;
-        }
-        PCF.logger.debug(
-                "Injecting packet handlers into pipeline of " + ctx.channel().remoteAddress());
-        ctx.channel()
-                .pipeline()
-                .addAfter(HANDLER_SPLITTER, PacketDecoder.NAME, new PacketDecoder())
-                .addAfter(HANDLER_PREPENDER, PacketEncoder.NAME, new PacketEncoder());
-    }
 
     /**
      * Listener for logging errors during packet handling

@@ -13,7 +13,7 @@ import net.minecraft.network.NetHandlerLoginServer;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.util.text.ITextComponent;
 
-import org.adde0109.pcf.forwarding.modern.ConnectionBridge;
+import org.adde0109.pcf.forwarding.ConnectionBridge;
 import org.adde0109.pcf.forwarding.modern.ServerLoginPacketListenerBridge;
 import org.apache.logging.log4j.Logger;
 import org.jspecify.annotations.NonNull;
