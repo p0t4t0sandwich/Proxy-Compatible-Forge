@@ -1,8 +1,10 @@
 package org.adde0109.pcf.forwarding.modern;
 
+import static org.adde0109.pcf.forwarding.modern.ConnectionBridge.PACKET_HANDLER;
 import static org.adde0109.pcf.forwarding.modern.ModernForwarding.handleCustomQueryPacket;
 
 import dev.neuralnexus.taterapi.network.FriendlyByteBuf;
+import dev.neuralnexus.taterapi.network.Protocol;
 import dev.neuralnexus.taterapi.network.chat.ThrowingComponent;
 import dev.neuralnexus.taterapi.network.protocol.login.ServerboundCustomQueryAnswerPacket;
 
@@ -18,12 +20,6 @@ import java.util.List;
 public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
     public static final String NAME = "pcf-decoder";
 
-    private final ConnectionBridge connection;
-
-    public PacketDecoder(final @NonNull ConnectionBridge connection) {
-        this.connection = connection;
-    }
-
     @SuppressWarnings("RedundantThrows")
     @Override
     protected void decode(
@@ -34,7 +30,13 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
         if (!msg.isReadable()) {
             return;
         }
-        if (!(this.connection.bridge$getPacketListener()
+        final ConnectionBridge connection =
+                ((ConnectionBridge) ctx.channel().pipeline().get(PACKET_HANDLER));
+        if (!(connection.bridge$protocol() == Protocol.LOGIN)) {
+            out.add(msg.retain());
+            return;
+        }
+        if (!(connection.bridge$getPacketListener()
                 instanceof ServerLoginPacketListenerBridge slpl)) {
             out.add(msg.retain());
             return;

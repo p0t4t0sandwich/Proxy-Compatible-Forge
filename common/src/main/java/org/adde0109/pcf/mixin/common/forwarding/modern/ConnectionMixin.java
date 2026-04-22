@@ -41,7 +41,7 @@ public final class ConnectionMixin {
         @Inject(method = "channelActive", at = @At("TAIL"), remap = false)
         private void onChannelActive(
                 final @NonNull ChannelHandlerContext ctx, final @NonNull CallbackInfo ci) {
-            injectIntoPipeline(this, ctx);
+            injectIntoPipeline(ctx);
         }
     }
 
@@ -61,7 +61,7 @@ public final class ConnectionMixin {
         @Inject(method = "channelActive", at = @At("TAIL"), remap = false)
         private void onChannelActive(
                 final @NonNull ChannelHandlerContext ctx, final @NonNull CallbackInfo ci) {
-            injectIntoPipeline(this, ctx);
+            injectIntoPipeline(ctx);
         }
     }
 }
