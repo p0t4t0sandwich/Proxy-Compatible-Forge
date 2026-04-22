@@ -1,4 +1,4 @@
-package org.adde0109.pcf.mixin.v20_4.forge.forwarding.modern;
+package org.adde0109.pcf.mixin.v12_2.forge.forwarding;
 
 import dev.neuralnexus.taterapi.meta.Mappings;
 import dev.neuralnexus.taterapi.meta.anno.AConstraint;
@@ -6,12 +6,16 @@ import dev.neuralnexus.taterapi.meta.anno.Versions;
 import dev.neuralnexus.taterapi.meta.enums.MinecraftVersion;
 import dev.neuralnexus.taterapi.network.Protocol;
 
-import net.minecraft.network.Connection;
-import net.minecraft.network.PacketListener;
+import io.netty.util.AttributeKey;
 
-import org.adde0109.pcf.forwarding.modern.ConnectionBridge;
+import net.minecraft.network.EnumConnectionState;
+import net.minecraft.network.INetHandler;
+import net.minecraft.network.NetworkManager;
+
+import org.adde0109.pcf.forwarding.ConnectionBridge;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
@@ -20,38 +24,38 @@ import java.net.SocketAddress;
 
 @AConstraint(
         mappings = Mappings.SEARGE,
-        version = @Versions(min = MinecraftVersion.V17, max = MinecraftVersion.V20_4))
-@Mixin(Connection.class)
+        version = @Versions(min = MinecraftVersion.V7, max = MinecraftVersion.V12_2))
+@Mixin(NetworkManager.class)
 public abstract class ConnectionMixin implements ConnectionBridge {
     // spotless:off
-    @Shadow private SocketAddress address;
-    @Shadow public abstract PacketListener shadow$getPacketListener();
+    @Shadow private SocketAddress socketAddress;
+    @Shadow public abstract INetHandler shadow$getNetHandler();
     // spotless:on
+
+    @Shadow @Final public static AttributeKey<EnumConnectionState> PROTOCOL_ATTRIBUTE_KEY;
 
     @Override
     public @NonNull InetSocketAddress bridge$address() {
-        return (InetSocketAddress) this.address;
+        return (InetSocketAddress) this.socketAddress;
     }
 
     @Override
     public void bridge$address(final @NonNull InetSocketAddress address) {
-        this.address = address;
+        this.socketAddress = address;
     }
 
     @Override
     public @Nullable Object bridge$getPacketListener() {
-        return this.shadow$getPacketListener();
+        return this.shadow$getNetHandler();
     }
 
-    @AConstraint(
-            mappings = Mappings.SEARGE,
-            version = @Versions(min = MinecraftVersion.V20_2, max = MinecraftVersion.V20_4))
     @Override
     public Protocol bridge$protocol() {
-        final PacketListener listener = this.shadow$getPacketListener();
+        final INetHandler listener = this.shadow$getNetHandler();
         if (listener == null) {
             return null;
         }
-        return Protocol.fromId(listener.protocol().id());
+        return Protocol.fromLegacyId(
+                this.bridge$channel().attr(PROTOCOL_ATTRIBUTE_KEY).get().getId());
     }
 }

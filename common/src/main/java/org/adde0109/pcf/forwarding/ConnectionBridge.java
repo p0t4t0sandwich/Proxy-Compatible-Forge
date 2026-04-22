@@ -1,0 +1,51 @@
+package org.adde0109.pcf.forwarding;
+
+import dev.neuralnexus.taterapi.network.Protocol;
+
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+
+import org.adde0109.pcf.PCF;
+import org.adde0109.pcf.forwarding.modern.ModernForwarding;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
+import java.net.InetSocketAddress;
+
+public interface ConnectionBridge {
+    String HANDLER_PACKET = "packet_handler";
+    String HANDLER_SPLITTER = "splitter";
+    String HANDLER_PREPENDER = "prepender";
+
+    @NonNull InetSocketAddress bridge$address();
+
+    void bridge$address(final @NonNull InetSocketAddress address);
+
+    @NonNull Channel bridge$channel();
+
+    @Nullable Object bridge$getPacketListener();
+
+    @Nullable Protocol bridge$protocol();
+
+    default void bridge$send(final @NonNull Object packet) {
+        this.bridge$channel().writeAndFlush(packet).addListener(ModernForwarding::errorListener);
+    }
+
+    /**
+     * Injects the packet encoder and decoder into the pipeline to handle login query packets
+     *
+     * @param ctx the channel handler context
+     */
+    static void injectIntoPipeline(final @NonNull ChannelHandlerContext ctx) {
+        if (ctx.pipeline().get(PacketDecoder.NAME) != null
+                || ctx.pipeline().get(PacketEncoder.NAME) != null) {
+            return;
+        }
+        PCF.logger.debug(
+                "Injecting packet handlers into pipeline of " + ctx.channel().remoteAddress());
+        ctx.channel()
+                .pipeline()
+                .addAfter(HANDLER_SPLITTER, PacketDecoder.NAME, new PacketDecoder())
+                .addAfter(HANDLER_PREPENDER, PacketEncoder.NAME, new PacketEncoder());
+    }
+}

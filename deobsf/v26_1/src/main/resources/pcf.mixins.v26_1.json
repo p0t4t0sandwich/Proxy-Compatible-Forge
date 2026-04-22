@@ -10,11 +10,11 @@
   "server": [
     "v26_1.crossstich.ArgumentNodeStubMixin",
     "v26_1.crossstich.ArgumentTypeInfoMixin",
+    "v26_1.forwarding.ConnectionMixin",
     "v26_1.forwarding.legacy.ClientIntentionPacketMixin",
     "v26_1.forwarding.legacy.ConnectionLegacyMixin",
     "v26_1.forwarding.legacy.ServerHandshakePacketListenerImplMixin",
     "v26_1.forwarding.legacy.ServerLoginPacketListenerImplHelloMixin",
-    "v26_1.forwarding.modern.ConnectionMixin",
     "v26_1.forwarding.modern.ServerLoginPacketListenerImplHelloHybridMixin",
     "v26_1.forwarding.modern.ServerLoginPacketListenerImplHelloMixin",
     "v26_1.forwarding.modern.ServerLoginPacketListenerImplMixin"

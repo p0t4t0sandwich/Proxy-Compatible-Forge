@@ -11,8 +11,8 @@ import io.netty.channel.Channel;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketListener;
 
+import org.adde0109.pcf.forwarding.ConnectionBridge;
 import org.adde0109.pcf.forwarding.legacy.ConnectionBridgeLegacy;
-import org.adde0109.pcf.forwarding.modern.ConnectionBridge;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;

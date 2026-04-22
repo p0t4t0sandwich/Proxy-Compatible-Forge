@@ -1,6 +1,6 @@
-package org.adde0109.pcf.forwarding.modern;
+package org.adde0109.pcf.forwarding;
 
-import static org.adde0109.pcf.forwarding.modern.ConnectionBridge.PACKET_HANDLER;
+import static org.adde0109.pcf.forwarding.ConnectionBridge.HANDLER_PACKET;
 import static org.adde0109.pcf.forwarding.modern.ModernForwarding.handleCustomQueryPacket;
 
 import dev.neuralnexus.taterapi.network.FriendlyByteBuf;
@@ -13,6 +13,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 
 import org.adde0109.pcf.PCF;
+import org.adde0109.pcf.forwarding.modern.ServerLoginPacketListenerBridge;
 import org.jspecify.annotations.NonNull;
 
 import java.util.List;
@@ -31,7 +32,7 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
             return;
         }
         final ConnectionBridge connection =
-                ((ConnectionBridge) ctx.channel().pipeline().get(PACKET_HANDLER));
+                ((ConnectionBridge) ctx.channel().pipeline().get(HANDLER_PACKET));
         if (!(connection.bridge$protocol() == Protocol.LOGIN)) {
             out.add(msg.retain());
             return;
