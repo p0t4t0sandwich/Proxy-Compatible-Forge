@@ -2,7 +2,7 @@ package org.adde0109.pcf.forwarding.compatibility.prelogin;
 
 import com.mojang.authlib.GameProfile;
 
-import org.adde0109.pcf.forwarding.modern.ServerLoginPacketListenerBridge;
+import org.adde0109.pcf.forwarding.ServerLoginPacketListenerBridge;
 import org.jspecify.annotations.NonNull;
 
 import java.lang.invoke.MethodHandle;

@@ -11,7 +11,7 @@
     "v20_4.forge.crossstitch.ArgumentNodeStubMixin",
     "v20_4.forge.crossstitch.ArgumentTypeInfoMixin",
     "v20_4.forge.forwarding.ConnectionMixin",
-    "v20_4.forge.forwarding.modern.ServerLoginPacketListenerImplLoggerMixin",
-    "v20_4.forge.forwarding.modern.ServerLoginPacketListenerImplMixin"
+    "v20_4.forge.forwarding.ServerLoginPacketListenerImplLoggerMixin",
+    "v20_4.forge.forwarding.ServerLoginPacketListenerImplMixin"
   ]
 }

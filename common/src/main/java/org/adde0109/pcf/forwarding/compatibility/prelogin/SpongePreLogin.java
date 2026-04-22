@@ -1,6 +1,6 @@
 package org.adde0109.pcf.forwarding.compatibility.prelogin;
 
-import org.adde0109.pcf.forwarding.modern.ServerLoginPacketListenerBridge;
+import org.adde0109.pcf.forwarding.ServerLoginPacketListenerBridge;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.invoke.MethodHandle;

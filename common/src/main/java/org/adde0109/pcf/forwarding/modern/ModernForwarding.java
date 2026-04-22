@@ -26,6 +26,7 @@ import io.netty.util.concurrent.Future;
 import org.adde0109.pcf.PCF;
 import org.adde0109.pcf.forwarding.ConnectionBridge;
 import org.adde0109.pcf.forwarding.Mode;
+import org.adde0109.pcf.forwarding.ServerLoginPacketListenerBridge;
 import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
