@@ -4,9 +4,9 @@ import dev.neuralnexus.taterapi.network.Protocol;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.concurrent.Future;
 
 import org.adde0109.pcf.PCF;
-import org.adde0109.pcf.forwarding.modern.ModernForwarding;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
@@ -28,7 +28,7 @@ public interface ConnectionBridge {
     @Nullable Protocol bridge$protocol();
 
     default void bridge$send(final @NonNull Object packet) {
-        this.bridge$channel().writeAndFlush(packet).addListener(ModernForwarding::errorListener);
+        this.bridge$channel().writeAndFlush(packet).addListener(ConnectionBridge::errorListener);
     }
 
     /**
@@ -47,5 +47,16 @@ public interface ConnectionBridge {
                 .pipeline()
                 .addAfter(HANDLER_SPLITTER, PacketDecoder.NAME, new PacketDecoder())
                 .addAfter(HANDLER_PREPENDER, PacketEncoder.NAME, new PacketEncoder());
+    }
+
+    /**
+     * Listener for logging errors during packet handling
+     *
+     * @param future the future to check for success or failure
+     */
+    static void errorListener(Future<? super Void> future) {
+        if (!future.isSuccess()) {
+            PCF.logger.error("An error occurred during packet handling", future.cause());
+        }
     }
 }
