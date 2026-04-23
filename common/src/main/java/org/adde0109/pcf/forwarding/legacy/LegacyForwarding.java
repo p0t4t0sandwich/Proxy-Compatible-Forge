@@ -38,6 +38,7 @@ import org.adde0109.pcf.forwarding.ServerLoginPacketListenerBridge;
 import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.HashSet;
@@ -50,6 +51,10 @@ import java.util.regex.Pattern;
 public final class LegacyForwarding {
     private static final Object REJECTED_PROXY_ERR = literal("Unapproved proxy host.");
 
+    public static final AttributeKey<Object> DEFERRED_DISCONNECT =
+            AttributeKey.valueOf("pcf-deferred-disconnect");
+    public static final AttributeKey<InetAddress> FORWARDED_ADDRESS =
+            AttributeKey.valueOf("pcf-forwarded-address");
     public static final AttributeKey<String> PLAYER_NAME = AttributeKey.valueOf("pcf-player-name");
     public static final AttributeKey<UUID> SPOOFED_UUID = AttributeKey.valueOf("pcf-spoofed-uuid");
     public static final AttributeKey<Collection<Property>> SPOOFED_PROFILE =
@@ -74,63 +79,43 @@ public final class LegacyForwarding {
             final @NonNull ConnectionBridge connection, final @NonNull FriendlyByteBuf data) {
         final int protocolVersion = data.readVarInt();
         final String hostName = data.readUtf(Short.MAX_VALUE);
-        final int _ = data.readUnsignedShort();
+        final int hostPort = data.readUnsignedShort();
         final ClientIntent intention = ClientIntent.byId(data.readVarInt());
         if (intention != ClientIntent.LOGIN) {
             return;
         }
-
-        // Check if the connection is from an approved proxy
-        final List<String> approved = PCF.instance().forwarding().approvedProxyHosts();
-        if (!approved.isEmpty()) {
-            final InetSocketAddress address = connection.bridge$address();
-            final String host = address.getHostString();
-            final String ip = address.getAddress().getHostAddress();
-            if (!approved.contains(host) && !approved.contains(ip)) {
-                PCF.logger.warn(
-                        "Rejected connection from unapproved proxy host: "
-                                + host
-                                + " (IP: "
-                                + ip
-                                + ")");
-                throw new ThrowingComponent(REJECTED_PROXY_ERR);
-            }
-        }
+        final Channel channel = connection.bridge$channel();
 
         final String[] split = hostName.split("\00");
         if (split.length < 3 || !(HOST_PATTERN.matcher(split[1]).matches())) {
-            throw new ThrowingComponent(DIRECT_CONNECT_ERR);
+            channel.attr(DEFERRED_DISCONNECT).set(DIRECT_CONNECT_ERR);
+            return;
         }
         if (PCF.instance().forwarding().mode() == Mode.BUNGEEGUARD
                 && (split.length < 4 || !split[3].contains(BUNGEE_GUARD_TOKEN_PROPERTY_NAME))) {
-            throw new ThrowingComponent(BG_CONFIG_ERR);
+            channel.attr(DEFERRED_DISCONNECT).set(BG_CONFIG_ERR);
         }
 
         final String originalHost = split[0];
         final String forwardedAddress = split[1];
         final UUID uuid = fromStringLenient(split[2]);
-        PCF.logger.debug(
-                "Player " + uuid + " is connecting with forwarded address " + forwardedAddress);
 
-        // Update the proxied address
-        final int port = connection.bridge$address().getPort();
-        final InetSocketAddress address =
-                new InetSocketAddress(InetAddresses.forString(forwardedAddress), port);
-        connection.bridge$address(address);
+        // Save the forwarded address
+        channel.attr(FORWARDED_ADDRESS).set(InetAddresses.forString(forwardedAddress));
 
         // Save the UUID
-        connection.bridge$channel().attr(SPOOFED_UUID).set(uuid);
+        channel.attr(SPOOFED_UUID).set(uuid);
 
         // Save the properties if present
         final Optional<Property> fmlMarker;
-        if (split.length == 4) {
+        if (split.length >= 4) {
             final String profileJSON = split[3];
             final List<Property> properties = GSON.fromJson(profileJSON, profileTypeToken);
 
             // Pop out the FML marker if present
             fmlMarker = properties.stream().filter(LegacyForwarding::isFmlMarker).findFirst();
             properties.removeIf(LegacyForwarding::isFmlMarker);
-            connection.bridge$channel().attr(SPOOFED_PROFILE).set(properties);
+            channel.attr(SPOOFED_PROFILE).set(properties);
         } else {
             fmlMarker = Optional.empty();
         }
@@ -144,7 +129,7 @@ public final class LegacyForwarding {
 
         // Write the original address back into packet
         final ClientIntentionPacket newPacket =
-                new ClientIntentionPacket(protocolVersion, host, port, intention);
+                new ClientIntentionPacket(protocolVersion, host, hostPort, intention);
         data.clear();
         data.writeVarInt(0x00);
         ClientIntentionPacket.STREAM_CODEC.encode(data, newPacket);
@@ -166,6 +151,40 @@ public final class LegacyForwarding {
 
     public static void handleHello(
             final @NonNull ServerLoginPacketListenerBridge slpl, final @NonNull CallbackInfo ci) {
+        final ConnectionBridge connection = slpl.bridge$connection();
+        final Channel channel = connection.bridge$channel();
+
+        // Handle any deferred disconnects from the handshake phase
+        final Object deferredDisconnect = channel.attr(DEFERRED_DISCONNECT).getAndSet(null);
+        if (deferredDisconnect != null) {
+            slpl.bridge$disconnect(deferredDisconnect);
+            return;
+        }
+
+        // Check if the connection is from an approved proxy
+        final List<String> approved = PCF.instance().forwarding().approvedProxyHosts();
+        if (!approved.isEmpty()) {
+            final InetSocketAddress address = connection.bridge$address();
+            final String host = address.getHostString();
+            final String ip = address.getAddress().getHostAddress();
+            if (!approved.contains(host) && !approved.contains(ip)) {
+                PCF.logger.warn(
+                        "Rejected connection from unapproved proxy host: "
+                                + host
+                                + " (IP: "
+                                + ip
+                                + ")");
+                throw new ThrowingComponent(REJECTED_PROXY_ERR);
+            }
+        }
+
+        // Update the address to the forwarded address
+        final InetAddress address = connection.bridge$channel().attr(FORWARDED_ADDRESS).get();
+        final int port = connection.bridge$address().getPort();
+        final InetSocketAddress socketAddress = new InetSocketAddress(address, port);
+        connection.bridge$address(socketAddress);
+
+        // Create the profile
         final GameProfile profile = createProfile(slpl.bridge$connection().bridge$channel());
 
         // Proceed with login
