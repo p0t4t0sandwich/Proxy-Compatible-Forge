@@ -8,8 +8,6 @@ import static org.adde0109.pcf.forwarding.modern.VelocityProxy.MODERN_MAX_VERSIO
 import static org.adde0109.pcf.forwarding.modern.VelocityProxy.PLAYER_INFO_PAYLOAD;
 import static org.adde0109.pcf.forwarding.modern.VelocityProxy.checkIntegrity;
 
-import com.mojang.authlib.GameProfile;
-
 import dev.neuralnexus.taterapi.event.Cancellable;
 import dev.neuralnexus.taterapi.mc.server.players.NameAndId;
 import dev.neuralnexus.taterapi.meta.Constraint;
@@ -25,14 +23,13 @@ import io.netty.util.AttributeKey;
 import org.adde0109.pcf.PCF;
 import org.adde0109.pcf.forwarding.ConnectionBridge;
 import org.adde0109.pcf.forwarding.Mode;
+import org.adde0109.pcf.forwarding.PreLoginHandler;
 import org.adde0109.pcf.forwarding.ServerLoginPacketListenerBridge;
-import org.jetbrains.annotations.ApiStatus;
 import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.net.InetSocketAddress;
 import java.security.InvalidKeyException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -96,36 +93,6 @@ public final class ModernForwarding {
         PCF.logger.debug("Sent Forward Request");
         ci.cancel();
     }
-
-    @ApiStatus.Internal
-    @FunctionalInterface
-    public interface PostProcessor {
-        /**
-         * Process the forwarded profile
-         *
-         * @param slpl the ServerLoginPacketListener
-         * @param profile the forwarded GameProfile
-         * @param c the cancellable wrapper
-         * @throws Exception if an error occurs
-         */
-        void process(
-                final @NonNull ServerLoginPacketListenerBridge slpl,
-                final @NonNull GameProfile profile,
-                final @NonNull Cancellable c)
-                throws Exception;
-    }
-
-    private static final PostProcessor DEFAULT_POST_PROCESSOR =
-            (slpl, profile, _) -> {
-                final NameAndId nameAndId = new NameAndId(profile);
-                slpl.bridge$logger_info(
-                        "UUID of player {} is {}", nameAndId.name(), nameAndId.id());
-                slpl.bridge$startClientVerification(profile);
-            };
-
-    @ApiStatus.Internal
-    public static final List<PostProcessor> postProcessors =
-            new ArrayList<>(List.of(DEFAULT_POST_PROCESSOR));
 
     private static final Object DIRECT_CONNECT_ERR =
             literal("This server requires you to connect with Velocity.");
@@ -246,7 +213,7 @@ public final class ModernForwarding {
         // Proceed with login
         try {
             final Cancellable cancellable = Cancellable.simple();
-            for (final PostProcessor processor : postProcessors) {
+            for (final PreLoginHandler processor : PreLoginHandler.HANDLERS) {
                 processor.process(slpl, payload.profile(), cancellable);
                 if (cancellable.cancelled()) {
                     break;
