@@ -37,9 +37,8 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
         switch (connection.bridge$protocol()) {
             case null -> {}
             case HANDSHAKING -> {
-                if (!PCF.instance().forwarding().enabled()
-                        || (PCF.instance().forwarding().mode() != Mode.LEGACY
-                                && PCF.instance().forwarding().mode() != Mode.BUNGEEGUARD)) {
+                if (!(PCF.instance().forwarding().enabled()
+                        && PCF.instance().forwarding().mode().isLegacy())) {
                     out.add(msg.retain());
                     return;
                 }
@@ -76,7 +75,7 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
             }
             case LOGIN -> {
                 if (!PCF.instance().forwarding().enabled()
-                        || !PCF.instance().forwarding().mode().equals(Mode.MODERN)) {
+                        || !PCF.instance().forwarding().mode().isModern()) {
                     out.add(msg.retain());
                     return;
                 }

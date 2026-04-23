@@ -4,5 +4,13 @@ package org.adde0109.pcf.forwarding;
 public enum Mode {
     LEGACY,
     BUNGEEGUARD,
-    MODERN
+    MODERN;
+
+    public boolean isLegacy() {
+        return this == LEGACY || this == BUNGEEGUARD;
+    }
+
+    public boolean isModern() {
+        return this == MODERN;
+    }
 }
