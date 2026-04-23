@@ -3,13 +3,13 @@ package org.adde0109.pcf.forwarding.modern;
 import static dev.neuralnexus.taterapi.network.chat.Component.literal;
 import static dev.neuralnexus.taterapi.network.chat.Component.translatable;
 
+import static org.adde0109.pcf.forwarding.Forwarding.PLAYER_INFO_ERR;
 import static org.adde0109.pcf.forwarding.ReflectionUtils.enforceSecureProfile;
 import static org.adde0109.pcf.forwarding.modern.VelocityProxy.MODERN_MAX_VERSION;
 import static org.adde0109.pcf.forwarding.modern.VelocityProxy.PLAYER_INFO_PAYLOAD;
 import static org.adde0109.pcf.forwarding.modern.VelocityProxy.checkIntegrity;
 
 import dev.neuralnexus.taterapi.event.Cancellable;
-import dev.neuralnexus.taterapi.mc.server.players.NameAndId;
 import dev.neuralnexus.taterapi.meta.Constraint;
 import dev.neuralnexus.taterapi.meta.MinecraftVersions;
 import dev.neuralnexus.taterapi.network.chat.ThrowingComponent;
@@ -22,14 +22,12 @@ import io.netty.util.AttributeKey;
 
 import org.adde0109.pcf.PCF;
 import org.adde0109.pcf.forwarding.ConnectionBridge;
-import org.adde0109.pcf.forwarding.PreLoginHandler;
+import org.adde0109.pcf.forwarding.Forwarding;
 import org.adde0109.pcf.forwarding.ServerLoginPacketListenerBridge;
 import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.net.InetSocketAddress;
 import java.security.InvalidKeyException;
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -52,10 +50,17 @@ public final class ModernForwarding {
     public static final AttributeKey<Integer> LOGIN_MESSAGE_ID =
             AttributeKey.valueOf("pcf-login-message-id");
 
-    private static final Object REJECTED_PROXY_ERR = literal("Unapproved proxy host.");
+    private static final Object MODERN_DIRECT_CONNECT_ERR =
+            literal("This server requires you to connect with Velocity.");
+    private static final Object EMPTY_PAYLOAD_ERR =
+            literal("Received empty player info payload from the proxy.");
+    private static final Object MISSING_PROFILE_PUBLIC_KEY =
+            translatable("multiplayer.disconnect.missing_public_key");
+    private static final Object INVALID_SIGNATURE =
+            translatable("multiplayer.disconnect.invalid_public_key_signature");
 
     /**
-     * Abstract implementation of the hello packet handler
+     * Hello packet handler for modern forwarding
      *
      * @param slpl The ServerLoginPacketListenerImpl
      * @param ci The callback info
@@ -64,24 +69,10 @@ public final class ModernForwarding {
             final @NonNull ServerLoginPacketListenerBridge slpl, final @NonNull CallbackInfo ci) {
         final ConnectionBridge connection = slpl.bridge$connection();
 
-        final List<String> approved = PCF.instance().forwarding().approvedProxyHosts();
-        if (!approved.isEmpty()) {
-            final InetSocketAddress address = connection.bridge$address();
-            final String host = address.getHostString();
-            final String ip = address.getAddress().getHostAddress();
-            if (!approved.contains(host) && !approved.contains(ip)) {
-                PCF.logger.warn(
-                        "Rejected connection from unapproved proxy host: "
-                                + host
-                                + " (IP: "
-                                + ip
-                                + ")");
-                slpl.bridge$disconnect(REJECTED_PROXY_ERR);
-                ci.cancel();
-                return;
-            }
-        }
+        // Check if the connection is from an approved proxy
+        Forwarding.checkProxy(connection);
 
+        // Send forwarding request
         final int messageId = ThreadLocalRandom.current().nextInt();
         connection.bridge$channel().attr(LOGIN_MESSAGE_ID).set(messageId);
         connection.bridge$send(new ClientboundCustomQueryPacket(messageId, PLAYER_INFO_PAYLOAD));
@@ -89,25 +80,13 @@ public final class ModernForwarding {
         ci.cancel();
     }
 
-    private static final Object DIRECT_CONNECT_ERR =
-            literal("This server requires you to connect with Velocity.");
-    private static final Object EMPTY_PAYLOAD_ERR =
-            literal("Received empty player info payload from the proxy.");
-    private static final Object PLAYER_INFO_ERR = literal("Unable to verify player details.");
-    private static final Object FAILED_TO_VERIFY =
-            translatable("multiplayer.disconnect.unverified_username");
-    private static final Object MISSING_PROFILE_PUBLIC_KEY =
-            translatable("multiplayer.disconnect.missing_public_key");
-    private static final Object INVALID_SIGNATURE =
-            translatable("multiplayer.disconnect.invalid_public_key_signature");
-
     /**
-     * Abstract implementation of the custom query packet handler
+     * CustomQueryAnswer packet handler for modern forwarding
      *
      * @param slpl The ServerLoginPacketListenerImpl
      * @param packet The Minecraft packet
      */
-    public static void handleCustomQueryPacket(
+    public static void handleCustomQueryAnswer(
             final @NonNull ServerLoginPacketListenerBridge slpl,
             final @NonNull ServerboundCustomQueryAnswerPacket packet) {
         final CustomQueryAnswerPayload.Raw rawPayload =
@@ -115,7 +94,7 @@ public final class ModernForwarding {
 
         // Validate payload presence
         if (rawPayload == null) {
-            throw new ThrowingComponent(DIRECT_CONNECT_ERR);
+            throw new ThrowingComponent(MODERN_DIRECT_CONNECT_ERR);
         } else if (rawPayload.data().readableBytes() == 0) {
             PCF.logger.error(
                     "Received empty forwarding payload. Has Velocity been configured to use modern forwarding?");
@@ -162,9 +141,7 @@ public final class ModernForwarding {
         PCF.logger.debug("Using modern forwarding version: " + version);
 
         // Apply IP forwarding
-        final int port = slpl.bridge$connection().bridge$address().getPort();
-        final InetSocketAddress address = new InetSocketAddress(payload.address(), port);
-        slpl.bridge$connection().bridge$address(address);
+        Forwarding.ipForwarding(slpl.bridge$connection(), payload.address());
 
         // Handle profile key
         switch (version) {
@@ -206,19 +183,6 @@ public final class ModernForwarding {
         }
 
         // Proceed with login
-        try {
-            final Cancellable cancellable = Cancellable.simple();
-            for (final PreLoginHandler processor : PreLoginHandler.HANDLERS) {
-                processor.process(slpl, payload.profile(), cancellable);
-                if (cancellable.cancelled()) {
-                    break;
-                }
-            }
-        } catch (final Exception e) {
-            final NameAndId nameAndId = new NameAndId(payload.profile());
-            PCF.logger.warn("Exception while forwarding user " + nameAndId.name());
-            e.printStackTrace();
-            throw new ThrowingComponent(FAILED_TO_VERIFY, e);
-        }
+        Forwarding.preLogin(payload.profile(), slpl, Cancellable.simple());
     }
 }
