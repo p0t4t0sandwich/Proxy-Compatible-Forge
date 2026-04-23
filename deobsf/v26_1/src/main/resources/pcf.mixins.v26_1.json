@@ -12,8 +12,7 @@
     "v26_1.crossstich.ArgumentTypeInfoMixin",
     "v26_1.forwarding.ConnectionMixin",
     "v26_1.forwarding.ServerLoginPacketListenerImplMixin",
-    "v26_1.forwarding.legacy.ServerLoginPacketListenerImplHelloMixin",
-    "v26_1.forwarding.modern.ServerLoginPacketListenerImplHelloHybridMixin",
-    "v26_1.forwarding.modern.ServerLoginPacketListenerImplHelloMixin"
+    "v26_1.forwarding.ServerLoginPacketListenerImplHelloHybridMixin",
+    "v26_1.forwarding.ServerLoginPacketListenerImplHelloMixin"
   ]
 }

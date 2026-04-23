@@ -1,6 +1,6 @@
 package org.adde0109.pcf.mixin.v13_2.forge.forwarding;
 
-import static org.adde0109.pcf.forwarding.modern.ModernForwarding.handleHello;
+import static org.adde0109.pcf.forwarding.Forwarding.handleHello;
 
 import com.mojang.authlib.GameProfile;
 
