@@ -21,7 +21,6 @@ import dev.neuralnexus.taterapi.network.protocol.login.custom.CustomQueryAnswerP
 
 import io.netty.handler.codec.DecoderException;
 import io.netty.util.AttributeKey;
-import io.netty.util.concurrent.Future;
 
 import org.adde0109.pcf.PCF;
 import org.adde0109.pcf.forwarding.ConnectionBridge;
@@ -58,17 +57,6 @@ public final class ModernForwarding {
             AttributeKey.valueOf("pcf-login-message-id");
 
     private static final Object REJECTED_PROXY_ERR = literal("Unapproved proxy host.");
-
-    /**
-     * Listener for logging errors during packet handling
-     *
-     * @param future the future to check for success or failure
-     */
-    public static void errorListener(Future<? super Void> future) {
-        if (!future.isSuccess()) {
-            PCF.logger.error("An error occurred during packet handling", future.cause());
-        }
-    }
 
     /**
      * Abstract implementation of the hello packet handler
