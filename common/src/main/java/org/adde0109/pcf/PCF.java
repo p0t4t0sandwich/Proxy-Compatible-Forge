@@ -17,6 +17,7 @@ import dev.neuralnexus.taterapi.meta.Platforms;
 import dev.neuralnexus.taterapi.network.PayloadRegistry;
 
 import org.adde0109.pcf.forwarding.Mode;
+import org.adde0109.pcf.forwarding.PreLoginHandler;
 import org.adde0109.pcf.forwarding.bungeeguard.BungeeGuard;
 import org.adde0109.pcf.forwarding.compatibility.prelogin.ArclightPreLogin;
 import org.adde0109.pcf.forwarding.compatibility.prelogin.MohistPreLogin;
@@ -85,18 +86,15 @@ public final class PCF extends Constants {
             if (Constraint.builder().platform(Platforms.ARCLIGHT).result()) {
                 logger.debug("Arclight detected, applying pre-login handler");
                 if (Constraint.range(MinecraftVersions.V14, MinecraftVersions.V20_1).result()) {
-                    HANDLERS.removeFirst();
                     HANDLERS.add(
                             (slpl, profile, _) -> {
                                 slpl.bridge$setGameProfile(profile);
                                 ArclightPreLogin.V14.preLogin(slpl);
                             });
                 } else if (Constraint.builder().version(MinecraftVersions.V20_2).result()) {
-                    HANDLERS.removeFirst();
                     HANDLERS.add(
                             (slpl, profile, _) -> ArclightPreLogin.V20_2.preLogin(slpl, profile));
                 } else if (Constraint.noLessThan(MinecraftVersions.V20_3).result()) {
-                    HANDLERS.removeFirst();
                     HANDLERS.add(
                             (slpl, profile, _) -> ArclightPreLogin.V20_4.preLogin(slpl, profile));
                 }
@@ -105,7 +103,6 @@ public final class PCF extends Constants {
                     .version(MinecraftVersions.V20_1)
                     .result()) {
                 logger.debug("Mohist detected, applying pre-login handler");
-                HANDLERS.removeFirst();
                 HANDLERS.add(
                         (slpl, profile, _) -> {
                             slpl.bridge$setGameProfile(profile);
@@ -116,7 +113,6 @@ public final class PCF extends Constants {
                     .version(MinecraftVersions.V21_1)
                     .result()) {
                 logger.debug("Youer detected, applying pre-login handler");
-                HANDLERS.removeFirst();
                 HANDLERS.add(
                         (slpl, profile, _) -> {
                             MohistPreLogin.Youer.fireEvents(slpl, profile);
@@ -134,7 +130,6 @@ public final class PCF extends Constants {
                                     .version(MinecraftVersions.V20_1))
                     .result()) {
                 logger.debug("Forge+Bukkit hybrid detected, applying pre-login handler");
-                HANDLERS.removeFirst();
                 HANDLERS.add(
                         (slpl, profile, _) -> {
                             slpl.bridge$setGameProfile(profile);
@@ -149,7 +144,6 @@ public final class PCF extends Constants {
                                     .version(MinecraftVersions.V20_2))
                     .result()) {
                 logger.debug("[Neo]Forge+Bukkit hybrid detected, applying pre-login handler");
-                HANDLERS.removeFirst();
                 HANDLERS.add((slpl, profile, _) -> SpigotPreLogin.V20_2.fireEvents(slpl, profile));
             } else if (Constraints.builder()
                     .or(
@@ -166,9 +160,15 @@ public final class PCF extends Constants {
                                     .version(MinecraftVersions.V21_1, MinecraftVersions.V21_10))
                     .result()) {
                 logger.debug("[Neo]Forge+Bukkit hybrid detected, applying pre-login handler");
-                HANDLERS.addFirst(
+                HANDLERS.add(
                         (slpl, profile, _) ->
                                 SpigotPreLogin.V20_5.callPlayerPreLoginEvents(slpl, profile));
+                HANDLERS.add(PreLoginHandler.DEFAULT_HANDLER);
+            }
+
+            // Serves both as a fallback and to populate the default
+            if (HANDLERS.isEmpty()) {
+                HANDLERS.add(PreLoginHandler.DEFAULT_HANDLER);
             }
 
             if (Constraint.range(MinecraftVersions.V16, MinecraftVersions.V18_2)
@@ -192,7 +192,7 @@ public final class PCF extends Constants {
 
         // BungeeGuard forwarding init
         if (this.forwarding().enabled() && this.forwarding().mode() == Mode.BUNGEEGUARD) {
-            logger.debug("BungeeGuard detected, applying pre-login handler");
+            logger.debug("Forwarding mode set to BungeeGuard, applying pre-login handler");
             HANDLERS.addFirst(BungeeGuard::validateToken);
         }
 

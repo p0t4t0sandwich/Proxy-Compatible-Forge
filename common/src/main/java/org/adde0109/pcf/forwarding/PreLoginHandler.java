@@ -21,7 +21,7 @@ public interface PreLoginHandler {
                         "UUID of player {} is {}", nameAndId.name(), nameAndId.id());
                 slpl.bridge$startClientVerification(profile);
             };
-    @ApiStatus.Internal List<PreLoginHandler> HANDLERS = new ArrayList<>(List.of(DEFAULT_HANDLER));
+    @ApiStatus.Internal List<PreLoginHandler> HANDLERS = new ArrayList<>();
 
     /**
      * Process the forwarded profile
