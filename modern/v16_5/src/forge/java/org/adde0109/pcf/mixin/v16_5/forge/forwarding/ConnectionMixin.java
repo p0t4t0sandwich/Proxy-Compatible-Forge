@@ -11,8 +11,6 @@ import io.netty.util.AttributeKey;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.PacketListener;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.login.ClientboundLoginDisconnectPacket;
 
 import org.adde0109.pcf.forwarding.ConnectionBridge;
 import org.jspecify.annotations.NonNull;
@@ -60,11 +58,5 @@ public abstract class ConnectionMixin implements ConnectionBridge {
             return null;
         }
         return Protocol.fromLegacyId(this.bridge$channel().attr(ATTRIBUTE_PROTOCOL).get().getId());
-    }
-
-    @AConstraint(version = @Versions(min = MinecraftVersion.V14, max = MinecraftVersion.V16_5))
-    @Override
-    public @NonNull Object bridge$disconnectPacket(final @NonNull Object reason) {
-        return new ClientboundLoginDisconnectPacket((Component) reason);
     }
 }
