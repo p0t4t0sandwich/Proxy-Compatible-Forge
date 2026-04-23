@@ -80,17 +80,10 @@ public final class PCF extends Constants {
         }
         loader.onInit();
 
-        // Modern forwarding init
-        if (this.forwarding().enabled() && this.forwarding().mode().isModern()) {
-            PayloadRegistry.register(
-                    PlayerInfoQueryPayload.TYPE,
-                    map(PlayerInfoQueryPayload.IDENTIFIER, MinecraftVersions.V7_2));
-        }
-
         // Forwarding init
         if (this.forwarding().enabled()) {
             if (Constraint.builder().platform(Platforms.ARCLIGHT).result()) {
-                logger.debug("Arclight detected, applying pre-login post processor");
+                logger.debug("Arclight detected, applying pre-login handler");
                 if (Constraint.range(MinecraftVersions.V14, MinecraftVersions.V20_1).result()) {
                     HANDLERS.removeFirst();
                     HANDLERS.add(
@@ -111,7 +104,7 @@ public final class PCF extends Constants {
                     .platform(Platforms.MOHIST)
                     .version(MinecraftVersions.V20_1)
                     .result()) {
-                logger.debug("Mohist detected, applying pre-login post processor");
+                logger.debug("Mohist detected, applying pre-login handler");
                 HANDLERS.removeFirst();
                 HANDLERS.add(
                         (slpl, profile, _) -> {
@@ -122,7 +115,7 @@ public final class PCF extends Constants {
                     .platform(Platforms.YOUER)
                     .version(MinecraftVersions.V21_1)
                     .result()) {
-                logger.debug("Youer detected, applying pre-login post processor");
+                logger.debug("Youer detected, applying pre-login handler");
                 HANDLERS.removeFirst();
                 HANDLERS.add(
                         (slpl, profile, _) -> {
@@ -140,7 +133,7 @@ public final class PCF extends Constants {
                                     .platform(Platforms.MAGMA, Platforms.KETTING)
                                     .version(MinecraftVersions.V20_1))
                     .result()) {
-                logger.debug("Forge+Bukkit hybrid detected, applying pre-login post processor");
+                logger.debug("Forge+Bukkit hybrid detected, applying pre-login handler");
                 HANDLERS.removeFirst();
                 HANDLERS.add(
                         (slpl, profile, _) -> {
@@ -155,8 +148,7 @@ public final class PCF extends Constants {
                                     .platform(Platforms.MOHIST)
                                     .version(MinecraftVersions.V20_2))
                     .result()) {
-                logger.debug(
-                        "[Neo]Forge+Bukkit hybrid detected, applying pre-login post processor");
+                logger.debug("[Neo]Forge+Bukkit hybrid detected, applying pre-login handler");
                 HANDLERS.removeFirst();
                 HANDLERS.add((slpl, profile, _) -> SpigotPreLogin.V20_2.fireEvents(slpl, profile));
             } else if (Constraints.builder()
@@ -173,8 +165,7 @@ public final class PCF extends Constants {
                                     .platform(Platforms.NEOTENET)
                                     .version(MinecraftVersions.V21_1, MinecraftVersions.V21_10))
                     .result()) {
-                logger.debug(
-                        "[Neo]Forge+Bukkit hybrid detected, applying pre-login post processor");
+                logger.debug("[Neo]Forge+Bukkit hybrid detected, applying pre-login handler");
                 HANDLERS.addFirst(
                         (slpl, profile, _) ->
                                 SpigotPreLogin.V20_5.callPlayerPreLoginEvents(slpl, profile));
@@ -183,18 +174,26 @@ public final class PCF extends Constants {
             if (Constraint.range(MinecraftVersions.V16, MinecraftVersions.V18_2)
                     .platform(Platforms.SPONGE)
                     .result()) {
-                logger.debug("SpongeAPI 8 or 9 detected, applying pre-login post processor");
+                logger.debug("SpongeAPI 8 or 9 detected, applying pre-login handler");
                 HANDLERS.addFirst(
                         (slpl, profile, c) -> {
                             slpl.bridge$setGameProfile(profile);
                             c.setCancelled(SpongePreLogin.API8.fireAuthEvent(slpl));
                         });
             }
+        }
 
-            if (this.forwarding().mode() == Mode.BUNGEEGUARD) {
-                logger.debug("BungeeGuard detected, applying pre-login post processor");
-                HANDLERS.addFirst(BungeeGuard::validateToken);
-            }
+        // Modern forwarding init
+        if (this.forwarding().enabled() && this.forwarding().mode().isModern()) {
+            PayloadRegistry.register(
+                    PlayerInfoQueryPayload.TYPE,
+                    map(PlayerInfoQueryPayload.IDENTIFIER, MinecraftVersions.V7_2));
+        }
+
+        // BungeeGuard forwarding init
+        if (this.forwarding().enabled() && this.forwarding().mode() == Mode.BUNGEEGUARD) {
+            logger.debug("BungeeGuard detected, applying pre-login handler");
+            HANDLERS.addFirst(BungeeGuard::validateToken);
         }
 
         Constraint.Evaluator.DEBUG = debug;
