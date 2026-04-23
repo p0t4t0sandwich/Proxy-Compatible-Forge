@@ -16,7 +16,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.Collection;
 
-// https://github.com/lucko/BungeeGuard
+/** Adapted from <a href="https://github.com/lucko/BungeeGuard">BungeeGuard</a> */
 public final class BungeeGuard {
     public static final String BUNGEE_GUARD_TOKEN_PROPERTY_NAME = "bungeeguard-token";
     public static final AttributeKey<Collection<String>> BUNGEE_GUARD_TOKEN =
@@ -26,10 +26,17 @@ public final class BungeeGuard {
             literal("&cUnable to authenticate - no data was forwarded by the proxy.");
     private static final Object INVALID_TOKEN = literal("&cUnable to authenticate.");
 
+    /**
+     * Validates the BungeeGuard token for the given connection
+     *
+     * @param slpl The ServerLoginPacketListenerImpl
+     * @param profile The player's GameProfile
+     * @param c Cancellable
+     */
     public static void validateToken(
             final @NonNull ServerLoginPacketListenerBridge slpl,
             final @NonNull GameProfile profile,
-            final @NonNull Cancellable ignored) {
+            final @NonNull Cancellable c) {
         final NameAndId nameAndId = new NameAndId(profile);
         final String connectionDescription =
                 nameAndId.id() + " @ " + slpl.bridge$connection().bridge$address().getHostString();
@@ -38,6 +45,7 @@ public final class BungeeGuard {
         if (bungeeGuardTokens.size() > 1) {
             PCF.logger.warn(
                     "Denying connection from " + connectionDescription + " - more than one token");
+            c.cancel();
             throw new ThrowingComponent(INVALID_TOKEN);
         }
         final String bungeeGuardToken = bungeeGuardTokens.stream().findFirst().orElse(null);
@@ -47,6 +55,7 @@ public final class BungeeGuard {
             final String reason = bungeeGuardToken == null ? "No Token" : "Invalid token";
             PCF.logger.warn(
                     "Denying connection from " + connectionDescription + " - reason: " + reason);
+            c.cancel();
             throw new ThrowingComponent(bungeeGuardToken == null ? NO_DATA : INVALID_TOKEN);
         }
 

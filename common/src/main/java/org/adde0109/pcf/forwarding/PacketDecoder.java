@@ -2,9 +2,9 @@ package org.adde0109.pcf.forwarding;
 
 import static org.adde0109.pcf.forwarding.ConnectionBridge.HANDLER_PACKET;
 import static org.adde0109.pcf.forwarding.legacy.LegacyForwarding.PLAYER_NAME;
-import static org.adde0109.pcf.forwarding.legacy.LegacyForwarding.handleClientIntentionPacket;
+import static org.adde0109.pcf.forwarding.legacy.LegacyForwarding.handleClientIntention;
 import static org.adde0109.pcf.forwarding.modern.ModernForwarding.LOGIN_MESSAGE_ID;
-import static org.adde0109.pcf.forwarding.modern.ModernForwarding.handleCustomQueryPacket;
+import static org.adde0109.pcf.forwarding.modern.ModernForwarding.handleCustomQueryAnswer;
 
 import dev.neuralnexus.taterapi.network.FriendlyByteBuf;
 import dev.neuralnexus.taterapi.network.chat.ThrowingComponent;
@@ -60,7 +60,7 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
                                         + ctx.channel().remoteAddress());
 
                         // Rewrite the packet
-                        handleClientIntentionPacket(connection, data);
+                        handleClientIntention(connection, data);
 
                         // Reset reader index and pass it along
                         msg.readerIndex(readerIndex);
@@ -133,7 +133,7 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
                                         + ctx.channel().remoteAddress());
 
                         try {
-                            handleCustomQueryPacket(slpl, packet);
+                            handleCustomQueryAnswer(slpl, packet);
                         } catch (final ThrowingComponent e) {
                             slpl.bridge$disconnect(e.getComponent());
                         } finally {
