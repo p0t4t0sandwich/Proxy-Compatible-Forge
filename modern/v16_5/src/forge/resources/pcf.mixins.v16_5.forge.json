@@ -13,6 +13,6 @@
     "v16_5.forge.crossstitch.CommandsPacketMixin",
     "v16_5.forge.forwarding.ConnectionMixin",
     "v16_5.forge.forwarding.ServerLoginPacketListenerImplMixin",
-    "v16_5.forge.forwarding.modern.ServerLoginPacketListenerImplHelloMixin"
+    "v16_5.forge.forwarding.ServerLoginPacketListenerImplHelloMixin"
   ]
 }

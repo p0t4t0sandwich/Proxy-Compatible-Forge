@@ -1,6 +1,6 @@
-package org.adde0109.pcf.mixin.v16_5.forge.forwarding.modern;
+package org.adde0109.pcf.mixin.v16_5.forge.forwarding;
 
-import static org.adde0109.pcf.forwarding.modern.ModernForwarding.handleHello;
+import static org.adde0109.pcf.forwarding.Forwarding.handleHello;
 
 import dev.neuralnexus.taterapi.meta.Mappings;
 import dev.neuralnexus.taterapi.meta.anno.AConstraint;

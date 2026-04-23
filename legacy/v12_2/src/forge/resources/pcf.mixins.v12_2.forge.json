@@ -11,6 +11,6 @@
     "v12_2.forge.forwarding.ConnectionMixin",
     "v12_2.forge.forwarding.ServerLoginPacketListenerImplMixin",
     "v12_2.forge.forwarding.ServerLoginPacketListenerImplMixin$SLPLIMixin_12",
-    "v12_2.forge.forwarding.modern.ServerLoginPacketListenerImplHelloMixin"
+    "v12_2.forge.forwarding.ServerLoginPacketListenerImplHelloMixin"
   ]
 }
