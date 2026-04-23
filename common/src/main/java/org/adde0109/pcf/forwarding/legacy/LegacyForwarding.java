@@ -1,8 +1,13 @@
 package org.adde0109.pcf.forwarding.legacy;
 
 import static dev.neuralnexus.taterapi.network.chat.Component.literal;
+import static dev.neuralnexus.taterapi.network.chat.Component.translatable;
 
+import static org.adde0109.pcf.forwarding.ReflectionUtils.getName;
 import static org.adde0109.pcf.forwarding.ReflectionUtils.getProperties;
+import static org.adde0109.pcf.forwarding.ReflectionUtils.getValue;
+import static org.adde0109.pcf.forwarding.bungeeguard.BungeeGuard.BUNGEE_GUARD_TOKEN;
+import static org.adde0109.pcf.forwarding.bungeeguard.BungeeGuard.BUNGEE_GUARD_TOKEN_PROPERTY_NAME;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.net.InetAddresses;
@@ -13,6 +18,8 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
 
+import dev.neuralnexus.taterapi.event.Cancellable;
+import dev.neuralnexus.taterapi.mc.server.players.NameAndId;
 import dev.neuralnexus.taterapi.meta.Constraint;
 import dev.neuralnexus.taterapi.meta.MinecraftVersions;
 import dev.neuralnexus.taterapi.network.FriendlyByteBuf;
@@ -20,15 +27,20 @@ import dev.neuralnexus.taterapi.network.chat.ThrowingComponent;
 import dev.neuralnexus.taterapi.network.protocol.handshake.ClientIntent;
 import dev.neuralnexus.taterapi.network.protocol.handshake.ClientIntentionPacket;
 
+import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 
 import org.adde0109.pcf.PCF;
 import org.adde0109.pcf.forwarding.ConnectionBridge;
 import org.adde0109.pcf.forwarding.Mode;
+import org.adde0109.pcf.forwarding.PreLoginHandler;
+import org.adde0109.pcf.forwarding.ServerLoginPacketListenerBridge;
 import org.jspecify.annotations.NonNull;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.net.InetSocketAddress;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -36,12 +48,14 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 public final class LegacyForwarding {
+    private static final Object REJECTED_PROXY_ERR = literal("Unapproved proxy host.");
+
+    public static final AttributeKey<String> PLAYER_NAME = AttributeKey.valueOf("pcf-player-name");
     public static final AttributeKey<UUID> SPOOFED_UUID = AttributeKey.valueOf("pcf-spoofed-uuid");
     public static final AttributeKey<Collection<Property>> SPOOFED_PROFILE =
             AttributeKey.valueOf("pcf-spoofed-profile");
 
     private static final char LEGACY_SEPARATOR = '\0';
-    private static final String BUNGEE_GUARD_TOKEN_PROPERTY_NAME = "bungeeguard-token";
 
     private static final Gson GSON = new GsonBuilder().create();
     private static final TypeToken<List<Property>> profileTypeToken = new TypeToken<>() {};
@@ -66,11 +80,29 @@ public final class LegacyForwarding {
             return;
         }
 
+        // Check if the connection is from an approved proxy
+        final List<String> approved = PCF.instance().forwarding().approvedProxyHosts();
+        if (!approved.isEmpty()) {
+            final InetSocketAddress address = connection.bridge$address();
+            final String host = address.getHostString();
+            final String ip = address.getAddress().getHostAddress();
+            if (!approved.contains(host) && !approved.contains(ip)) {
+                PCF.logger.warn(
+                        "Rejected connection from unapproved proxy host: "
+                                + host
+                                + " (IP: "
+                                + ip
+                                + ")");
+                throw new ThrowingComponent(REJECTED_PROXY_ERR);
+            }
+        }
+
         final String[] split = hostName.split("\00");
-        if ((split.length < 3) || !(HOST_PATTERN.matcher(split[1]).matches())) {
+        if (split.length < 3 || !(HOST_PATTERN.matcher(split[1]).matches())) {
             throw new ThrowingComponent(DIRECT_CONNECT_ERR);
         }
-        if (PCF.instance().forwarding().mode() != Mode.BUNGEEGUARD && (split.length < 4)) {
+        if (PCF.instance().forwarding().mode() == Mode.BUNGEEGUARD
+                && (split.length < 4 || !split[3].contains(BUNGEE_GUARD_TOKEN_PROPERTY_NAME))) {
             throw new ThrowingComponent(BG_CONFIG_ERR);
         }
 
@@ -129,19 +161,69 @@ public final class LegacyForwarding {
                 && property.value().startsWith("\u0001FORGE");
     }
 
+    private static final Object FAILED_TO_VERIFY =
+            translatable("multiplayer.disconnect.unverified_username");
+
+    public static void handleHello(
+            final @NonNull ServerLoginPacketListenerBridge slpl, final @NonNull CallbackInfo ci) {
+        if (!(PCF.instance().forwarding().enabled()
+                && PCF.instance().forwarding().mode().isLegacy())) {
+            return;
+        }
+        final GameProfile profile = createProfile(slpl.bridge$connection().bridge$channel());
+
+        // Proceed with login
+        try {
+            final Cancellable cancellable = Cancellable.simple();
+            for (final PreLoginHandler processor : PreLoginHandler.HANDLERS) {
+                processor.process(slpl, profile, cancellable);
+                if (cancellable.cancelled()) {
+                    break;
+                }
+            }
+        } catch (final ThrowingComponent e) {
+            throw e;
+        } catch (final Exception e) {
+            final NameAndId nameAndId = new NameAndId(profile);
+            PCF.logger.warn("Exception while forwarding user " + nameAndId.name());
+            e.printStackTrace();
+            throw new ThrowingComponent(FAILED_TO_VERIFY, e);
+        } finally {
+            ci.cancel();
+        }
+    }
+
     private static final Pattern PROP_PATTERN = Pattern.compile("\\w{0,16}");
 
-    public static GameProfile createProfile(
-            final @NonNull ConnectionBridge conn, final @NonNull String name) {
-        final UUID uuid;
-        if (conn.bridge$channel().attr(SPOOFED_UUID).get() != null) {
-            uuid = conn.bridge$channel().attr(SPOOFED_UUID).get();
-        } else {
+    public static @NonNull GameProfile createProfile(final @NonNull Channel channel) {
+        final String name = channel.attr(PLAYER_NAME).getAndSet(null);
+        final UUID uuid = channel.attr(SPOOFED_UUID).getAndSet(null);
+        if (name == null || uuid == null) {
             throw new ThrowingComponent(PLAYER_INFO_ERR);
         }
 
-        final Collection<Property> properties = conn.bridge$channel().attr(SPOOFED_PROFILE).get();
-        if (properties == null) {
+        final Collection<Property> properties = channel.attr(SPOOFED_PROFILE).getAndSet(null);
+
+        // Check for BungeeGuard tokens
+        if (PCF.instance().forwarding().mode() == Mode.BUNGEEGUARD
+                && properties != null
+                && !properties.isEmpty()) {
+            final Collection<String> bungeeGuardTokens = new HashSet<>();
+            for (final Property property : properties) {
+                if (getName(property).equals(BUNGEE_GUARD_TOKEN_PROPERTY_NAME)) {
+                    bungeeGuardTokens.add(getValue(property));
+                }
+            }
+            channel.attr(BUNGEE_GUARD_TOKEN).set(bungeeGuardTokens);
+
+            // Remove BungeeGuard token(s) from properties.
+            // They're filtered out by PROP_PATTERN, but might as well remove them now.
+            properties.removeIf(
+                    property -> getName(property).equals(BUNGEE_GUARD_TOKEN_PROPERTY_NAME));
+        }
+
+        // Create the profile
+        if (properties == null || properties.isEmpty()) {
             return new GameProfile(uuid, name);
             // com.mojang:authlib:7.0.0 or newer
         } else if (Constraint.noLessThan(MinecraftVersions.V21_9).result()) {
@@ -156,8 +238,8 @@ public final class LegacyForwarding {
             final GameProfile profile = new GameProfile(uuid, name);
             final PropertyMap propertiesMap = getProperties(profile);
             for (final Property property : properties) {
-                if (!PROP_PATTERN.matcher(property.name()).matches()) continue;
-                propertiesMap.put(property.name(), property);
+                if (!PROP_PATTERN.matcher(getName(property)).matches()) continue;
+                propertiesMap.put(getName(property), property);
             }
             return profile;
         }
