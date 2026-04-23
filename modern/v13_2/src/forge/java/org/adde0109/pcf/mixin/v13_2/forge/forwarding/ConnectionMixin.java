@@ -10,11 +10,8 @@ import io.netty.util.AttributeKey;
 
 import net.minecraft.network.EnumConnectionState;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.login.server.SPacketDisconnectLogin;
-import net.minecraft.util.text.ITextComponent;
 
 import org.adde0109.pcf.forwarding.ConnectionBridge;
-import org.jspecify.annotations.NonNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -36,13 +33,5 @@ public abstract class ConnectionMixin implements ConnectionBridge {
         }
         return Protocol.fromLegacyId(
                 this.bridge$channel().attr(PROTOCOL_ATTRIBUTE_KEY).get().getId());
-    }
-
-    @AConstraint(
-            mappings = Mappings.SEARGE,
-            version = @Versions(min = MinecraftVersion.V13, max = MinecraftVersion.V13_2))
-    @Override
-    public @NonNull Object bridge$disconnectPacket(final @NonNull Object reason) {
-        return new SPacketDisconnectLogin((ITextComponent) reason);
     }
 }
