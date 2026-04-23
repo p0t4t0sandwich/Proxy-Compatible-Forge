@@ -1,6 +1,7 @@
 package org.adde0109.pcf.forwarding;
 
 import static org.adde0109.pcf.forwarding.ConnectionBridge.HANDLER_PACKET;
+import static org.adde0109.pcf.forwarding.legacy.LegacyForwarding.PLAYER_NAME;
 import static org.adde0109.pcf.forwarding.legacy.LegacyForwarding.handleClientIntentionPacket;
 import static org.adde0109.pcf.forwarding.modern.ModernForwarding.LOGIN_MESSAGE_ID;
 import static org.adde0109.pcf.forwarding.modern.ModernForwarding.handleCustomQueryPacket;
@@ -74,6 +75,33 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
                 }
             }
             case LOGIN -> {
+                // TODO: Clean this up
+                if (PCF.instance().forwarding().enabled()
+                        && PCF.instance().forwarding().mode().isLegacy()) {
+                    final int readerIndex = msg.readerIndex();
+                    final FriendlyByteBuf data = new FriendlyByteBuf(msg);
+                    final int id = data.readVarInt();
+                    PCF.logger.debug(
+                            "Received packet with ID 0x"
+                                    + Integer.toHexString(id)
+                                    + " from "
+                                    + ctx.channel().remoteAddress());
+
+                    //noinspection SwitchStatementWithTooFewBranches
+                    switch (id) {
+                        case 0x00 -> {
+                            PCF.logger.debug(
+                                    "Handling ServerBoundHello from "
+                                            + ctx.channel().remoteAddress());
+                            final String name = data.readUtf(16);
+                            ctx.channel().attr(PLAYER_NAME).set(name);
+                            msg.readerIndex(readerIndex);
+                        }
+                        default -> msg.readerIndex(readerIndex);
+                    }
+                    break;
+                }
+
                 if (!PCF.instance().forwarding().enabled()
                         || !PCF.instance().forwarding().mode().isModern()) {
                     out.add(msg.retain());

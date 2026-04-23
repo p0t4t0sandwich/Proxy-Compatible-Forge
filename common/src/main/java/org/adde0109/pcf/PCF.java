@@ -17,6 +17,7 @@ import dev.neuralnexus.taterapi.meta.Platforms;
 import dev.neuralnexus.taterapi.network.PayloadRegistry;
 
 import org.adde0109.pcf.forwarding.Mode;
+import org.adde0109.pcf.forwarding.bungeeguard.BungeeGuard;
 import org.adde0109.pcf.forwarding.compatibility.prelogin.ArclightPreLogin;
 import org.adde0109.pcf.forwarding.compatibility.prelogin.MohistPreLogin;
 import org.adde0109.pcf.forwarding.compatibility.prelogin.SpigotPreLogin;
@@ -188,6 +189,11 @@ public final class PCF extends Constants {
                             slpl.bridge$setGameProfile(profile);
                             c.setCancelled(SpongePreLogin.API8.fireAuthEvent(slpl));
                         });
+            }
+
+            if (this.forwarding().mode() == Mode.BUNGEEGUARD) {
+                logger.debug("BungeeGuard detected, applying pre-login post processor");
+                HANDLERS.addFirst(BungeeGuard::validateToken);
             }
         }
 
