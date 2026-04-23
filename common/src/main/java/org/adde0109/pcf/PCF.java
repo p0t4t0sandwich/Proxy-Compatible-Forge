@@ -2,6 +2,8 @@ package org.adde0109.pcf;
 
 import static dev.neuralnexus.taterapi.network.Protocol.map;
 
+import static org.adde0109.pcf.forwarding.PreLoginHandler.HANDLERS;
+
 import dev.neuralnexus.taterapi.loader.EntrypointLoader;
 import dev.neuralnexus.taterapi.meta.Constraint;
 import dev.neuralnexus.taterapi.meta.Constraints;
@@ -19,7 +21,6 @@ import org.adde0109.pcf.forwarding.compatibility.prelogin.ArclightPreLogin;
 import org.adde0109.pcf.forwarding.compatibility.prelogin.MohistPreLogin;
 import org.adde0109.pcf.forwarding.compatibility.prelogin.SpigotPreLogin;
 import org.adde0109.pcf.forwarding.compatibility.prelogin.SpongePreLogin;
-import org.adde0109.pcf.forwarding.modern.ModernForwarding;
 import org.adde0109.pcf.forwarding.modern.PlayerInfoQueryPayload;
 import org.adde0109.pcf.forwarding.modern.VelocityProxy;
 import org.jetbrains.annotations.ApiStatus;
@@ -79,37 +80,40 @@ public final class PCF extends Constants {
         loader.onInit();
 
         // Modern forwarding init
-        if (this.forwarding().enabled() && this.forwarding().mode().equals(Mode.MODERN)) {
+        if (this.forwarding().enabled() && this.forwarding().mode() == Mode.MODERN) {
             PayloadRegistry.register(
                     PlayerInfoQueryPayload.TYPE,
                     map(PlayerInfoQueryPayload.IDENTIFIER, MinecraftVersions.V7_2));
+        }
 
+        // Forwarding init
+        if (this.forwarding().enabled()) {
             if (Constraint.builder().platform(Platforms.ARCLIGHT).result()) {
                 logger.debug("Arclight detected, applying pre-login post processor");
                 if (Constraint.range(MinecraftVersions.V14, MinecraftVersions.V20_1).result()) {
-                    ModernForwarding.postProcessors.removeFirst();
-                    ModernForwarding.postProcessors.add(
-                            (slpl, profile, c) -> {
+                    HANDLERS.removeFirst();
+                    HANDLERS.add(
+                            (slpl, profile, _) -> {
                                 slpl.bridge$setGameProfile(profile);
                                 ArclightPreLogin.V14.preLogin(slpl);
                             });
                 } else if (Constraint.builder().version(MinecraftVersions.V20_2).result()) {
-                    ModernForwarding.postProcessors.removeFirst();
-                    ModernForwarding.postProcessors.add(
-                            (slpl, profile, c) -> ArclightPreLogin.V20_2.preLogin(slpl, profile));
+                    HANDLERS.removeFirst();
+                    HANDLERS.add(
+                            (slpl, profile, _) -> ArclightPreLogin.V20_2.preLogin(slpl, profile));
                 } else if (Constraint.noLessThan(MinecraftVersions.V20_3).result()) {
-                    ModernForwarding.postProcessors.removeFirst();
-                    ModernForwarding.postProcessors.add(
-                            (slpl, profile, c) -> ArclightPreLogin.V20_4.preLogin(slpl, profile));
+                    HANDLERS.removeFirst();
+                    HANDLERS.add(
+                            (slpl, profile, _) -> ArclightPreLogin.V20_4.preLogin(slpl, profile));
                 }
             } else if (Constraint.builder()
                     .platform(Platforms.MOHIST)
                     .version(MinecraftVersions.V20_1)
                     .result()) {
                 logger.debug("Mohist detected, applying pre-login post processor");
-                ModernForwarding.postProcessors.removeFirst();
-                ModernForwarding.postProcessors.add(
-                        (slpl, profile, c) -> {
+                HANDLERS.removeFirst();
+                HANDLERS.add(
+                        (slpl, profile, _) -> {
                             slpl.bridge$setGameProfile(profile);
                             MohistPreLogin.V20_1.fireEvents(slpl);
                         });
@@ -118,9 +122,9 @@ public final class PCF extends Constants {
                     .version(MinecraftVersions.V21_1)
                     .result()) {
                 logger.debug("Youer detected, applying pre-login post processor");
-                ModernForwarding.postProcessors.removeFirst();
-                ModernForwarding.postProcessors.add(
-                        (slpl, profile, c) -> {
+                HANDLERS.removeFirst();
+                HANDLERS.add(
+                        (slpl, profile, _) -> {
                             MohistPreLogin.Youer.fireEvents(slpl, profile);
                             slpl.bridge$startClientVerification(profile);
                         });
@@ -136,9 +140,9 @@ public final class PCF extends Constants {
                                     .version(MinecraftVersions.V20_1))
                     .result()) {
                 logger.debug("Forge+Bukkit hybrid detected, applying pre-login post processor");
-                ModernForwarding.postProcessors.removeFirst();
-                ModernForwarding.postProcessors.add(
-                        (slpl, profile, c) -> {
+                HANDLERS.removeFirst();
+                HANDLERS.add(
+                        (slpl, profile, _) -> {
                             slpl.bridge$setGameProfile(profile);
                             SpigotPreLogin.Legacy.fireEvents(slpl);
                         });
@@ -152,9 +156,8 @@ public final class PCF extends Constants {
                     .result()) {
                 logger.debug(
                         "[Neo]Forge+Bukkit hybrid detected, applying pre-login post processor");
-                ModernForwarding.postProcessors.removeFirst();
-                ModernForwarding.postProcessors.add(
-                        (slpl, profile, c) -> SpigotPreLogin.V20_2.fireEvents(slpl, profile));
+                HANDLERS.removeFirst();
+                HANDLERS.add((slpl, profile, _) -> SpigotPreLogin.V20_2.fireEvents(slpl, profile));
             } else if (Constraints.builder()
                     .or(
                             Constraint.builder()
@@ -171,8 +174,8 @@ public final class PCF extends Constants {
                     .result()) {
                 logger.debug(
                         "[Neo]Forge+Bukkit hybrid detected, applying pre-login post processor");
-                ModernForwarding.postProcessors.addFirst(
-                        (slpl, profile, c) ->
+                HANDLERS.addFirst(
+                        (slpl, profile, _) ->
                                 SpigotPreLogin.V20_5.callPlayerPreLoginEvents(slpl, profile));
             }
 
@@ -180,7 +183,7 @@ public final class PCF extends Constants {
                     .platform(Platforms.SPONGE)
                     .result()) {
                 logger.debug("SpongeAPI 8 or 9 detected, applying pre-login post processor");
-                ModernForwarding.postProcessors.addFirst(
+                HANDLERS.addFirst(
                         (slpl, profile, c) -> {
                             slpl.bridge$setGameProfile(profile);
                             c.setCancelled(SpongePreLogin.API8.fireAuthEvent(slpl));
