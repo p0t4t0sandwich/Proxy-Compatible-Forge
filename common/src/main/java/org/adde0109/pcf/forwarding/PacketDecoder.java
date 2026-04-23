@@ -62,8 +62,7 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
                         try {
                             handleClientIntentionPacket(connection, data);
                         } catch (final ThrowingComponent e) {
-                            throw e;
-                            // connection.bridge$disconnect(e.getComponent());
+                            connection.bridge$disconnect(e.getComponent());
                         } finally {
                             // Reset reader index and pass it along
                             msg.readerIndex(readerIndex);
@@ -139,7 +138,7 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
                         try {
                             handleCustomQueryPacket(slpl, packet);
                         } catch (final ThrowingComponent e) {
-                            slpl.bridge$disconnect(e.getComponent());
+                            slpl.bridge$connection().bridge$disconnect(e.getComponent());
                         } finally {
                             msg.clear();
                         }

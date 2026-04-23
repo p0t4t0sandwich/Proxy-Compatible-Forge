@@ -11,6 +11,8 @@ import io.netty.util.AttributeKey;
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
 import net.minecraft.network.PacketListener;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.login.ClientboundLoginDisconnectPacket;
 
 import org.adde0109.pcf.forwarding.ConnectionBridge;
 import org.jspecify.annotations.NonNull;
@@ -24,13 +26,15 @@ import java.net.SocketAddress;
 
 @AConstraint(
         mappings = Mappings.SEARGE,
-        version = @Versions(min = MinecraftVersion.V13, max = MinecraftVersion.V16_5))
+        version = @Versions(min = MinecraftVersion.V7, max = MinecraftVersion.V16_5))
 @Mixin(Connection.class)
 public abstract class ConnectionMixin implements ConnectionBridge {
     // spotless:off
     @Shadow private SocketAddress address;
-    @Shadow @Final public static AttributeKey<ConnectionProtocol> ATTRIBUTE_PROTOCOL;
     @Shadow public abstract PacketListener shadow$getPacketListener();
+
+    @AConstraint(version = @Versions(min = MinecraftVersion.V14, max = MinecraftVersion.V16_5))
+    @Shadow @Final public static AttributeKey<ConnectionProtocol> ATTRIBUTE_PROTOCOL;
     // spotless:on
 
     @Override
@@ -48,12 +52,19 @@ public abstract class ConnectionMixin implements ConnectionBridge {
         return this.shadow$getPacketListener();
     }
 
+    @AConstraint(version = @Versions(min = MinecraftVersion.V14, max = MinecraftVersion.V16_5))
     @Override
     public Protocol bridge$protocol() {
-        final PacketListener listener = this.shadow$getPacketListener();
+        final Object listener = this.bridge$getPacketListener();
         if (listener == null) {
             return null;
         }
         return Protocol.fromLegacyId(this.bridge$channel().attr(ATTRIBUTE_PROTOCOL).get().getId());
+    }
+
+    @AConstraint(version = @Versions(min = MinecraftVersion.V14, max = MinecraftVersion.V16_5))
+    @Override
+    public @NonNull Object bridge$disconnectPacket(final @NonNull Object reason) {
+        return new ClientboundLoginDisconnectPacket((Component) reason);
     }
 }
