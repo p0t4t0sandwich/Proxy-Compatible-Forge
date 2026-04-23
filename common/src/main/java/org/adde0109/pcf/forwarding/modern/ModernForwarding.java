@@ -62,10 +62,6 @@ public final class ModernForwarding {
      */
     public static void handleHello(
             final @NonNull ServerLoginPacketListenerBridge slpl, final @NonNull CallbackInfo ci) {
-        if (!(PCF.instance().forwarding().enabled()
-                && PCF.instance().forwarding().mode().isModern())) {
-            return;
-        }
         final ConnectionBridge connection = slpl.bridge$connection();
 
         final List<String> approved = PCF.instance().forwarding().approvedProxyHosts();

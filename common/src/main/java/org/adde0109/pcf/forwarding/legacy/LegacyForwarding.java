@@ -166,10 +166,6 @@ public final class LegacyForwarding {
 
     public static void handleHello(
             final @NonNull ServerLoginPacketListenerBridge slpl, final @NonNull CallbackInfo ci) {
-        if (!(PCF.instance().forwarding().enabled()
-                && PCF.instance().forwarding().mode().isLegacy())) {
-            return;
-        }
         final GameProfile profile = createProfile(slpl.bridge$connection().bridge$channel());
 
         // Proceed with login

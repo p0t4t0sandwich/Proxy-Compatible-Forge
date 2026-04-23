@@ -38,8 +38,7 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
         switch (connection.bridge$protocol()) {
             case null -> {}
             case HANDSHAKING -> {
-                if (!(PCF.instance().forwarding().enabled()
-                        && PCF.instance().forwarding().mode().isLegacy())) {
+                if (!PCF.instance().forwarding().mode().isLegacy()) {
                     out.add(msg.retain());
                     return;
                 }
@@ -76,8 +75,7 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
             }
             case LOGIN -> {
                 // TODO: Clean this up
-                if (PCF.instance().forwarding().enabled()
-                        && PCF.instance().forwarding().mode().isLegacy()) {
+                if (PCF.instance().forwarding().mode().isLegacy()) {
                     final int readerIndex = msg.readerIndex();
                     final FriendlyByteBuf data = new FriendlyByteBuf(msg);
                     final int id = data.readVarInt();
@@ -102,8 +100,7 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
                     break;
                 }
 
-                if (!PCF.instance().forwarding().enabled()
-                        || !PCF.instance().forwarding().mode().isModern()) {
+                if (!PCF.instance().forwarding().mode().isModern()) {
                     out.add(msg.retain());
                     return;
                 }
