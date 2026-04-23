@@ -10,7 +10,6 @@ import dev.neuralnexus.taterapi.meta.MinecraftVersions;
 import dev.neuralnexus.taterapi.muxins.Muxins;
 
 import org.adde0109.pcf.PCF;
-import org.adde0109.pcf.forwarding.Mode;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.objectweb.asm.tree.ClassNode;
@@ -82,12 +81,15 @@ public final class PCFMixinPlugin implements IMixinConfigPlugin {
             PCF.logger.debug("Skipping mixin " + m + " because forwarding is disabled.");
             return false;
         }
-        if (forwarding.mode() != Mode.MODERN && m.contains(".forwarding.modern.")) {
+        if (!forwarding.mode().isModern() && m.contains(".forwarding.modern.")) {
             PCF.logger.debug("Skipping mixin " + m + " because forwarding mode is not MODERN.");
             return false;
         }
-        if (forwarding.mode() != Mode.LEGACY && m.contains(".forwarding.legacy.")) {
-            PCF.logger.debug("Skipping mixin " + m + " because forwarding mode is not LEGACY.");
+        if (!forwarding.mode().isLegacy() && m.contains(".forwarding.legacy.")) {
+            PCF.logger.debug(
+                    "Skipping mixin "
+                            + m
+                            + " because forwarding mode is not LEGACY or BUNGEEGUARD.");
             return false;
         }
         if (advanced.modernForwardingVersion() != NO_OVERRIDE

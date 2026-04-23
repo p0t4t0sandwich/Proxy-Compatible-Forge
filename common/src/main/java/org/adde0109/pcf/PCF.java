@@ -80,7 +80,7 @@ public final class PCF extends Constants {
         loader.onInit();
 
         // Modern forwarding init
-        if (this.forwarding().enabled() && this.forwarding().mode() == Mode.MODERN) {
+        if (this.forwarding().enabled() && this.forwarding().mode().isModern()) {
             PayloadRegistry.register(
                     PlayerInfoQueryPayload.TYPE,
                     map(PlayerInfoQueryPayload.IDENTIFIER, MinecraftVersions.V7_2));

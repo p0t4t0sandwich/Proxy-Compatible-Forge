@@ -22,7 +22,6 @@ import io.netty.util.AttributeKey;
 
 import org.adde0109.pcf.PCF;
 import org.adde0109.pcf.forwarding.ConnectionBridge;
-import org.adde0109.pcf.forwarding.Mode;
 import org.adde0109.pcf.forwarding.PreLoginHandler;
 import org.adde0109.pcf.forwarding.ServerLoginPacketListenerBridge;
 import org.jspecify.annotations.NonNull;
@@ -63,8 +62,8 @@ public final class ModernForwarding {
      */
     public static void handleHello(
             final @NonNull ServerLoginPacketListenerBridge slpl, final @NonNull CallbackInfo ci) {
-        if (!PCF.instance().forwarding().enabled()
-                || !PCF.instance().forwarding().mode().equals(Mode.MODERN)) {
+        if (!(PCF.instance().forwarding().enabled()
+                && PCF.instance().forwarding().mode().isModern())) {
             return;
         }
         final ConnectionBridge connection = slpl.bridge$connection();
