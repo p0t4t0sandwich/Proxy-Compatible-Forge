@@ -59,14 +59,11 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
                                 "Handling ClientIntentionPacket from "
                                         + ctx.channel().remoteAddress());
 
-                        try {
-                            handleClientIntentionPacket(connection, data);
-                        } catch (final ThrowingComponent e) {
-                            connection.bridge$disconnect(e.getComponent());
-                        } finally {
-                            // Reset reader index and pass it along
-                            msg.readerIndex(readerIndex);
-                        }
+                        // Rewrite the packet
+                        handleClientIntentionPacket(connection, data);
+
+                        // Reset reader index and pass it along
+                        msg.readerIndex(readerIndex);
                     }
                     // Reset reader index for unhandled packets
                     default -> msg.readerIndex(readerIndex);
@@ -138,7 +135,7 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
                         try {
                             handleCustomQueryPacket(slpl, packet);
                         } catch (final ThrowingComponent e) {
-                            slpl.bridge$connection().bridge$disconnect(e.getComponent());
+                            slpl.bridge$disconnect(e.getComponent());
                         } finally {
                             msg.clear();
                         }

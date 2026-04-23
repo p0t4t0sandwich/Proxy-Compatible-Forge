@@ -76,7 +76,7 @@ public final class ModernForwarding {
                                 + " (IP: "
                                 + ip
                                 + ")");
-                slpl.bridge$connection().bridge$disconnect(REJECTED_PROXY_ERR);
+                slpl.bridge$disconnect(REJECTED_PROXY_ERR);
                 ci.cancel();
                 return;
             }

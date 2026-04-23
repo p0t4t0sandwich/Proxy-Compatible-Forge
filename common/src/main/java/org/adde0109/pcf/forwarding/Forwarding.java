@@ -28,13 +28,13 @@ public final class Forwarding {
                 case MODERN -> ModernForwarding.handleHello(slpl, ci);
             }
         } catch (final ThrowingComponent e) {
-            slpl.bridge$connection().bridge$disconnect(e.getComponent());
+            slpl.bridge$disconnect(e.getComponent());
         } catch (final Exception e) {
             // final NameAndId nameAndId = new NameAndId(profile);
             // PCF.logger.warn("Exception while forwarding user " + nameAndId.name());
             // throw new ThrowingComponent(FAILED_TO_VERIFY, e);
             e.printStackTrace();
-            slpl.bridge$connection().bridge$disconnect(FAILED_TO_VERIFY);
+            slpl.bridge$disconnect(FAILED_TO_VERIFY);
         } finally {
             ci.cancel();
         }
