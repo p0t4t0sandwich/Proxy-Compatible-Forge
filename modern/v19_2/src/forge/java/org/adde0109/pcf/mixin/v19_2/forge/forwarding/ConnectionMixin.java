@@ -10,7 +10,6 @@ import io.netty.util.AttributeKey;
 
 import net.minecraft.network.Connection;
 import net.minecraft.network.ConnectionProtocol;
-import net.minecraft.network.PacketListener;
 
 import org.adde0109.pcf.forwarding.ConnectionBridge;
 import org.spongepowered.asm.mixin.Final;
@@ -24,12 +23,11 @@ import org.spongepowered.asm.mixin.Shadow;
 public abstract class ConnectionMixin implements ConnectionBridge {
     // spotless:off
     @Shadow @Final public static AttributeKey<ConnectionProtocol> ATTRIBUTE_PROTOCOL;
-    @Shadow public abstract PacketListener shadow$getPacketListener();
     // spotless:on
 
     @Override
     public Protocol bridge$protocol() {
-        final PacketListener listener = this.shadow$getPacketListener();
+        final Object listener = this.bridge$getPacketListener();
         if (listener == null) {
             return null;
         }

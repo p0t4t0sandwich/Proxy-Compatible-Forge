@@ -27,8 +27,21 @@ public interface ConnectionBridge {
 
     @Nullable Protocol bridge$protocol();
 
+    @NonNull Object bridge$disconnectPacket(final @NonNull Object reason);
+
     default void bridge$send(final @NonNull Object packet) {
         this.bridge$channel().writeAndFlush(packet).addListener(ConnectionBridge::errorListener);
+    }
+
+    default void bridge$disconnect(final @NonNull Object reason) {
+        if (this.bridge$getPacketListener() instanceof ServerLoginPacketListenerBridge slpl) {
+            slpl.bridge$disconnect(reason);
+            return;
+        }
+        if (this.bridge$channel() != null && this.bridge$channel().isOpen()) {
+            this.bridge$send(this.bridge$disconnectPacket(reason));
+            this.bridge$channel().close().awaitUninterruptibly();
+        }
     }
 
     /**
