@@ -2,6 +2,8 @@ package org.adde0109.pcf.forwarding.bungeeguard;
 
 import static dev.neuralnexus.taterapi.network.chat.Component.literal;
 
+import static org.adde0109.pcf.forwarding.ReflectionUtils.attributeKeyValueOf;
+
 import com.mojang.authlib.GameProfile;
 
 import dev.neuralnexus.taterapi.event.Cancellable;
@@ -20,7 +22,7 @@ import java.util.Collection;
 public final class BungeeGuard {
     public static final String BUNGEE_GUARD_TOKEN_PROPERTY_NAME = "bungeeguard-token";
     public static final AttributeKey<Collection<String>> BUNGEE_GUARD_TOKEN =
-            AttributeKey.valueOf("pcf-bungeeguard-token");
+            attributeKeyValueOf("pcf-bungeeguard-token");
 
     private static final Object NO_DATA =
             literal("&cUnable to authenticate - no data was forwarded by the proxy.");

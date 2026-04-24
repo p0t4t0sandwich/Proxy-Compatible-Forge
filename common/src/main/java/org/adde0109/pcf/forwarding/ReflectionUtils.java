@@ -7,6 +7,9 @@ import com.mojang.authlib.properties.PropertyMap;
 import dev.neuralnexus.taterapi.meta.Constraint;
 import dev.neuralnexus.taterapi.meta.MetaAPI;
 import dev.neuralnexus.taterapi.meta.MinecraftVersions;
+import dev.neuralnexus.taterapi.meta.enums.MinecraftVersion;
+
+import io.netty.util.AttributeKey;
 
 import net.minecraft.server.MinecraftServer;
 
@@ -144,6 +147,42 @@ public final class ReflectionUtils {
                             (MinecraftServer) MetaAPI.instance().server());
         } catch (Throwable e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private static final MethodHandle ATTRIBUTE_KEY_VALUE_OF;
+
+    static {
+        final MethodHandles.Lookup lookup = MethodHandles.lookup();
+        MethodHandle attributeKeyValueOfHandle;
+        try {
+            if (Constraint.noLessThan(MinecraftVersion.V8).result()) {
+                final Class<?> attributeKeyClass = Class.forName("io.netty.util.AttributeKey");
+                attributeKeyValueOfHandle =
+                        lookup.findStatic(
+                                attributeKeyClass,
+                                "valueOf",
+                                MethodType.methodType(AttributeKey.class, String.class));
+            } else { // Get old AttributeKey constructor: AttributeKey(String name)
+                final Class<?> attributeKeyClass = Class.forName("io.netty.util.AttributeKey");
+                //noinspection JavaLangInvokeHandleSignature
+                attributeKeyValueOfHandle =
+                        lookup.findConstructor(
+                                attributeKeyClass, MethodType.methodType(void.class, String.class));
+            }
+        } catch (final Throwable e) {
+            throw new IllegalStateException(
+                    "Failed to initialize AttributeKey.valueOf MethodHandle", e);
+        }
+        ATTRIBUTE_KEY_VALUE_OF = attributeKeyValueOfHandle;
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> AttributeKey<T> attributeKeyValueOf(final @NonNull String name) {
+        try {
+            return (AttributeKey<T>) ATTRIBUTE_KEY_VALUE_OF.invokeExact(name);
+        } catch (final Throwable e) {
+            throw new IllegalStateException("Failed to create AttributeKey with name: " + name, e);
         }
     }
 }
