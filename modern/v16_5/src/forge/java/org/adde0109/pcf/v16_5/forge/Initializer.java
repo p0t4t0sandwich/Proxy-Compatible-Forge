@@ -63,6 +63,5 @@ public final class Initializer implements PCFInitializer {
     private void registerConfig() {
         ModLoadingContext.get()
                 .registerConfig(ModConfig.Type.COMMON, Config.spec, PCF.CONFIG_FILE_NAME);
-        Config.reload();
     }
 }

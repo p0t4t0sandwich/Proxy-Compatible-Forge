@@ -12,9 +12,8 @@ import java.nio.file.Path;
 import java.util.List;
 
 /**
- * Reads PCF config directly from the TOML file during normal mod initialization. This keeps the
- * mixin plugin from touching ForgeConfigSpec/ModConfigSpec before other mods can transform those
- * classes.
+ * Reads PCF config directly from the TOML file so early-loading code can avoid touching
+ * ForgeConfigSpec/ModConfigSpec before other mods transform those classes.
  */
 @ApiStatus.Internal
 public final class EarlyConfig {
@@ -94,7 +93,26 @@ public final class EarlyConfig {
     }
 
     private static void applyDefaults() {
-        PCF.instance().resetConfigToDefaults();
+        PCF.instance().setForwarding(defaultForwarding());
+        PCF.instance().setCrossStitch(defaultCrossStitch());
+        PCF.instance().setDebug(defaultDebug());
+        PCF.instance().setAdvanced(defaultAdvanced());
+    }
+
+    private static PCF.Forwarding defaultForwarding() {
+        return new PCF.Forwarding(true, Mode.MODERN, "", List.of());
+    }
+
+    private static PCF.CrossStitch defaultCrossStitch() {
+        return new PCF.CrossStitch(true, List.of(), false);
+    }
+
+    private static PCF.Debug defaultDebug() {
+        return new PCF.Debug(false, List.of());
+    }
+
+    private static PCF.Advanced defaultAdvanced() {
+        return new PCF.Advanced(VelocityProxy.Version.NO_OVERRIDE);
     }
 
     private static Path resolveConfigDir() {
