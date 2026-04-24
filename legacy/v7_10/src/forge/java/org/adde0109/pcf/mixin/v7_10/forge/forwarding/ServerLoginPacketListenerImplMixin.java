@@ -28,7 +28,8 @@ public abstract class ServerLoginPacketListenerImplMixin
 
     @Override
     public void bridge$disconnect(final @NonNull Object reason) {
-        this.shadow$closeConnection(((IChatComponent) reason).getFormattedText());
+        // Note: IChatComponent.getFormattedText() is client-only
+        this.shadow$closeConnection(((IChatComponent) reason).getUnformattedTextForChat());
     }
 
     @Override
