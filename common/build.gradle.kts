@@ -26,6 +26,7 @@ dependencies {
     compileOnly(libs.guava)
     compileOnly(libs.jspecify)
     compileOnly(libs.mixin)
+    compileOnly(libs.nightconfig.core)
     compileOnly(libs.netty.buffer)
     compileOnly(libs.netty.codec)
     compileOnly(libs.netty.unix.common)

@@ -56,6 +56,10 @@ public final class PCF extends Constants {
                 + " (" + platform + " " + api.meta().apiVersion() + ")");
         // spotless:on
 
+        // The mixin plugin intentionally stays on defaults so other mods can still mix into
+        // Forge/NeoForge config classes before PCF touches config loading.
+        forceLoadConfig();
+
         final boolean debug = Constraint.Evaluator.DEBUG;
         Constraint.Evaluator.DEBUG = this.debug().enabled();
 
@@ -200,14 +204,14 @@ public final class PCF extends Constants {
                             .getMethod("reload")
                             .invoke(null);
                 } else {
-                    Class.forName("org.adde0109.pcf.v26_1.forge.Config")
-                            .getMethod("reload")
-                            .invoke(null);
+                    // Load the raw TOML only after mixin setup has finished so other mods can
+                    // still transform Forge config classes first.
+                    EarlyConfig.load();
                 }
             } else if (Constraint.builder().platform(Platforms.NEOFORGE).result()) {
-                Class.forName("org.adde0109.pcf.v26_1.neoforge.Config")
-                        .getMethod("reload")
-                        .invoke(null);
+                // Load the raw TOML only after mixin setup has finished so other mods can still
+                // transform NeoForge config classes first.
+                EarlyConfig.load();
             }
         } catch (ClassNotFoundException
                 | IllegalAccessException
@@ -217,7 +221,7 @@ public final class PCF extends Constants {
         }
     }
 
-    private Forwarding forwarding;
+    private Forwarding forwarding = defaultForwarding();
 
     public Forwarding forwarding() {
         return this.forwarding;
@@ -228,7 +232,7 @@ public final class PCF extends Constants {
         this.forwarding = forwarding;
     }
 
-    private CrossStitch crossStitch;
+    private CrossStitch crossStitch = defaultCrossStitch();
 
     public CrossStitch crossStitch() {
         return this.crossStitch;
@@ -239,7 +243,7 @@ public final class PCF extends Constants {
         this.crossStitch = crossStitch;
     }
 
-    private Debug debug;
+    private Debug debug = defaultDebug();
 
     public Debug debug() {
         return this.debug;
@@ -250,7 +254,7 @@ public final class PCF extends Constants {
         this.debug = debug;
     }
 
-    private Advanced advanced;
+    private Advanced advanced = defaultAdvanced();
 
     public Advanced advanced() {
         return this.advanced;
@@ -259,6 +263,30 @@ public final class PCF extends Constants {
     @ApiStatus.Internal
     public void setAdvanced(final @NonNull Advanced advanced) {
         this.advanced = advanced;
+    }
+
+    @ApiStatus.Internal
+    public void resetConfigToDefaults() {
+        this.setForwarding(defaultForwarding());
+        this.setCrossStitch(defaultCrossStitch());
+        this.setDebug(defaultDebug());
+        this.setAdvanced(defaultAdvanced());
+    }
+
+    private static @NonNull Forwarding defaultForwarding() {
+        return new Forwarding(true, Mode.MODERN, "", List.of());
+    }
+
+    private static @NonNull CrossStitch defaultCrossStitch() {
+        return new CrossStitch(true, List.of(), false);
+    }
+
+    private static @NonNull Debug defaultDebug() {
+        return new Debug(false, List.of());
+    }
+
+    private static @NonNull Advanced defaultAdvanced() {
+        return new Advanced(VelocityProxy.Version.NO_OVERRIDE);
     }
 
     public record Forwarding(

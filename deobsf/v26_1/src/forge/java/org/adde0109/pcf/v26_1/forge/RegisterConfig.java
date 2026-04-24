@@ -18,5 +18,6 @@ public final class RegisterConfig implements PCFInitializer {
     public void onInit() {
         ModLoadingContext.get()
                 .registerConfig(ModConfig.Type.COMMON, Config.spec, PCF.CONFIG_FILE_NAME);
+        Config.reload();
     }
 }

@@ -26,7 +26,6 @@ public final class PCFMixinPlugin implements IMixinConfigPlugin {
     @Override
     public void onLoad(final @NonNull String mixinPackage) {
         try {
-            PCF.forceLoadConfig();
             Muxins.bootstrap(mixinPackage, PCF.instance().debug().enabled());
         } catch (final Exception e) {
             PCF.logger.error("Error during Muxins bootstrap:");
@@ -43,7 +42,6 @@ public final class PCFMixinPlugin implements IMixinConfigPlugin {
     public boolean shouldApplyMixin(
             final @NonNull String targetClassName, final @NonNull String mixinClassName) {
         try {
-            PCF.forceLoadConfig();
             final PCF.Forwarding forwarding = PCF.instance().forwarding();
             final PCF.CrossStitch crossStitch = PCF.instance().crossStitch();
             final PCF.Debug debug = PCF.instance().debug();
