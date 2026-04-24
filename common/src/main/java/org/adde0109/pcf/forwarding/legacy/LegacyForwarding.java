@@ -3,6 +3,7 @@ package org.adde0109.pcf.forwarding.legacy;
 import static dev.neuralnexus.taterapi.network.chat.Component.literal;
 
 import static org.adde0109.pcf.forwarding.Forwarding.PLAYER_INFO_ERR;
+import static org.adde0109.pcf.forwarding.ReflectionUtils.attributeKeyValueOf;
 import static org.adde0109.pcf.forwarding.ReflectionUtils.getName;
 import static org.adde0109.pcf.forwarding.ReflectionUtils.getProperties;
 import static org.adde0109.pcf.forwarding.ReflectionUtils.getValue;
@@ -54,13 +55,13 @@ import java.util.regex.Pattern;
  */
 public final class LegacyForwarding {
     public static final AttributeKey<Object> DEFERRED_DISCONNECT =
-            AttributeKey.valueOf("pcf-deferred-disconnect");
+            attributeKeyValueOf("pcf-deferred-disconnect");
     public static final AttributeKey<InetAddress> FORWARDED_ADDRESS =
-            AttributeKey.valueOf("pcf-forwarded-address");
-    public static final AttributeKey<String> PLAYER_NAME = AttributeKey.valueOf("pcf-player-name");
-    public static final AttributeKey<UUID> SPOOFED_UUID = AttributeKey.valueOf("pcf-spoofed-uuid");
+            attributeKeyValueOf("pcf-forwarded-address");
+    public static final AttributeKey<String> PLAYER_NAME = attributeKeyValueOf("pcf-player-name");
+    public static final AttributeKey<UUID> SPOOFED_UUID = attributeKeyValueOf("pcf-spoofed-uuid");
     public static final AttributeKey<Collection<Property>> SPOOFED_PROFILE =
-            AttributeKey.valueOf("pcf-spoofed-profile");
+            attributeKeyValueOf("pcf-spoofed-profile");
 
     private static final Object LEGACY_DIRECT_CONNECT_ERR =
             literal("This server requires you to connect with Velocity or BungeeCord.");

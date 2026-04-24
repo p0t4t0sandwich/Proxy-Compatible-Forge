@@ -4,6 +4,7 @@ import static dev.neuralnexus.taterapi.network.chat.Component.literal;
 import static dev.neuralnexus.taterapi.network.chat.Component.translatable;
 
 import static org.adde0109.pcf.forwarding.Forwarding.PLAYER_INFO_ERR;
+import static org.adde0109.pcf.forwarding.ReflectionUtils.attributeKeyValueOf;
 import static org.adde0109.pcf.forwarding.ReflectionUtils.enforceSecureProfile;
 import static org.adde0109.pcf.forwarding.modern.VelocityProxy.MODERN_MAX_VERSION;
 import static org.adde0109.pcf.forwarding.modern.VelocityProxy.PLAYER_INFO_PAYLOAD;
@@ -48,7 +49,7 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public final class ModernForwarding {
     public static final AttributeKey<Integer> LOGIN_MESSAGE_ID =
-            AttributeKey.valueOf("pcf-login-message-id");
+            attributeKeyValueOf("pcf-login-message-id");
 
     private static final Object MODERN_DIRECT_CONNECT_ERR =
             literal("This server requires you to connect with Velocity.");
