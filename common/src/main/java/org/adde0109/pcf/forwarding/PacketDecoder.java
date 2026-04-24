@@ -1,14 +1,15 @@
 package org.adde0109.pcf.forwarding;
 
+import static dev.neuralnexus.taterapi.network.protocol.login.ServerboundHelloPacket.MAX_NAME_LENGTH;
+
 import static org.adde0109.pcf.forwarding.ConnectionBridge.HANDLER_PACKET;
 import static org.adde0109.pcf.forwarding.legacy.LegacyForwarding.PLAYER_NAME;
 import static org.adde0109.pcf.forwarding.legacy.LegacyForwarding.handleClientIntention;
-import static org.adde0109.pcf.forwarding.modern.ModernForwarding.LOGIN_MESSAGE_ID;
 import static org.adde0109.pcf.forwarding.modern.ModernForwarding.handleCustomQueryAnswer;
 
 import dev.neuralnexus.taterapi.network.FriendlyByteBuf;
+import dev.neuralnexus.taterapi.network.Protocol;
 import dev.neuralnexus.taterapi.network.chat.ThrowingComponent;
-import dev.neuralnexus.taterapi.network.protocol.login.ServerboundCustomQueryAnswerPacket;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -35,22 +36,29 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
         final ConnectionBridge connection =
                 ((ConnectionBridge) ctx.channel().pipeline().get(HANDLER_PACKET));
 
+        if (connection.bridge$protocol() != Protocol.HANDSHAKING
+                && connection.bridge$protocol() != Protocol.LOGIN) {
+            out.add(msg.retain());
+            return;
+        }
+
+        final int readerIndex = msg.readerIndex();
+        final FriendlyByteBuf data = new FriendlyByteBuf(msg);
+        final int id = data.readVarInt();
+        PCF.logger.debug(
+                "Received "
+                        + connection.bridge$protocol()
+                        + " packet with ID 0x"
+                        + Integer.toHexString(id)
+                        + " from "
+                        + ctx.channel().remoteAddress());
+
         switch (connection.bridge$protocol()) {
-            case null -> {}
             case HANDSHAKING -> {
                 if (!PCF.instance().forwarding().mode().isLegacy()) {
-                    out.add(msg.retain());
-                    return;
+                    msg.readerIndex(readerIndex);
+                    break;
                 }
-
-                final int readerIndex = msg.readerIndex();
-                final FriendlyByteBuf data = new FriendlyByteBuf(msg);
-                final int id = data.readVarInt();
-                PCF.logger.debug(
-                        "Received packet with ID 0x"
-                                + Integer.toHexString(id)
-                                + " from "
-                                + ctx.channel().remoteAddress());
 
                 //noinspection SwitchStatementWithTooFewBranches
                 switch (id) {
@@ -61,70 +69,35 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
 
                         // Rewrite the packet
                         handleClientIntention(connection, data);
-
-                        // Reset reader index and pass it along
                         msg.readerIndex(readerIndex);
                     }
-                    // Reset reader index for unhandled packets
                     default -> msg.readerIndex(readerIndex);
                 }
             }
             case LOGIN -> {
-                // TODO: Clean this up
-                if (PCF.instance().forwarding().mode().isLegacy()) {
-                    final int readerIndex = msg.readerIndex();
-                    final FriendlyByteBuf data = new FriendlyByteBuf(msg);
-                    final int id = data.readVarInt();
-                    PCF.logger.debug(
-                            "Received packet with ID 0x"
-                                    + Integer.toHexString(id)
-                                    + " from "
-                                    + ctx.channel().remoteAddress());
-
-                    //noinspection SwitchStatementWithTooFewBranches
-                    switch (id) {
-                        case 0x00 -> {
-                            PCF.logger.debug(
-                                    "Handling ServerBoundHello from "
-                                            + ctx.channel().remoteAddress());
-                            final String name = data.readUtf(16);
-                            ctx.channel().attr(PLAYER_NAME).set(name);
-                            msg.readerIndex(readerIndex);
-                        }
-                        default -> msg.readerIndex(readerIndex);
-                    }
+                if (!(connection.bridge$getPacketListener()
+                        instanceof ServerLoginPacketListenerBridge slpl)) {
+                    msg.readerIndex(readerIndex);
                     break;
                 }
 
-                if (!PCF.instance().forwarding().mode().isModern()) {
-                    out.add(msg.retain());
-                    return;
-                }
-
-                if (!(connection.bridge$getPacketListener()
-                        instanceof ServerLoginPacketListenerBridge slpl)) {
-                    out.add(msg.retain());
-                    return;
-                }
-
-                final int readerIndex = msg.readerIndex();
-                final FriendlyByteBuf data = new FriendlyByteBuf(msg);
-                final int id = data.readVarInt();
-                PCF.logger.debug(
-                        "Received packet with ID 0x"
-                                + Integer.toHexString(id)
-                                + " from "
-                                + ctx.channel().remoteAddress());
-
-                //noinspection SwitchStatementWithTooFewBranches
                 switch (id) {
-                    case 0x02 -> {
-                        final ServerboundCustomQueryAnswerPacket packet =
-                                ServerboundCustomQueryAnswerPacket.STREAM_CODEC.decode(data);
+                    case 0x00 -> {
+                        if (!PCF.instance().forwarding().mode().isLegacy()) {
+                            msg.readerIndex(readerIndex);
+                            break;
+                        }
+                        PCF.logger.debug(
+                                "Handling ServerBoundHelloPacket from "
+                                        + ctx.channel().remoteAddress());
 
-                        // Check if the packet should be handled
-                        if (packet.transactionId()
-                                != connection.bridge$channel().attr(LOGIN_MESSAGE_ID).get()) {
+                        // Save player name
+                        final String name = data.readUtf(MAX_NAME_LENGTH);
+                        ctx.channel().attr(PLAYER_NAME).set(name);
+                        msg.readerIndex(readerIndex);
+                    }
+                    case 0x02 -> {
+                        if (!PCF.instance().forwarding().mode().isModern()) {
                             msg.readerIndex(readerIndex);
                             break;
                         }
@@ -132,22 +105,20 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
                                 "Handling ServerboundCustomQueryAnswerPacket from "
                                         + ctx.channel().remoteAddress());
 
+                        boolean handled = false;
                         try {
-                            handleCustomQueryAnswer(slpl, packet);
+                            handled = handleCustomQueryAnswer(slpl, data);
                         } catch (final ThrowingComponent e) {
+                            handled = true;
                             slpl.bridge$disconnect(e.getComponent());
                         } finally {
-                            msg.clear();
+                            if (handled) msg.clear();
                         }
                     }
-                    // Reset reader index for unhandled packets
                     default -> msg.readerIndex(readerIndex);
                 }
             }
-            default -> {
-                out.add(msg.retain());
-                return;
-            }
+            case null, default -> msg.readerIndex(readerIndex);
         }
 
         if (msg.isReadable()) {
