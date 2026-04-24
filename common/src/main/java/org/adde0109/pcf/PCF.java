@@ -200,14 +200,14 @@ public final class PCF extends Constants {
                             .getMethod("reload")
                             .invoke(null);
                 } else {
-                    Class.forName("org.adde0109.pcf.v26_1.forge.Config")
-                            .getMethod("reload")
-                            .invoke(null);
+                    // Read the raw TOML directly so the mixin plugin can avoid touching Forge
+                    // config classes during early loading.
+                    EarlyConfig.load();
                 }
             } else if (Constraint.builder().platform(Platforms.NEOFORGE).result()) {
-                Class.forName("org.adde0109.pcf.v26_1.neoforge.Config")
-                        .getMethod("reload")
-                        .invoke(null);
+                // Read the raw TOML directly so the mixin plugin can avoid touching NeoForge
+                // config classes during early loading.
+                EarlyConfig.load();
             }
         } catch (ClassNotFoundException
                 | IllegalAccessException
