@@ -147,7 +147,7 @@ public final class ModernForwarding {
     }
 
     private static final PostProcessor DEFAULT_POST_PROCESSOR =
-            (slpl, profile, ignored) -> {
+            (slpl, profile, _) -> {
                 final NameAndId nameAndId = new NameAndId(profile);
                 slpl.bridge$logger_info(
                         "UUID of player {} is {}", nameAndId.name(), nameAndId.id());
