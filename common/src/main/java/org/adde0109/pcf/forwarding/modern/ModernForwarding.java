@@ -9,9 +9,9 @@ import static org.adde0109.pcf.forwarding.modern.VelocityProxy.MODERN_MAX_VERSIO
 import static org.adde0109.pcf.forwarding.modern.VelocityProxy.PLAYER_INFO_PAYLOAD;
 import static org.adde0109.pcf.forwarding.modern.VelocityProxy.checkIntegrity;
 
-import dev.neuralnexus.taterapi.event.Cancellable;
 import dev.neuralnexus.taterapi.meta.Constraint;
 import dev.neuralnexus.taterapi.meta.MinecraftVersions;
+import dev.neuralnexus.taterapi.network.FriendlyByteBuf;
 import dev.neuralnexus.taterapi.network.chat.ThrowingComponent;
 import dev.neuralnexus.taterapi.network.protocol.login.ClientboundCustomQueryPacket;
 import dev.neuralnexus.taterapi.network.protocol.login.ServerboundCustomQueryAnswerPacket;
@@ -84,11 +84,21 @@ public final class ModernForwarding {
      * CustomQueryAnswer packet handler for modern forwarding
      *
      * @param slpl The ServerLoginPacketListenerImpl
-     * @param packet The Minecraft packet
+     * @param data The packet buffer
      */
-    public static void handleCustomQueryAnswer(
+    public static boolean handleCustomQueryAnswer(
             final @NonNull ServerLoginPacketListenerBridge slpl,
-            final @NonNull ServerboundCustomQueryAnswerPacket packet) {
+            final @NonNull FriendlyByteBuf data) {
+        final ConnectionBridge connection = slpl.bridge$connection();
+        final ServerboundCustomQueryAnswerPacket packet =
+                ServerboundCustomQueryAnswerPacket.STREAM_CODEC.decode(data);
+
+        // Check if the packet should be handled
+        if (packet.transactionId() != connection.bridge$channel().attr(LOGIN_MESSAGE_ID).get()) {
+            return false;
+        }
+
+        // Decode raw buffer
         final CustomQueryAnswerPayload.Raw rawPayload =
                 packet.payload() instanceof CustomQueryAnswerPayload.Raw raw ? raw : null;
 
@@ -141,7 +151,7 @@ public final class ModernForwarding {
         PCF.logger.debug("Using modern forwarding version: " + version);
 
         // Apply IP forwarding
-        Forwarding.ipForwarding(slpl.bridge$connection(), payload.address());
+        Forwarding.ipForwarding(connection, payload.address());
 
         // Handle profile key
         switch (version) {
@@ -183,6 +193,7 @@ public final class ModernForwarding {
         }
 
         // Proceed with login
-        Forwarding.preLogin(payload.profile(), slpl, Cancellable.simple());
+        Forwarding.preLogin(slpl, payload.profile());
+        return true;
     }
 }

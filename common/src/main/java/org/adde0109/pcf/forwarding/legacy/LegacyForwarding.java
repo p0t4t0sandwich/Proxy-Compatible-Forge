@@ -20,7 +20,6 @@ import com.mojang.authlib.properties.PropertyMap;
 
 import dev.neuralnexus.taterapi.meta.Constraint;
 import dev.neuralnexus.taterapi.meta.MinecraftVersions;
-import dev.neuralnexus.taterapi.mixin.CancellableMixin;
 import dev.neuralnexus.taterapi.network.FriendlyByteBuf;
 import dev.neuralnexus.taterapi.network.chat.ThrowingComponent;
 import dev.neuralnexus.taterapi.network.protocol.handshake.ClientIntent;
@@ -193,7 +192,8 @@ public final class LegacyForwarding {
         final GameProfile profile = createProfile(name, uuid, properties);
 
         // Proceed with login
-        Forwarding.preLogin(profile, slpl, new CancellableMixin(ci));
+        ci.cancel();
+        Forwarding.preLogin(slpl, profile);
     }
 
     /**

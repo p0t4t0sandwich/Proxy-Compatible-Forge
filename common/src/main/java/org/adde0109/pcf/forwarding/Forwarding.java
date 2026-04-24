@@ -89,19 +89,17 @@ public final class Forwarding {
     /**
      * Pre-login handler that invokes registered {@link PreLoginHandler}s
      *
-     * @param profile The player's GameProfile
      * @param slpl The ServerLoginPacketListenerImpl
-     * @param c Cancellable
+     * @param profile The player's GameProfile
      */
     public static void preLogin(
-            final @NonNull GameProfile profile,
             final @NonNull ServerLoginPacketListenerBridge slpl,
-            final @NonNull Cancellable c) {
+            final @NonNull GameProfile profile) {
+        final Cancellable c = Cancellable.simple();
         try {
-            final Cancellable cancellable = Cancellable.simple();
             for (final PreLoginHandler processor : PreLoginHandler.HANDLERS) {
-                processor.process(slpl, profile, cancellable);
-                if (cancellable.cancelled()) {
+                processor.process(slpl, profile, c);
+                if (c.cancelled()) {
                     break;
                 }
             }
