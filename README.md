@@ -140,6 +140,21 @@ Paper Fix: Add `-Dpaper.disableChannelLimit=true` to the Paper server's startup 
 
 Notes: Due to the amount of channels and mods at play, textures/items may be mismatched on the client when joining a Vanilla server.
 
+### An internal server connection error occurred
+
+**Client Error:**
+```
+An internal server connection error occurred.
+```
+
+**Velocity Error:**
+```
+io.netty.handler.codec.CorruptedFrameException: Packet sent for class com.velocitypowered.proxy.protocol.packet.PluginMessagePacket was too big (expected 1234567 bytes, got 7654321 bytes)
+```
+
+Resolved Velocity-side with the by adding `-Dvelocity.max-plugin-message-payload-size=#######` to Velocity's startup arguments,
+where `#######` is a bit larger than the last "got ####### bytes" number in the error message. Repeat until your client is able to log in.
+
 ## Building the Project
 
 1. Clone the repository. `git clone https://github.com/adde0109/Proxy-Compatible-Forge.git`
