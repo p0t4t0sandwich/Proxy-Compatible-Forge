@@ -88,6 +88,14 @@ repositories {
     maven("https://maven.neuralnexus.dev/releases")
 }
 
+tasks.jar {
+    enabled = false
+}
+
+tasks.shadowJar {
+    enabled = false
+}
+
 val projs = listOf(
     ":legacy:v7_10",
     ":legacy:v12_2",
@@ -184,16 +192,21 @@ val customShadeDowngradedApi = tasks.register<ShadeJar>("customShadeDowngradedAp
     archiveFileName = "pcf-${version}.jar"
 }
 
-val renameJar = tasks.register<Copy>("renameJar") {
-    from(customShadeDowngradedApi.get().archiveFile)
-    into(file("./build/libs"))
-    rename { "proxy-compatible-forge-${version}.jar" }
+val finalJar = tasks.register<ShadeJar>("finalJar") {
+    inputFile.set(customDowngrade.get().archiveFile)
+    shadePath = {
+        it.substringBefore(".")
+            .substringBeforeLast("-")
+            .replace(Regex("[.;\\[/]"), "-")
+            .replace("proxy-compatible-forge", "org/adde0109/pcf/lib/jvmdg")
+    }
+    archiveFileName = "proxy-compatible-forge-${rootProject.version}.jar"
 
     doLast {
-        file("./build/libs/proxy-compatible-forge-${version}-mono.jar").delete()
-        file("./build/libs/proxy-compatible-forge-${version}-downgraded-8.jar").delete()
-        file("./build/libs/pcf-${version}.jar").delete()
+        file("./build/libs/proxy-compatible-forge-${rootProject.version}-all.jar").delete()
+        file("./build/libs/proxy-compatible-forge-${rootProject.version}-mono.jar").delete()
+        file("./build/libs/proxy-compatible-forge-${rootProject.version}-downgraded-8.jar").delete()
     }
 }
 
-tasks.assemble.get().dependsOn(renameJar)
+tasks.assemble.get().dependsOn(finalJar)

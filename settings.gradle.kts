@@ -23,6 +23,7 @@ plugins {
 
 rootProject.name = "proxy-compatible-forge"
 
+include(":test")
 include(":common")
 include(":legacy")
 val legacyVersions = listOf(
