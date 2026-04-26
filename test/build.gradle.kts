@@ -124,6 +124,8 @@ versions.forEach { (platform, mcVersions) ->
     mcVersions.forEach { mcVersion ->
         val taskName = "run${taskSuffix(platform, mcVersion)}Server"
         tasks.register<JavaExec>(taskName) {
+            val finalJar = rootProject.tasks.getByName<Jar>("finalJar")
+            dependsOn(finalJar)
             doFirst {
                 val serverDir = file("HeadlessMC/servers/$platform/$mcVersion")
                 if (!serverDir.exists()) {
@@ -138,7 +140,7 @@ versions.forEach { (platform, mcVersions) ->
                     val mods = parent.resolve("mods").apply { mkdirs() }
                     // Remove any proxy-compatible-forge jars from mods folder
                     parent.resolve("mods").listFiles()?.forEach { if (it.name.startsWith("proxy-compatible-forge-")) it.delete() }
-                    copy { from(files(rootProject.tasks.getByName<Jar>("finalJar").archiveFile)); into(mods) }
+                    copy { from(files(finalJar.archiveFile)); into(mods) }
                 }
             }
             group = "run_server"
