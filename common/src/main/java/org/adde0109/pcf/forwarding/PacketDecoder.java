@@ -112,7 +112,11 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
                             handled = true;
                             slpl.bridge$disconnect(e.getComponent());
                         } finally {
-                            if (handled) msg.clear();
+                            if (handled) {
+                                msg.clear();
+                            } else {
+                                msg.readerIndex(readerIndex);
+                            }
                         }
                     }
                     default -> msg.readerIndex(readerIndex);
