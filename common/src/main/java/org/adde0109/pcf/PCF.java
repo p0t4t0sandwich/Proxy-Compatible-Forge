@@ -233,6 +233,30 @@ public final class PCF extends Constants {
 
     @ApiStatus.Internal
     public void setForwarding(final @NonNull Forwarding forwarding) {
+        final String modeProperty = System.getProperty("pcf.forwarding.mode");
+        if (modeProperty != null) {
+            PCF.logger.debug("System property forwarding mode: " + modeProperty);
+        }
+        final String modeEnv = System.getenv("PCF_FORWARDING_MODE");
+        if (modeEnv != null) {
+            PCF.logger.debug("Environment variable forwarding mode: " + modeEnv);
+        }
+        if (modeProperty != null || modeEnv != null) {
+            final String modeStr = modeEnv != null ? modeEnv : modeProperty;
+            try {
+                this.forwarding =
+                        new Forwarding(
+                                forwarding.enabled(),
+                                Mode.valueOf(modeStr.toUpperCase()),
+                                forwarding.secret(),
+                                forwarding.approvedProxyHosts());
+                return;
+            } catch (final IllegalArgumentException e) {
+                logger.warn(
+                        "Invalid forwarding mode in environment variable, using config value", e);
+            }
+        }
+
         this.forwarding = forwarding;
     }
 
