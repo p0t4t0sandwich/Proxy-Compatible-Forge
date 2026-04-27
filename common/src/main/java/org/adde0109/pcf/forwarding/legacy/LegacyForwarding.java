@@ -12,9 +12,9 @@ import static org.adde0109.pcf.forwarding.bungeeguard.BungeeGuard.BUNGEE_GUARD_T
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.net.InetAddresses;
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import com.mojang.authlib.properties.PropertyMap;
@@ -38,6 +38,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.lang.reflect.Type;
 import java.net.InetAddress;
 import java.util.Collection;
 import java.util.HashSet;
@@ -69,7 +70,8 @@ public final class LegacyForwarding {
             literal("This server requires the proxy to be configured for BungeeGuard forwarding.");
 
     private static final Gson GSON = new GsonBuilder().create();
-    private static final TypeToken<List<Property>> profileTypeToken = new TypeToken<>() {};
+    // Use Type b/c GSON shipped with MC 1.19.2 doesn't have Gson#fromJson(String, TypeToken<T>)
+    private static final Type profileTypeToken = new TypeToken<List<Property>>() {}.getType();
 
     private static final Pattern HOST_PATTERN = Pattern.compile("[0-9a-f.:]{0,45}");
     private static final Pattern PROP_PATTERN = Pattern.compile("\\w{0,16}");
