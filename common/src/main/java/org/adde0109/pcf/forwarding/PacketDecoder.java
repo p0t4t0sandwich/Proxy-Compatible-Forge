@@ -129,4 +129,17 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
             out.add(msg.retain());
         }
     }
+
+    @Override
+    public void exceptionCaught(
+            final @NonNull ChannelHandlerContext ctx, final @NonNull Throwable cause)
+            throws Exception {
+        PCF.logger.error(
+                "Exception in PacketDecoder for "
+                        + ctx.channel().remoteAddress()
+                        + ": "
+                        + cause.getMessage(),
+                cause);
+        super.exceptionCaught(ctx, cause);
+    }
 }
