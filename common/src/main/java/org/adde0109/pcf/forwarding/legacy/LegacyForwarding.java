@@ -128,7 +128,7 @@ public final class LegacyForwarding {
         // spotless:off
         final String host = fmlMarker.map(property -> originalHost
                 + LEGACY_SEPARATOR
-                + property.value().split("\u0001")[1]
+                + getValue(property).split("\u0001")[1]
                 + LEGACY_SEPARATOR).orElse(originalHost);
         PCF.logger.debug("Parsed forwarded data - Host: " + host + ", UUID: " + uuid);
         // spotless:on
@@ -139,6 +139,7 @@ public final class LegacyForwarding {
         data.clear();
         data.writeVarInt(0x00);
         ClientIntentionPacket.STREAM_CODEC.encode(data, newPacket);
+        PCF.logger.debug("Rewrote ClientIntentionPacket for " + channel.remoteAddress());
     }
 
     /**
@@ -215,8 +216,8 @@ public final class LegacyForwarding {
      * @return True if the property is the FML marker, false otherwise
      */
     private static boolean isFmlMarker(final @NonNull Property property) {
-        return Objects.equals(property.name(), "extraData")
-                && property.value().startsWith("\u0001FORGE");
+        return Objects.equals(getName(property), "extraData")
+                && getValue(property).startsWith("\u0001FORGE");
     }
 
     /**
