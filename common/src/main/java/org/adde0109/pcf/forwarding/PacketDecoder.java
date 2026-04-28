@@ -7,11 +7,14 @@ import static org.adde0109.pcf.forwarding.legacy.LegacyForwarding.PLAYER_NAME;
 import static org.adde0109.pcf.forwarding.legacy.LegacyForwarding.handleClientIntention;
 import static org.adde0109.pcf.forwarding.modern.ModernForwarding.handleCustomQueryAnswer;
 
+import dev.neuralnexus.taterapi.meta.Constraint;
+import dev.neuralnexus.taterapi.meta.MinecraftVersions;
 import dev.neuralnexus.taterapi.network.FriendlyByteBuf;
 import dev.neuralnexus.taterapi.network.Protocol;
 import dev.neuralnexus.taterapi.network.chat.ThrowingComponent;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
 
@@ -44,6 +47,38 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
 
         final int readerIndex = msg.readerIndex();
         final FriendlyByteBuf data = new FriendlyByteBuf(msg);
+
+        // Hexdump the packet for debugging
+        if (PCF.instance().debug().enabled()) {
+            final int id = data.readVarInt();
+            // Don't want to leak the secret nor the encrypted payload in the debug log
+            if (!(connection.bridge$protocol() == Protocol.HANDSHAKING
+                            && PCF.instance().forwarding().mode() == Mode.BUNGEEGUARD)
+                    && !(connection.bridge$protocol() == Protocol.LOGIN
+                            && PCF.instance().forwarding().mode() == Mode.MODERN
+                            && id == 0x02)) {
+                msg.readerIndex(readerIndex);
+                if (connection.bridge$getPacketListener() != null) {
+                    //noinspection DataFlowIssue
+                    PCF.logger.debug(
+                            "\nPacket listener: "
+                                    + connection.bridge$getPacketListener().getClass().getName()
+                                    + "\nPacket length: "
+                                    + data.readableBytes()
+                                    + "\nPacket data:\n"
+                                    + ByteBufUtil.prettyHexDump(data));
+                } else {
+                    PCF.logger.debug(
+                            "\nPacket listener: NONE\nPacket length "
+                                    + data.readableBytes()
+                                    + "\nPacket data:\n"
+                                    + ByteBufUtil.prettyHexDump(data));
+                }
+            } else {
+                msg.readerIndex(readerIndex);
+            }
+        }
+
         final int id = data.readVarInt();
         PCF.logger.debug(
                 "Received "
