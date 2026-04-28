@@ -21,6 +21,7 @@ import io.netty.handler.codec.MessageToMessageDecoder;
 import org.adde0109.pcf.PCF;
 import org.jspecify.annotations.NonNull;
 
+import java.nio.channels.ClosedChannelException;
 import java.util.List;
 
 public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
@@ -51,32 +52,26 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
         // Hexdump the packet for debugging
         if (PCF.instance().debug().enabled()) {
             final int id = data.readVarInt();
-            // Don't want to leak the secret nor the encrypted payload in the debug log
-            if (!(connection.bridge$protocol() == Protocol.HANDSHAKING
-                            && PCF.instance().forwarding().mode() == Mode.BUNGEEGUARD)
-                    && !(connection.bridge$protocol() == Protocol.LOGIN
-                            && PCF.instance().forwarding().mode() == Mode.MODERN
-                            && id == 0x02)) {
-                msg.readerIndex(readerIndex);
-                if (connection.bridge$getPacketListener() != null) {
-                    //noinspection DataFlowIssue
-                    PCF.logger.debug(
-                            "\nPacket listener: "
-                                    + connection.bridge$getPacketListener().getClass().getName()
-                                    + "\nPacket length: "
-                                    + data.readableBytes()
-                                    + "\nPacket data:\n"
-                                    + ByteBufUtil.prettyHexDump(data));
-                } else {
-                    PCF.logger.debug(
-                            "\nPacket listener: NONE\nPacket length "
-                                    + data.readableBytes()
-                                    + "\nPacket data:\n"
-                                    + ByteBufUtil.prettyHexDump(data));
-                }
+            msg.readerIndex(readerIndex);
+            final String hexDump = ByteBufUtil.prettyHexDump(data);
+
+            final StringBuilder sb = new StringBuilder();
+            if (connection.bridge$getPacketListener() != null) {
+                //noinspection DataFlowIssue
+                sb.append("\nPacket listener: ")
+                        .append(connection.bridge$getPacketListener().getClass().getName());
             } else {
-                msg.readerIndex(readerIndex);
+                sb.append("\nPacket listener: NONE");
             }
+            sb.append("\nPacket length: ").append(data.readableBytes());
+
+            // Don't want to leak the secret nor the encrypted payload in the debug log
+            if (!(connection.bridge$protocol() == Protocol.LOGIN && id == 0x02)
+                    && !(connection.bridge$protocol() == Protocol.HANDSHAKING
+                            && PCF.instance().forwarding().mode().isLegacy())) {
+                sb.append("\nPacket data:\n").append(hexDump);
+            }
+            PCF.logger.debug(sb.toString());
         }
 
         final int id = data.readVarInt();
@@ -122,6 +117,17 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
                             msg.readerIndex(readerIndex);
                             break;
                         }
+
+                        // Used to avoid a second 0x0 packet with 2 bytes consisting of [0x00, 0x03]
+                        // Not entirely sure of the cause
+                        if (data.readableBytes() == 1
+                                && Constraint.range(
+                                                MinecraftVersions.V20_2, MinecraftVersions.V20_4)
+                                        .result()) {
+                            msg.readerIndex(readerIndex);
+                            break;
+                        }
+
                         PCF.logger.debug(
                                 "Handling ServerBoundHelloPacket from "
                                         + ctx.channel().remoteAddress());
@@ -169,6 +175,10 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
     public void exceptionCaught(
             final @NonNull ChannelHandlerContext ctx, final @NonNull Throwable cause)
             throws Exception {
+        if (cause instanceof ClosedChannelException) {
+            super.exceptionCaught(ctx, cause);
+            return;
+        }
         PCF.logger.error(
                 "Exception in PacketDecoder for "
                         + ctx.channel().remoteAddress()
