@@ -28,6 +28,13 @@ val versions: Map<String, List<String>> = mapOf(
     "neoforge" to listOf(
         "1.20.2", "1.20.4", "1.21.1", "1.21.5",
         "26.1.2"
+    ),
+    "vanilla" to listOf(
+        "1.12.2", "1.13.2",
+        "1.14.4", "1.15.2", "1.16.5",
+        "1.17.1", "1.18.2", "1.19", "1.19.2", "1.19.4", "1.20.1", "1.20.2", "1.20.4",
+        "1.21.1", "1.21.5",
+        "26.1.2"
     )
 )
 
@@ -90,6 +97,7 @@ tasks.register<JavaExec>("headlessmc") {
 
 // Generate server setup tasks for each platform and version
 versions.forEach { (platform, mcVersions) ->
+    if (platform == "vanilla") return@forEach
     mcVersions.forEach { mcVersion ->
         val taskName = "setup${taskSuffix(platform, mcVersion)}"
         tasks.register<JavaExec>(taskName) {
@@ -127,6 +135,7 @@ versions.forEach { (platform, mcVersions) ->
 
 // Generate server run tasks for each platform and version
 versions.forEach { (platform, mcVersions) ->
+    if (platform == "vanilla") return@forEach
     forwardingModes.forEach { forwardingMode ->
         val parsedMode = forwardingMode.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
         mcVersions.forEach { mcVersion ->
@@ -180,7 +189,11 @@ versions.forEach { (platform, mcVersions) ->
                     "bungeeguard" -> jvmArgs("-Dhmc.gameargs=--server 127.0.0.1 --port 25579 --quickPlayMultiplayer 127.0.0.1:25579")
                     "modern" -> jvmArgs("-Dhmc.gameargs=--server 127.0.0.1 --port 25577 --quickPlayMultiplayer 127.0.0.1:25577")
                 }
-                args("--command launch $platform:$mcVersion".split(" "))
+                if (platform == "vanilla") {
+                    args("--command launch $mcVersion".split(" "))
+                } else {
+                    args("--command launch $platform:$mcVersion".split(" "))
+                }
                 standardInput = System.`in`
             }
         }
