@@ -14,10 +14,13 @@ import dev.neuralnexus.taterapi.meta.Constraint;
 import dev.neuralnexus.taterapi.meta.MinecraftVersions;
 import dev.neuralnexus.taterapi.network.FriendlyByteBuf;
 import dev.neuralnexus.taterapi.network.chat.ThrowingComponent;
+import dev.neuralnexus.taterapi.network.protocol.handshake.ClientIntent;
+import dev.neuralnexus.taterapi.network.protocol.handshake.ClientIntentionPacket;
 import dev.neuralnexus.taterapi.network.protocol.login.ClientboundCustomQueryPacket;
 import dev.neuralnexus.taterapi.network.protocol.login.ServerboundCustomQueryAnswerPacket;
 import dev.neuralnexus.taterapi.network.protocol.login.custom.CustomQueryAnswerPayload;
 
+import io.netty.channel.Channel;
 import io.netty.handler.codec.DecoderException;
 import io.netty.util.AttributeKey;
 
@@ -59,6 +62,45 @@ public final class ModernForwarding {
             translatable("multiplayer.disconnect.missing_public_key");
     private static final Object INVALID_SIGNATURE =
             translatable("multiplayer.disconnect.invalid_public_key_signature");
+
+    /**
+     * Handle the client intention packet and reject the connection if legacy forwarding is
+     * detected.
+     *
+     * @param connection The connection
+     * @param data The packet buffer
+     */
+    public static void handleClientIntention(
+            final @NonNull ConnectionBridge connection, final @NonNull FriendlyByteBuf data) {
+        // Read the original packet
+        final int protocolVersion = data.readVarInt();
+        final String hostName = data.readUtf(Short.MAX_VALUE);
+        final int hostPort = data.readUnsignedShort();
+        final ClientIntent intention = ClientIntent.byId(data.readVarInt());
+        if (intention != ClientIntent.LOGIN) {
+            return;
+        }
+        final Channel channel = connection.bridge$channel();
+
+        // Parse the host name for forwarded data
+        final String[] split = hostName.split("\0");
+        if (split.length >= 2 && (split[1].startsWith("FML") || split[1].startsWith("FORGE"))) {
+            return; // Modded client
+        } else if (split.length < 2) {
+            return; // Likely a normal connection
+        }
+
+        // Rewrite the packet so the player can enter the login phase
+        final ClientIntentionPacket newPacket =
+                new ClientIntentionPacket(protocolVersion, split[0], hostPort, intention);
+        data.clear();
+        data.writeVarInt(0x00);
+        ClientIntentionPacket.STREAM_CODEC.encode(data, newPacket);
+        PCF.logger.debug("Rewrote ClientIntentionPacket for " + channel.remoteAddress());
+
+        // Disconnect the user
+        throw new ThrowingComponent(MODERN_DIRECT_CONNECT_ERR);
+    }
 
     /**
      * Hello packet handler for modern forwarding

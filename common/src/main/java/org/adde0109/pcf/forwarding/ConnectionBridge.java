@@ -41,8 +41,10 @@ public interface ConnectionBridge {
                 || ctx.pipeline().get(PacketEncoder.NAME) != null) {
             return;
         }
-        PCF.logger.debug(
-                "Injecting packet handlers into pipeline of " + ctx.channel().remoteAddress());
+        if (PCF.instance().debug().enabled()) {
+            PCF.logger.debug(
+                    "Injecting packet handlers into pipeline of " + ctx.channel().remoteAddress());
+        }
         ctx.channel()
                 .pipeline()
                 .addAfter(HANDLER_SPLITTER, PacketDecoder.NAME, new PacketDecoder())

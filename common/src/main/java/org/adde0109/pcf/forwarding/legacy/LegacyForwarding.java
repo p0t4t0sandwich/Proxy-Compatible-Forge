@@ -27,6 +27,7 @@ import dev.neuralnexus.taterapi.network.protocol.handshake.ClientIntent;
 import dev.neuralnexus.taterapi.network.protocol.handshake.ClientIntentionPacket;
 
 import io.netty.channel.Channel;
+import io.netty.handler.codec.DecoderException;
 import io.netty.util.AttributeKey;
 
 import org.adde0109.pcf.PCF;
@@ -56,8 +57,6 @@ import java.util.regex.Pattern;
  * href="https://github.com/PaperMC/Waterfall/blob/master/BungeeCord-Patches/0011-Add-support-for-FML-with-IP-Forwarding-enabled.patch">Waterfall</a>
  */
 public final class LegacyForwarding {
-    public static final AttributeKey<Object> DEFERRED_DISCONNECT =
-            attributeKeyValueOf("pcf-deferred-disconnect");
     public static final AttributeKey<InetAddress> FORWARDED_ADDRESS =
             attributeKeyValueOf("pcf-forwarded-address");
     public static final AttributeKey<String> PLAYER_NAME = attributeKeyValueOf("pcf-player-name");
@@ -92,7 +91,16 @@ public final class LegacyForwarding {
             final @NonNull ConnectionBridge connection, final @NonNull FriendlyByteBuf data) {
         // Read the original packet
         final int protocolVersion = data.readVarInt();
-        final String hostName = data.readUtf(Short.MAX_VALUE);
+        final String hostName;
+        try {
+            hostName = data.readUtf(Short.MAX_VALUE);
+        } catch (final DecoderException e) {
+            if (e.getMessage().startsWith("Not enough bytes in buffer")) {
+                PCF.logger.debug("Received out-of-band LOGIN ServerBoundHelloPacket");
+                throw new ThrowingComponent(LEGACY_DIRECT_CONNECT_ERR);
+            }
+            throw e;
+        }
         final int hostPort = data.readUnsignedShort();
         final ClientIntent intention = ClientIntent.byId(data.readVarInt());
         if (intention != ClientIntent.LOGIN) {
@@ -103,12 +111,11 @@ public final class LegacyForwarding {
         // Parse the host name for forwarded data
         final String[] split = hostName.split("\0");
         if (split.length < 3 || !(HOST_PATTERN.matcher(split[1]).matches())) {
-            channel.attr(DEFERRED_DISCONNECT).set(LEGACY_DIRECT_CONNECT_ERR);
-            return;
+            throw new ThrowingComponent(LEGACY_DIRECT_CONNECT_ERR);
         }
         if (PCF.instance().forwarding().mode() == Mode.BUNGEEGUARD
                 && (split.length < 4 || !split[3].contains(BUNGEE_GUARD_TOKEN_PROPERTY_NAME))) {
-            channel.attr(DEFERRED_DISCONNECT).set(BG_CONFIG_ERR);
+            throw new ThrowingComponent(BG_CONFIG_ERR);
         }
 
         final String originalHost = split[0];
@@ -180,12 +187,6 @@ public final class LegacyForwarding {
             final @NonNull ServerLoginPacketListenerBridge slpl, final @NonNull CallbackInfo ci) {
         final ConnectionBridge connection = slpl.bridge$connection();
         final Channel channel = connection.bridge$channel();
-
-        // Handle any deferred disconnects from the handshake phase
-        final Object deferredDisconnect = channel.attr(DEFERRED_DISCONNECT).getAndSet(null);
-        if (deferredDisconnect != null) {
-            throw new ThrowingComponent(deferredDisconnect);
-        }
 
         // Check if the connection is from an approved proxy
         Forwarding.checkProxy(connection);

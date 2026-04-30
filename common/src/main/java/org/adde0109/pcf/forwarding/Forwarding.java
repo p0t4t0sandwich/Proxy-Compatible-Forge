@@ -3,11 +3,17 @@ package org.adde0109.pcf.forwarding;
 import static dev.neuralnexus.taterapi.network.chat.Component.literal;
 import static dev.neuralnexus.taterapi.network.chat.Component.translatable;
 
+import static org.adde0109.pcf.forwarding.ReflectionUtils.attributeKeyValueOf;
+
 import com.mojang.authlib.GameProfile;
 
 import dev.neuralnexus.taterapi.event.Cancellable;
 import dev.neuralnexus.taterapi.mc.server.players.NameAndId;
+import dev.neuralnexus.taterapi.network.FriendlyByteBuf;
 import dev.neuralnexus.taterapi.network.chat.ThrowingComponent;
+
+import io.netty.channel.Channel;
+import io.netty.util.AttributeKey;
 
 import org.adde0109.pcf.PCF;
 import org.adde0109.pcf.forwarding.legacy.LegacyForwarding;
@@ -20,11 +26,37 @@ import java.net.InetSocketAddress;
 import java.util.Collection;
 
 public final class Forwarding {
+    public static final AttributeKey<Object> DEFERRED_DISCONNECT =
+            attributeKeyValueOf("pcf-deferred-disconnect");
+
     public static final Object PLAYER_INFO_ERR = literal("Unable to verify player details.");
 
     private static final Object FAILED_TO_VERIFY =
             translatable("multiplayer.disconnect.unverified_username");
     private static final Object REJECTED_PROXY_ERR = literal("Unapproved proxy host.");
+
+    /**
+     * Handle the client intention packet and extract player info
+     *
+     * @param connection The connection
+     * @param data The packet buffer
+     */
+    public static void handleClientIntention(
+            final @NonNull ConnectionBridge connection, final @NonNull FriendlyByteBuf data) {
+        final Channel channel = connection.bridge$channel();
+        try {
+            switch (PCF.instance().forwarding().mode()) {
+                case LEGACY, BUNGEEGUARD ->
+                        LegacyForwarding.handleClientIntention(connection, data);
+                case MODERN -> ModernForwarding.handleClientIntention(connection, data);
+            }
+        } catch (final ThrowingComponent e) {
+            channel.attr(DEFERRED_DISCONNECT).set(e.getComponent());
+        } catch (final Exception e) {
+            e.printStackTrace();
+            channel.attr(DEFERRED_DISCONNECT).set(PLAYER_INFO_ERR);
+        }
+    }
 
     /**
      * Abstract implementation of the hello packet handler
@@ -35,6 +67,15 @@ public final class Forwarding {
     public static void handleHello(
             final @NonNull ServerLoginPacketListenerBridge slpl, final @NonNull CallbackInfo ci) {
         try {
+            final ConnectionBridge connection = slpl.bridge$connection();
+            final Channel channel = connection.bridge$channel();
+
+            // Handle any deferred disconnects from the handshake phase
+            final Object deferredDisconnect = channel.attr(DEFERRED_DISCONNECT).getAndSet(null);
+            if (deferredDisconnect != null) {
+                throw new ThrowingComponent(deferredDisconnect);
+            }
+
             switch (PCF.instance().forwarding().mode()) {
                 case LEGACY, BUNGEEGUARD -> LegacyForwarding.handleHello(slpl, ci);
                 case MODERN -> ModernForwarding.handleHello(slpl, ci);

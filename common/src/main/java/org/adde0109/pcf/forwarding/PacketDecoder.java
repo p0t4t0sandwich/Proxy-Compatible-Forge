@@ -3,8 +3,8 @@ package org.adde0109.pcf.forwarding;
 import static dev.neuralnexus.taterapi.network.protocol.login.ServerboundHelloPacket.MAX_NAME_LENGTH;
 
 import static org.adde0109.pcf.forwarding.ConnectionBridge.HANDLER_PACKET;
+import static org.adde0109.pcf.forwarding.Forwarding.handleClientIntention;
 import static org.adde0109.pcf.forwarding.legacy.LegacyForwarding.PLAYER_NAME;
-import static org.adde0109.pcf.forwarding.legacy.LegacyForwarding.handleClientIntention;
 import static org.adde0109.pcf.forwarding.modern.ModernForwarding.handleCustomQueryAnswer;
 
 import dev.neuralnexus.taterapi.meta.Constraint;
@@ -16,7 +16,6 @@ import dev.neuralnexus.taterapi.network.chat.ThrowingComponent;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.MessageToMessageDecoder;
 
 import org.adde0109.pcf.PCF;
@@ -49,74 +48,21 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
 
         final int readerIndex = msg.readerIndex();
         final FriendlyByteBuf data = new FriendlyByteBuf(msg);
-
-        // Hexdump the packet for debugging
-        if (PCF.instance().debug().enabled()) {
-            final int id = data.readVarInt();
-            msg.readerIndex(readerIndex);
-            final String hexDump = ByteBufUtil.prettyHexDump(data);
-
-            final StringBuilder sb = new StringBuilder();
-            if (connection.bridge$getPacketListener() != null) {
-                //noinspection DataFlowIssue
-                sb.append("\nPacket listener: ")
-                        .append(connection.bridge$getPacketListener().getClass().getName());
-            } else {
-                sb.append("\nPacket listener: NONE");
-            }
-            sb.append("\nPacket length: ").append(data.readableBytes());
-
-            // Don't want to leak the secret nor the encrypted payload in the debug log
-            if (!(connection.bridge$protocol() == Protocol.LOGIN && id == 0x02)
-                    && connection.bridge$protocol() != Protocol.HANDSHAKING) {
-                sb.append("\nPacket data:\n").append(hexDump);
-            } else if (connection.bridge$protocol() == Protocol.HANDSHAKING) {
-                // Debug log the handshake without leaking the secret
-                data.readVarInt(); // Skip the packet id
-                final int protocol = data.readVarInt();
-                // TODO: Resolve out of band login hello packet
-                //  read when Legacy proto -> Modern PCF handling
-                //  Effects: 1.20.4
-                String[] host = {"failed to read, decoder likely in wrong protocol phase"};
-                try {
-                    host = data.readUtf().split("\0");
-                } catch (final DecoderException ignored) {
-                }
-                msg.readerIndex(readerIndex);
-
-                sb.append("\nReceived ClientIntentionPacket with the following:");
-                sb.append("\n- Protocol version: ").append(protocol);
-                sb.append("\n- HostName: ").append(host[0]);
-                sb.append("\n- Split length: ").append(host.length);
-                if (host.length > 1) {
-                    sb.append("\n- Forwarded IP or Forge token: ").append(host[1]);
-                }
-            }
-            PCF.logger.debug(sb.toString());
-        }
-
         final int id = data.readVarInt();
-        PCF.logger.debug(
-                "Received "
-                        + connection.bridge$protocol()
-                        + " packet with ID 0x"
-                        + Integer.toHexString(id)
-                        + " from "
-                        + ctx.channel().remoteAddress());
+        final StringBuilder debugInfo =
+                new StringBuilder("Received ")
+                        .append(connection.bridge$protocol())
+                        .append(" packet with ID 0x")
+                        .append(Integer.toHexString(id))
+                        .append(" from ")
+                        .append(ctx.channel().remoteAddress());
 
         switch (connection.bridge$protocol()) {
             case HANDSHAKING -> {
-                if (!PCF.instance().forwarding().mode().isLegacy()) {
-                    msg.readerIndex(readerIndex);
-                    break;
-                }
-
                 //noinspection SwitchStatementWithTooFewBranches
                 switch (id) {
                     case 0x00 -> {
-                        PCF.logger.debug(
-                                "Handling ClientIntentionPacket from "
-                                        + ctx.channel().remoteAddress());
+                        debugInfo.append(", Handling ClientIntentionPacket");
 
                         // Rewrite the packet
                         handleClientIntention(connection, data);
@@ -146,12 +92,16 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
                                                 MinecraftVersions.V20_2, MinecraftVersions.V20_4)
                                         .result()) {
                             msg.readerIndex(readerIndex);
+                            debugInfo
+                                    .append(
+                                            ", Handling out-of-band PLAY accept teleportation packet:")
+                                    .append("\n - Packet Length: ")
+                                    .append(data.readableBytes())
+                                    .append("\n - Packet data: 0x")
+                                    .append(ByteBufUtil.prettyHexDump(data));
                             break;
                         }
-
-                        PCF.logger.debug(
-                                "Handling ServerBoundHelloPacket from "
-                                        + ctx.channel().remoteAddress());
+                        debugInfo.append(", Handling ServerBoundHelloPacket");
 
                         // Save player name
                         final String name = data.readUtf(MAX_NAME_LENGTH);
@@ -163,9 +113,7 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
                             msg.readerIndex(readerIndex);
                             break;
                         }
-                        PCF.logger.debug(
-                                "Handling ServerboundCustomQueryAnswerPacket from "
-                                        + ctx.channel().remoteAddress());
+                        debugInfo.append(", Handling ServerboundCustomQueryAnswerPacket");
 
                         boolean handled = false;
                         try {
@@ -185,6 +133,9 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
                 }
             }
             case null, default -> msg.readerIndex(readerIndex);
+        }
+        if (PCF.instance().debug().enabled()) {
+            PCF.logger.debug(debugInfo.toString());
         }
 
         if (msg.isReadable()) {
