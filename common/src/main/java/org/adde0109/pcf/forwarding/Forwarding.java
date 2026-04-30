@@ -11,6 +11,8 @@ import dev.neuralnexus.taterapi.event.Cancellable;
 import dev.neuralnexus.taterapi.mc.server.players.NameAndId;
 import dev.neuralnexus.taterapi.network.FriendlyByteBuf;
 import dev.neuralnexus.taterapi.network.chat.ThrowingComponent;
+import dev.neuralnexus.taterapi.network.protocol.handshake.ClientIntent;
+import dev.neuralnexus.taterapi.network.protocol.handshake.ClientIntentionPacket;
 
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
@@ -24,6 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.Collection;
+import java.util.regex.Pattern;
 
 public final class Forwarding {
     public static final AttributeKey<Object> DEFERRED_DISCONNECT =
@@ -34,6 +37,8 @@ public final class Forwarding {
     private static final Object FAILED_TO_VERIFY =
             translatable("multiplayer.disconnect.unverified_username");
     private static final Object REJECTED_PROXY_ERR = literal("Unapproved proxy host.");
+
+    public static final Pattern HOST_PATTERN = Pattern.compile("[0-9a-f.:]{0,45}");
 
     /**
      * Handle the client intention packet and extract player info
@@ -88,6 +93,31 @@ public final class Forwarding {
         } finally {
             ci.cancel();
         }
+    }
+
+    /**
+     * Rewrite ClientIntention packet so the player can enter the login phase.
+     *
+     * @param channel The connection's Netty channel
+     * @param protocolVersion The protocol version from the original packet
+     * @param hostName The hostname from the original packet
+     * @param hostPort The port from the original packet
+     * @param intention The client intention from the original packet
+     * @param data The packet buffer to write the new packet into
+     */
+    public static void rewriteClientIntention(
+            final @NonNull Channel channel,
+            final int protocolVersion,
+            final String hostName,
+            final int hostPort,
+            final ClientIntent intention,
+            final @NonNull FriendlyByteBuf data) {
+        final ClientIntentionPacket newPacket =
+                new ClientIntentionPacket(protocolVersion, hostName, hostPort, intention);
+        data.clear();
+        data.writeVarInt(0x00);
+        ClientIntentionPacket.STREAM_CODEC.encode(data, newPacket);
+        PCF.logger.debug("Rewrote ClientIntentionPacket for " + channel.remoteAddress());
     }
 
     /**

@@ -2,7 +2,9 @@ package org.adde0109.pcf.forwarding.legacy;
 
 import static dev.neuralnexus.taterapi.network.chat.Component.literal;
 
+import static org.adde0109.pcf.forwarding.Forwarding.HOST_PATTERN;
 import static org.adde0109.pcf.forwarding.Forwarding.PLAYER_INFO_ERR;
+import static org.adde0109.pcf.forwarding.Forwarding.rewriteClientIntention;
 import static org.adde0109.pcf.forwarding.ReflectionUtils.attributeKeyValueOf;
 import static org.adde0109.pcf.forwarding.ReflectionUtils.getName;
 import static org.adde0109.pcf.forwarding.ReflectionUtils.getProperties;
@@ -24,10 +26,8 @@ import dev.neuralnexus.taterapi.meta.MinecraftVersions;
 import dev.neuralnexus.taterapi.network.FriendlyByteBuf;
 import dev.neuralnexus.taterapi.network.chat.ThrowingComponent;
 import dev.neuralnexus.taterapi.network.protocol.handshake.ClientIntent;
-import dev.neuralnexus.taterapi.network.protocol.handshake.ClientIntentionPacket;
 
 import io.netty.channel.Channel;
-import io.netty.handler.codec.DecoderException;
 import io.netty.util.AttributeKey;
 
 import org.adde0109.pcf.PCF;
@@ -73,7 +73,6 @@ public final class LegacyForwarding {
     // Use Type b/c GSON shipped with MC 1.19.2 doesn't have Gson#fromJson(String, TypeToken<T>)
     private static final Type profileTypeToken = new TypeToken<List<Property>>() {}.getType();
 
-    private static final Pattern HOST_PATTERN = Pattern.compile("[0-9a-f.:]{0,45}");
     private static final Pattern PROP_PATTERN = Pattern.compile("\\w{0,16}");
 
     private static final String LEGACY_FORGE_MARKER = "\0FML\0";
@@ -91,16 +90,7 @@ public final class LegacyForwarding {
             final @NonNull ConnectionBridge connection, final @NonNull FriendlyByteBuf data) {
         // Read the original packet
         final int protocolVersion = data.readVarInt();
-        final String hostName;
-        try {
-            hostName = data.readUtf(Short.MAX_VALUE);
-        } catch (final DecoderException e) {
-            if (e.getMessage().startsWith("Not enough bytes in buffer")) {
-                PCF.logger.debug("Received out-of-band LOGIN ServerBoundHelloPacket");
-                throw new ThrowingComponent(LEGACY_DIRECT_CONNECT_ERR);
-            }
-            throw e;
-        }
+        final String hostName = data.readUtf(Short.MAX_VALUE);
         final int hostPort = data.readUnsignedShort();
         final ClientIntent intention = ClientIntent.byId(data.readVarInt());
         if (intention != ClientIntent.LOGIN) {
@@ -115,6 +105,8 @@ public final class LegacyForwarding {
         }
         if (PCF.instance().forwarding().mode() == Mode.BUNGEEGUARD
                 && (split.length < 4 || !split[3].contains(BUNGEE_GUARD_TOKEN_PROPERTY_NAME))) {
+            // Rewrite the packet before throwing
+            rewriteClientIntention(channel, protocolVersion, split[0], hostPort, intention, data);
             throw new ThrowingComponent(BG_CONFIG_ERR);
         }
 
@@ -169,12 +161,7 @@ public final class LegacyForwarding {
         // spotless:on
 
         // Write the original address (and Forge marker) back into packet
-        final ClientIntentionPacket newPacket =
-                new ClientIntentionPacket(protocolVersion, host, hostPort, intention);
-        data.clear();
-        data.writeVarInt(0x00);
-        ClientIntentionPacket.STREAM_CODEC.encode(data, newPacket);
-        PCF.logger.debug("Rewrote ClientIntentionPacket for " + channel.remoteAddress());
+        rewriteClientIntention(channel, protocolVersion, host, hostPort, intention, data);
     }
 
     /**

@@ -3,7 +3,9 @@ package org.adde0109.pcf.forwarding.modern;
 import static dev.neuralnexus.taterapi.network.chat.Component.literal;
 import static dev.neuralnexus.taterapi.network.chat.Component.translatable;
 
+import static org.adde0109.pcf.forwarding.Forwarding.HOST_PATTERN;
 import static org.adde0109.pcf.forwarding.Forwarding.PLAYER_INFO_ERR;
+import static org.adde0109.pcf.forwarding.Forwarding.rewriteClientIntention;
 import static org.adde0109.pcf.forwarding.ReflectionUtils.attributeKeyValueOf;
 import static org.adde0109.pcf.forwarding.ReflectionUtils.enforceSecureProfile;
 import static org.adde0109.pcf.forwarding.modern.VelocityProxy.MODERN_MAX_VERSION;
@@ -15,7 +17,6 @@ import dev.neuralnexus.taterapi.meta.MinecraftVersions;
 import dev.neuralnexus.taterapi.network.FriendlyByteBuf;
 import dev.neuralnexus.taterapi.network.chat.ThrowingComponent;
 import dev.neuralnexus.taterapi.network.protocol.handshake.ClientIntent;
-import dev.neuralnexus.taterapi.network.protocol.handshake.ClientIntentionPacket;
 import dev.neuralnexus.taterapi.network.protocol.login.ClientboundCustomQueryPacket;
 import dev.neuralnexus.taterapi.network.protocol.login.ServerboundCustomQueryAnswerPacket;
 import dev.neuralnexus.taterapi.network.protocol.login.custom.CustomQueryAnswerPayload;
@@ -84,19 +85,12 @@ public final class ModernForwarding {
 
         // Parse the host name for forwarded data
         final String[] split = hostName.split("\0");
-        if (split.length >= 2 && (split[1].startsWith("FML") || split[1].startsWith("FORGE"))) {
-            return; // Modded client
-        } else if (split.length < 2) {
-            return; // Likely a normal connection
+        if (split.length < 3 || !(HOST_PATTERN.matcher(split[1]).matches())) {
+            return; // Either vanilla or direct modded connection
         }
 
-        // Rewrite the packet so the player can enter the login phase
-        final ClientIntentionPacket newPacket =
-                new ClientIntentionPacket(protocolVersion, split[0], hostPort, intention);
-        data.clear();
-        data.writeVarInt(0x00);
-        ClientIntentionPacket.STREAM_CODEC.encode(data, newPacket);
-        PCF.logger.debug("Rewrote ClientIntentionPacket for " + channel.remoteAddress());
+        // Rewrite packet
+        rewriteClientIntention(channel, protocolVersion, split[0], hostPort, intention, data);
 
         // Disconnect the user
         throw new ThrowingComponent(MODERN_DIRECT_CONNECT_ERR);
