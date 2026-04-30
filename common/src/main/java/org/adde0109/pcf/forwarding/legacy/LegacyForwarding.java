@@ -43,7 +43,6 @@ import java.net.InetAddress;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -52,7 +51,9 @@ import java.util.regex.Pattern;
  * Adapted from <a
  * href="https://hub.spigotmc.org/stash/projects/SPIGOT/repos/spigot/browse/CraftBukkit-Patches/0024-BungeeCord-Support.patch">Spigot</a>
  * and <a
- * href="https://github.com/caunt/BungeeForge/blob/1.20.2/src/main/java/ua/caunt/bungeeforge/mixin/network/protocol/handshake/ClientIntentionPacket.java">BungeeForge</a>
+ * href="https://github.com/caunt/BungeeForge/blob/1.20.2/src/main/java/ua/caunt/bungeeforge/mixin/network/protocol/handshake/ClientIntentionPacket.java">BungeeForge</a>.
+ * Additional information sourced from <a href="">Velocity</a> and <a
+ * href="https://github.com/PaperMC/Waterfall/blob/master/BungeeCord-Patches/0011-Add-support-for-FML-with-IP-Forwarding-enabled.patch">Waterfall</a>
  */
 public final class LegacyForwarding {
     public static final AttributeKey<Object> DEFERRED_DISCONNECT =
@@ -75,7 +76,11 @@ public final class LegacyForwarding {
 
     private static final Pattern HOST_PATTERN = Pattern.compile("[0-9a-f.:]{0,45}");
     private static final Pattern PROP_PATTERN = Pattern.compile("\\w{0,16}");
-    private static final char LEGACY_SEPARATOR = '\0';
+
+    private static final String LEGACY_FORGE_MARKER = "\0FML\0";
+    private static final String EXTRA_DATA_PROPERTY = "extraData";
+    private static final String FORGE_CLIENT_PROPERTY = "forgeClient";
+    private static final String FORGE_CLIENT_TRUE = "true";
 
     /**
      * Handle the client intention packet and extract player info
@@ -96,15 +101,7 @@ public final class LegacyForwarding {
         final Channel channel = connection.bridge$channel();
 
         // Parse the host name for forwarded data
-        final String[] split = hostName.split("\00");
-        if (PCF.instance().debug().enabled()) {
-            // spotless:off
-            PCF.logger.debug(
-                    "Received ClientIntentionPacket with the following:"
-                            + "\nHostName: " + split[0]
-                            + "\nSplit Length: " + split.length);
-            // spotless:on
-        }
+        final String[] split = hostName.split("\0");
         if (split.length < 3 || !(HOST_PATTERN.matcher(split[1]).matches())) {
             channel.attr(DEFERRED_DISCONNECT).set(LEGACY_DIRECT_CONNECT_ERR);
             return;
@@ -122,42 +119,45 @@ public final class LegacyForwarding {
         channel.attr(FORWARDED_ADDRESS).set(InetAddresses.forString(forwardedAddress));
         channel.attr(SPOOFED_UUID).set(uuid);
 
-        final Optional<Property> fmlMarker;
+        // spotless:off
+        final boolean forgeClient;
+        final Optional<Property> extraData;
         if (split.length >= 4) {
             final String profileJSON = split[3];
             final List<Property> properties = GSON.fromJson(profileJSON, profileTypeToken);
 
-            // Pop out the FML marker
-            fmlMarker = properties.stream().filter(LegacyForwarding::isFmlMarker).findFirst();
-            properties.removeIf(LegacyForwarding::isFmlMarker);
+            // Pop out the Forge properties
+            forgeClient = properties.stream().anyMatch(p ->
+                    getName(p).equals(FORGE_CLIENT_PROPERTY) && getValue(p).equals(FORGE_CLIENT_TRUE));
+            extraData = properties.stream()
+                    .filter(p -> getName(p).equals(EXTRA_DATA_PROPERTY)).findFirst();
+            properties.removeIf(p ->
+                    getName(p).equals(FORGE_CLIENT_PROPERTY) || getName(p).equals(EXTRA_DATA_PROPERTY));
             channel.attr(SPOOFED_PROFILE).set(properties);
         } else {
-            fmlMarker = Optional.empty();
+            forgeClient = false;
+            extraData = Optional.empty();
         }
 
-        // spotless:off
-        final String host = fmlMarker.map(property -> {
-            // TODO: Convert magic strings to constants and build some version-specific logic
-            if (getName(property).equals("extraData")
-                    && (getValue(property).startsWith("\u0001FML")
-                        || getValue(property).startsWith("\u0001FORGE"))) { // Waterfall support
-                return getValue(property).split("\u0001")[1];
-            } else if (getName(property).equals("forgeClient")) { // Velocity support
-                if (getValue(property).equals("true")) { // 1.12.2 and below
-                    return "FML";
-                }
-
-                // Forge 1.20.2+
-                final String[] natVersionStr = getValue(property).split(LEGACY_SEPARATOR + "FORGE");
-                int natVersion = 0;
-                if (natVersionStr.length == 1) {
-                    natVersion = Integer.parseInt(natVersionStr[0]);
-                }
-                return "FORGE" + (natVersion > 0 ? natVersion : "");
-            } else {
-                return property;
+        final String host;
+        if (extraData.isPresent()) {
+            final String value = getValue(extraData.get());
+            if (!forgeClient) { // Unlikely, but notable
+                PCF.logger.debug("Received extraData without forgeClient=true from "
+                        + channel.remoteAddress() + " - value: " + value);
             }
-        }).map(token -> originalHost + LEGACY_SEPARATOR + token).orElse(originalHost);
+            if (value.startsWith("\1")) { // Restore extra hostname data
+                host = originalHost + value.replace("\1", "\0");
+            } else { // Avoid propagating bad data
+                PCF.logger.warn("Received misformatted extraData from "
+                        + channel.remoteAddress() + " - value: " + value);
+                host = originalHost;
+            }
+        } else if (forgeClient) { // Assume Forge 1.8 - 1.12.2
+            host = originalHost + LEGACY_FORGE_MARKER;
+        } else {
+            host = originalHost;
+        }
         PCF.logger.debug("Parsed forwarded data - Host: " + host + ", UUID: " + uuid);
         // spotless:on
 
@@ -235,22 +235,6 @@ public final class LegacyForwarding {
     private static @NonNull UUID fromStringLenient(final @NonNull String string) {
         return UUID.fromString(
                 string.replaceFirst("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})", "$1-$2-$3-$4-$5"));
-    }
-
-    /**
-     * Check if a property is the FML marker used by Forge to indicate a modded client. <br>
-     * "extraData" is provided by Waterfall <br>
-     * "forgeClient" is provided by Velocity
-     *
-     * @param property The property to check
-     * @return True if the property is the FML marker, false otherwise
-     */
-    private static boolean isFmlMarker(final @NonNull Property property) {
-        // TODO: Convert magic strings to constants and build some version-specific logic
-        return (Objects.equals(getName(property), "extraData")
-                        && (getValue(property).startsWith("\u0001FML")
-                                || getValue(property).startsWith("\u0001FORGE")))
-                || Objects.equals(getName(property), "forgeClient");
     }
 
     /**
