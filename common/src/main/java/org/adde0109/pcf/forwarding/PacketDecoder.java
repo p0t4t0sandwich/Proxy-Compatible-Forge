@@ -16,6 +16,7 @@ import dev.neuralnexus.taterapi.network.chat.ThrowingComponent;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.MessageToMessageDecoder;
 
 import org.adde0109.pcf.PCF;
@@ -67,9 +68,29 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
 
             // Don't want to leak the secret nor the encrypted payload in the debug log
             if (!(connection.bridge$protocol() == Protocol.LOGIN && id == 0x02)
-                    && !(connection.bridge$protocol() == Protocol.HANDSHAKING
-                            && PCF.instance().forwarding().mode().isLegacy())) {
+                    && connection.bridge$protocol() != Protocol.HANDSHAKING) {
                 sb.append("\nPacket data:\n").append(hexDump);
+            } else if (connection.bridge$protocol() == Protocol.HANDSHAKING) {
+                // Debug log the handshake without leaking the secret
+                data.readVarInt(); // Skip the packet id
+                final int protocol = data.readVarInt();
+                // TODO: Resolve out of band login hello packet
+                //  read when Legacy proto -> Modern PCF handling
+                //  Effects: 1.20.4
+                String[] host = {"failed to read, decoder likely in wrong protocol phase"};
+                try {
+                    host = data.readUtf().split("\0");
+                } catch (final DecoderException ignored) {
+                }
+                msg.readerIndex(readerIndex);
+
+                sb.append("\nReceived ClientIntentionPacket with the following:");
+                sb.append("\n- Protocol version: ").append(protocol);
+                sb.append("\n- HostName: ").append(host[0]);
+                sb.append("\n- Split length: ").append(host.length);
+                if (host.length > 1) {
+                    sb.append("\n- Forwarded IP or Forge token: ").append(host[1]);
+                }
             }
             PCF.logger.debug(sb.toString());
         }
@@ -118,8 +139,8 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
                             break;
                         }
 
-                        // Used to avoid a second 0x0 packet with 2 bytes consisting of [0x00, 0x03]
-                        // Not entirely sure of the cause
+                        // TODO: Resolve out of band PLAY accept teleportation packet
+                        //  Effects: 1.20.2 - 1.20.4
                         if (data.readableBytes() == 1
                                 && Constraint.range(
                                                 MinecraftVersions.V20_2, MinecraftVersions.V20_4)
