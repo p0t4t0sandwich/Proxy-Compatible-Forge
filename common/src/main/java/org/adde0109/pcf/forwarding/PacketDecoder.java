@@ -94,7 +94,7 @@ public final class PacketDecoder extends MessageToMessageDecoder<ByteBuf> {
                             msg.readerIndex(readerIndex);
                             debugInfo
                                     .append(
-                                            ", Handling out-of-band PLAY accept teleportation packet:")
+                                            ", Deferring out-of-band PLAY accept teleportation packet:")
                                     .append("\n - Packet Length: ")
                                     .append(data.readableBytes())
                                     .append("\n - Packet data: 0x")
