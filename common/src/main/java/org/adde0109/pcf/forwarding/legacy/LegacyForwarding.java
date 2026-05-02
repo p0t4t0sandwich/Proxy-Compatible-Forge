@@ -53,7 +53,9 @@ import java.util.regex.Pattern;
  * href="https://hub.spigotmc.org/stash/projects/SPIGOT/repos/spigot/browse/CraftBukkit-Patches/0024-BungeeCord-Support.patch">Spigot</a>
  * and <a
  * href="https://github.com/caunt/BungeeForge/blob/1.20.2/src/main/java/ua/caunt/bungeeforge/mixin/network/protocol/handshake/ClientIntentionPacket.java">BungeeForge</a>.
- * Additional information sourced from <a href="">Velocity</a> and <a
+ * Additional information sourced from <a
+ * href="https://github.com/PaperMC/Velocity/blob/dev/3.0.0/proxy/src/main/java/com/velocitypowered/proxy/connection/forge/legacy/LegacyForgeConnectionType.java">Velocity</a>
+ * and <a
  * href="https://github.com/PaperMC/Waterfall/blob/master/BungeeCord-Patches/0011-Add-support-for-FML-with-IP-Forwarding-enabled.patch">Waterfall</a>
  */
 public final class LegacyForwarding {
@@ -77,7 +79,8 @@ public final class LegacyForwarding {
 
     private static final String LEGACY_FORGE_MARKER = "\0FML\0";
     private static final String EXTRA_DATA_PROPERTY = "extraData";
-    private static final String FORGE_CLIENT_PROPERTY = "forgeClient";
+    private static final String LEGACY_FORGE_CLIENT_PROPERTY = "forgeClient";
+    private static final String MODERN_FORGE_CLIENT_PROPERTY = "modernForgeClient";
     private static final String FORGE_CLIENT_TRUE = "true";
 
     /**
@@ -119,31 +122,44 @@ public final class LegacyForwarding {
         channel.attr(SPOOFED_UUID).set(uuid);
 
         // spotless:off
-        final boolean forgeClient;
+        final boolean legacyForgeClient;
+        final boolean modernForgeClient;
         final Optional<Property> extraData;
         if (split.length >= 4) {
             final String profileJSON = split[3];
             final List<Property> properties = GSON.fromJson(profileJSON, profileTypeToken);
 
             // Pop out the Forge properties
-            forgeClient = properties.stream().anyMatch(p ->
-                    getName(p).equals(FORGE_CLIENT_PROPERTY) && getValue(p).equals(FORGE_CLIENT_TRUE));
+            legacyForgeClient = properties.stream().anyMatch(p ->
+                    getName(p).equals(LEGACY_FORGE_CLIENT_PROPERTY) && getValue(p).equals(FORGE_CLIENT_TRUE));
+            modernForgeClient = properties.stream().anyMatch(p ->
+                    getName(p).equals(MODERN_FORGE_CLIENT_PROPERTY) && getValue(p).equals(FORGE_CLIENT_TRUE));
             extraData = properties.stream()
                     .filter(p -> getName(p).equals(EXTRA_DATA_PROPERTY)).findFirst();
-            properties.removeIf(p ->
-                    getName(p).equals(FORGE_CLIENT_PROPERTY) || getName(p).equals(EXTRA_DATA_PROPERTY));
+            properties.removeIf(p -> getName(p).equals(LEGACY_FORGE_CLIENT_PROPERTY)
+                            || getName(p).equals(MODERN_FORGE_CLIENT_PROPERTY)
+                            || getName(p).equals(EXTRA_DATA_PROPERTY));
             channel.attr(SPOOFED_PROFILE).set(properties);
         } else {
-            forgeClient = false;
+            legacyForgeClient = false;
+            modernForgeClient = false;
             extraData = Optional.empty();
         }
 
         final String host;
         if (extraData.isPresent()) {
             final String value = getValue(extraData.get());
-            if (!forgeClient) { // Unlikely, but notable
-                PCF.logger.debug("Received extraData without forgeClient=true from "
-                        + channel.remoteAddress() + " - value: " + value);
+            if (PCF.instance().debug().enabled()) {
+                if (legacyForgeClient) {
+                    PCF.logger.debug("Received extraData with forgeClient=true from "
+                            + channel.remoteAddress() + " - value: " + value);
+                } else if (modernForgeClient) {
+                    PCF.logger.debug("Received extraData with modernForgeClient=true from "
+                            + channel.remoteAddress() + " - value: " + value);
+                } else { // Some implementations do this
+                    PCF.logger.debug("Received extraData without (modernF|f)orgeClient=true from "
+                            + channel.remoteAddress() + " - value: " + value);
+                }
             }
             if (value.startsWith("\1")) { // Restore extra hostname data
                 host = originalHost + value.replace("\1", "\0");
@@ -152,7 +168,11 @@ public final class LegacyForwarding {
                         + channel.remoteAddress() + " - value: " + value);
                 host = originalHost;
             }
-        } else if (forgeClient) { // Assume Forge 1.8 - 1.12.2
+        } else if (legacyForgeClient) { // Assume Forge 1.8 - 1.12.2
+            if (PCF.instance().debug().enabled()) {
+                PCF.logger.debug("Identified legacy Forge client from " + channel.remoteAddress()
+                        + " - appending legacy Forge marker to hostname");
+            }
             host = originalHost + LEGACY_FORGE_MARKER;
         } else {
             host = originalHost;
