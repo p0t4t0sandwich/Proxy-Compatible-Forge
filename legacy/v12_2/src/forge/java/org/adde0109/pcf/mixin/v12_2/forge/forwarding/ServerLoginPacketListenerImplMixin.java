@@ -49,11 +49,26 @@ public abstract class ServerLoginPacketListenerImplMixin
 
     @AConstraint(
             mappings = Mappings.SEARGE,
-            version = @Versions(min = MinecraftVersion.V9, max = MinecraftVersion.V12_2))
+            version = @Versions(min = MinecraftVersion.V9, max = MinecraftVersion.V11_2))
+    @Mixin(NetHandlerLoginServer.class)
+    public abstract static class SLPLIMixin_9 implements ServerLoginPacketListenerBridge {
+        // spotless:off
+        @SuppressWarnings("MixinAnnotationTarget")
+        @Shadow public abstract void shadow$func_147322_a(String reason);
+        // spotless:on
+
+        @Override
+        public void bridge$disconnect(final @NonNull Object reason) {
+            this.shadow$func_147322_a(((ITextComponent) reason).getFormattedText());
+        }
+    }
+
+    @AConstraint(
+            mappings = Mappings.SEARGE,
+            version = @Versions(min = MinecraftVersion.V12, max = MinecraftVersion.V12_2))
     @Mixin(NetHandlerLoginServer.class)
     public abstract static class SLPLIMixin_12 implements ServerLoginPacketListenerBridge {
         // spotless:off
-        @Shadow @Final private static Logger LOGGER;
         @Shadow public abstract void shadow$disconnect(ITextComponent reason);
         // spotless:on
 
@@ -61,6 +76,16 @@ public abstract class ServerLoginPacketListenerImplMixin
         public void bridge$disconnect(final @NonNull Object reason) {
             this.shadow$disconnect((ITextComponent) reason);
         }
+    }
+
+    @AConstraint(
+            mappings = Mappings.SEARGE,
+            version = @Versions(min = MinecraftVersion.V9, max = MinecraftVersion.V12_2))
+    @Mixin(NetHandlerLoginServer.class)
+    public abstract static class SLPLIMixin_Logger implements ServerLoginPacketListenerBridge {
+        // spotless:off
+        @Shadow @Final private static Logger LOGGER;
+        // spotless:on
 
         @Override
         public void bridge$logger_info(final @NonNull String text, final Object... params) {

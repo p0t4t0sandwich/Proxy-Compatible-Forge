@@ -31,6 +31,7 @@ Used when swathing changes are made to ensure no regressions across supported ve
 | MC Version | Server          | Client          |
 |------------|-----------------|-----------------|
 | 1.7.10     | Forge           | Forge           |
+| 1.10.2     | Forge           | Forge           |
 | 1.12.2     | Forge           | Forge           |
 | 1.13.2     | Forge           | Forge           |
 | 1.14.4     | Forge           | Forge           |
