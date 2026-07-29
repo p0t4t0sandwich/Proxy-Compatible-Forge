@@ -1,21 +1,19 @@
-package org.adde0109.pcf.v20_2.neoforge;
+package org.adde0109.pcf.v26_2.forge;
 
 import dev.neuralnexus.taterapi.meta.anno.AConstraint;
 import dev.neuralnexus.taterapi.meta.anno.Versions;
 import dev.neuralnexus.taterapi.meta.enums.MinecraftVersion;
 import dev.neuralnexus.taterapi.meta.enums.Platform;
 
-import net.neoforged.fml.ModLoadingContext;
-import net.neoforged.fml.config.ModConfig;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.config.ModConfig;
 
 import org.adde0109.pcf.PCF;
 import org.adde0109.pcf.PCFInitializer;
-import org.adde0109.pcf.v26_2.neoforge.Config;
 
-@AConstraint(
-        platform = Platform.NEOFORGE,
-        version = @Versions(min = MinecraftVersion.V20_2, max = MinecraftVersion.V20_6))
+@AConstraint(platform = Platform.FORGE, version = @Versions(min = MinecraftVersion.V17))
 public final class RegisterConfig implements PCFInitializer {
+    @SuppressWarnings("removal")
     @Override
     public void onInit() {
         ModLoadingContext.get()

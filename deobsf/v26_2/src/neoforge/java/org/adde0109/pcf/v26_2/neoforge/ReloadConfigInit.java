@@ -1,4 +1,4 @@
-package org.adde0109.pcf.v20_4.forge;
+package org.adde0109.pcf.v26_2.neoforge;
 
 import dev.neuralnexus.taterapi.Wrapped;
 import dev.neuralnexus.taterapi.meta.MetaAPI;
@@ -7,26 +7,23 @@ import dev.neuralnexus.taterapi.meta.anno.Versions;
 import dev.neuralnexus.taterapi.meta.enums.MinecraftVersion;
 import dev.neuralnexus.taterapi.meta.enums.Platform;
 
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
-import net.minecraftforge.fml.javafmlmod.FMLModContainer;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.event.config.ModConfigEvent;
 
 import org.adde0109.pcf.PCF;
 import org.adde0109.pcf.PCFInitializer;
-import org.adde0109.pcf.v26_2.forge.Config;
 
-@AConstraint(
-        platform = Platform.FORGE,
-        version = @Versions(min = MinecraftVersion.V17, max = MinecraftVersion.V21_5))
+@AConstraint(platform = Platform.NEOFORGE, version = @Versions(min = MinecraftVersion.V20_2))
 public final class ReloadConfigInit implements PCFInitializer {
     @Override
     public void onInit() {
         final IEventBus eventBus =
                 MetaAPI.instance()
                         .meta()
-                        .<FMLModContainer>mod(PCF.MOD_ID)
+                        .<ModContainer>mod(PCF.MOD_ID)
                         .map(Wrapped::unwrap)
-                        .map(FMLModContainer::getEventBus)
+                        .map(ModContainer::getEventBus)
                         .orElseThrow();
         eventBus.addListener((ModConfigEvent.Reloading _) -> Config.reload());
     }
