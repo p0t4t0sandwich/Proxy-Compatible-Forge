@@ -10,13 +10,13 @@ org.adde0109.pcf.v19_2.forge.CrossStitchInit
 org.adde0109.pcf.v20_4.forge.CrossStitchInit
 org.adde0109.pcf.v20_4.forge.ReloadConfigInit
 
-org.adde0109.pcf.v26_1.forge.RegisterConfig
-org.adde0109.pcf.v26_1.forge.ReloadConfigInit
+org.adde0109.pcf.v26_2.forge.RegisterConfig
+org.adde0109.pcf.v26_2.forge.ReloadConfigInit
 
 org.adde0109.pcf.v20_2.neoforge.CrossStitchInit
 org.adde0109.pcf.v20_2.neoforge.RegisterConfig
 
-org.adde0109.pcf.v26_1.neoforge.RegisterConfig
-org.adde0109.pcf.v26_1.neoforge.ReloadConfigInit
+org.adde0109.pcf.v26_2.neoforge.RegisterConfig
+org.adde0109.pcf.v26_2.neoforge.ReloadConfigInit
 
-org.adde0109.pcf.v26_1.CrossStitchInit
+org.adde0109.pcf.v26_2.CrossStitchInit

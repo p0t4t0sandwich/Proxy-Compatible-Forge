@@ -13,7 +13,7 @@ import net.minecraftforge.fml.javafmlmod.FMLModContainer;
 
 import org.adde0109.pcf.PCF;
 import org.adde0109.pcf.PCFInitializer;
-import org.adde0109.pcf.v26_1.forge.Config;
+import org.adde0109.pcf.v26_2.forge.Config;
 
 @AConstraint(
         platform = Platform.FORGE,

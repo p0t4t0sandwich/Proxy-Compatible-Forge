@@ -10,7 +10,7 @@ import net.neoforged.fml.config.ModConfig;
 
 import org.adde0109.pcf.PCF;
 import org.adde0109.pcf.PCFInitializer;
-import org.adde0109.pcf.v26_1.neoforge.Config;
+import org.adde0109.pcf.v26_2.neoforge.Config;
 
 @AConstraint(
         platform = Platform.NEOFORGE,

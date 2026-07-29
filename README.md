@@ -11,17 +11,19 @@ Special thanks to [FabricProxy-Lite](<https://github.com/OKTW-Network/FabricProx
 [CrossStitch](<https://github.com/VelocityPowered/CrossStitch>) for spearheading in the modded proxy space. We've done
 our fair share of work porting things and tailoring them to a Neo/Forge environment, but nonetheless we stand on the shoulders of giants.
 
-This mod brings Velocity's [modern forwarding](<https://docs.papermc.io/velocity/player-information-forwarding>) to Neo/Forge servers
+This mod brings Velocity's [modern](<https://docs.papermc.io/velocity/player-information-forwarding>),
+Lucko's [BungeeGuard](<https://github.com/lucko/BungeeGuard>), and
+[BungeeCord](<https://github.com/SpigotMC/BungeeCord>)'s legacy player info forwarding modes to Neo/Forge servers.
 
 ## Supported Versions/Platforms
 
-- Forge versions 1.7.2 - 26.1.2
+- Forge versions 1.7.2 - 26.2
   - [MixinBootstrap](https://modrinth.com/mod/mixinbootstrap) is required on Forge 1.14 - 1.15.1
   - [ModernMixins](https://modrinth.com/mod/modernmixins) is required on Forge 1.13.x
   - [MixinBooter](https://modrinth.com/mod/mixinbooter) is required on Forge 1.8 - 1.12.2
   - [UniMixins](https://modrinth.com/mod/unimixins) is required on Forge 1.7.x
   - 1.7.2 - 1.12.2 also require a modified Velocity proxy
-- NeoForge versions 1.20.1 - 26.1.2
+- NeoForge versions 1.20.1 - 26.2
 - SpongeForge/SpongeNeo
   - PCF shouldn't be needed, as Sponge supports legacy+modern forwarding and command argument wrapping
   - However, if Forgified Fabric API is installed (specifically `fabric_networking_api_v1`), you may need to use PCF and disable Sponge's forwarding
@@ -57,7 +59,7 @@ The config is located under `config/proxy-compatible-forge.toml` and has the fol
 |---------------|-----------------------------|-----------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `forwarding`  | `enabled`                   | `true`          | Enable or disable player info forwarding. Changing this setting requires a server restart.                                                                                   |
 | `forwarding`  | `mode`                      | `"MODERN"`      | The type of forwarding to use.                                                                                                                                               |
-| `forwarding`  | `secret`                    | `""`            | The secret used to verify the player's connection is coming from a trusted proxy. PCF will only handle argument wrapping if this setting is blank.                           |
+| `forwarding`  | `secret`                    | `""`            | The secret used to verify the player's connection is coming from a trusted proxy.                                                                                            |
 | `forwarding`  | `approvedProxyHosts`        | `[]`            | A list of approved proxy hostnames or IP addresses. If the connecting proxy's hostname or IP isn't in this list, the player will be disconnected. Leave empty to allow all.  |
 | `crossStitch` | `enabled`                   | `true`          | Enable or disable CrossStitch support. Changing this setting requires a server restart.                                                                                      |
 | `crossStitch` | `forceWrappedArguments`     | `[]`            | Add any incompatible modded or vanilla command argument types here.                                                                                                          |
@@ -85,6 +87,12 @@ Modern Forwarding versions 1-4 are supported:
 If you run into compatibility issues regarding chat signing, report the issue, then change
 `advanced.modernForwardingVersion` to `MODERN_DEFAULT` in PCF's config.
 
+Next, `BUNGEEGUARD` forwarding requires you to either use Velocity's `BUNGEEGUARD` forwarding mode, or use [BungeeCord](<https://github.com/SpigotMC/BungeeCord>)
+with the [BungeeGuard](<https://github.com/lucko/BungeeGuard>) plugin installed.
+
+Lastly, `LEGACY` forwarding requires you to use Velocity's `LEGACY` forwarding mode or [BungeeCord](<https://github.com/SpigotMC/BungeeCord>) with IP forwarding enabled.
+It is advised that you do not use this forwarding mode, but you can use the `forwarding.approvedProxyHosts` setting to somewhat secure things.
+
 ### Modded Command Argument Wrapping, aka [CrossStitch](<https://github.com/VelocityPowered/CrossStitch>)
 
 This resolves errors such as:
@@ -93,7 +101,8 @@ io.netty.handler.codec.CorruptedFrameException: Error decoding class com.velocit
 ```
 
 PCF ports this Fabric mod's ability to wrap modded command arguments, allowing them to be sent through Velocity without
-there needing to be a custom packet deserializer for each and every command argument mods add.
+there needing to be a custom packet deserializer for each and every command argument mods add. Please note that BungeeCord
+does not support wrapped command arguments, so you will likely need to disable this feature if you use (or run a fork of) BungeeCord.
 
 In some rare cases mods will register their command arguments under the `minecraft` namespace or make modifications to
 vanilla arguments, bypassing PCF's argument wrapper. In such cases, you can add the custom argument's ID to PCF's

@@ -23,6 +23,7 @@ dependencies {
     compileOnly(libs.annotations)
     compileOnly(libs.mojang.authlib)
     compileOnly(libs.mojang.brigadier)
+    compileOnly(libs.gson)
     compileOnly(libs.guava)
     compileOnly(libs.jspecify)
     compileOnly(libs.mixin)

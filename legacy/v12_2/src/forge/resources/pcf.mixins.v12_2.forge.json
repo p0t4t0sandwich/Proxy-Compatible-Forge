@@ -8,9 +8,10 @@
   "plugin": "org.adde0109.pcf.mixin.plugin.PCFMixinPlugin",
   "package": "org.adde0109.pcf.mixin",
   "server": [
-    "v12_2.forge.forwarding.modern.ConnectionMixin",
-    "v12_2.forge.forwarding.modern.ServerLoginPacketListenerImplHelloMixin",
-    "v12_2.forge.forwarding.modern.ServerLoginPacketListenerImplMixin",
-    "v12_2.forge.forwarding.modern.ServerLoginPacketListenerImplMixin$SLPLIMixin_12"
+    "v12_2.forge.forwarding.ServerLoginPacketListenerImplMixin",
+    "v12_2.forge.forwarding.ServerLoginPacketListenerImplMixin$SLPLIMixin_9",
+    "v12_2.forge.forwarding.ServerLoginPacketListenerImplMixin$SLPLIMixin_12",
+    "v12_2.forge.forwarding.ServerLoginPacketListenerImplMixin$SLPLIMixin_Logger",
+    "v12_2.forge.forwarding.ServerLoginPacketListenerImplHelloMixin"
   ]
 }

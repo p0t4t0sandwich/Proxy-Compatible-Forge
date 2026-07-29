@@ -15,5 +15,5 @@ unimined.minecraft(sourceSets.main.get()) {
 
 dependencies {
     mainCompileOnly(project(":common"))
-    mainCompileOnly(srcSetAsDep(":deobsf:v26_1", "neoforge"))
+    mainCompileOnly(srcSetAsDep(":deobsf:v26_2", "neoforge"))
 }

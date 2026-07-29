@@ -7,8 +7,10 @@ import java.util.Locale
 // Create new ./test/HeadlessMC/velocity folder
 // Download into new velocity folder: https://papermc.io/downloads/velocity
 // Rename to velocity-proxy.jar
-// Create new ./test/HeadlessMC/velocity/plugins folder
-// Download into velocity plugins folder: https://modrinth.com/plugin/ambassador
+
+// Create new ./test/HeadlessMC/velocity/modern/plugins folder
+// Download into velocity/modern/plugins folder: https://modrinth.com/plugin/ambassador
+// Repeat for "legacy" and "bungeeguard" if you plan to test them
 
 // If you're testing modern forwarding with 1.7.2-1.12.2 you'll need the Velocity fork which adds that functionality
 // Build from: https://github.com/p0t4t0sandwich/Velocity/tree/feat/modern-forwarding-legacy
@@ -16,17 +18,30 @@ import java.util.Locale
 
 val versions: Map<String, List<String>> = mapOf(
     "forge" to listOf(
-        "1.7.10", "1.12.2",
+        "1.7.10", "1.10.2", "1.12.2",
         "1.13.2",
         "1.14.4", "1.15.2", "1.16.5",
         "1.17.1", "1.18.2", "1.19", "1.19.2", "1.19.4", "1.20.1", "1.20.2", "1.20.4",
         "1.21.1", "1.21.5",
-        "26.1.2"
+        "26.2"
     ),
     "neoforge" to listOf(
         "1.20.2", "1.20.4", "1.21.1", "1.21.5",
-        "26.1.2"
+        "26.2"
+    ),
+    "vanilla" to listOf(
+        "1.12.2", "1.13.2",
+        "1.14.4", "1.15.2", "1.16.5",
+        "1.17.1", "1.18.2", "1.19", "1.19.2", "1.19.4", "1.20.1", "1.20.2", "1.20.4",
+        "1.21.1", "1.21.5",
+        "26.2"
     )
+)
+
+val forwardingModes = listOf(
+    "legacy",
+    "bungeeguard",
+    "modern"
 )
 
 val headlessJar: ConfigurableFileCollection = files("HeadlessMC/headlessmc-launcher-2.9.0.jar")
@@ -37,8 +52,6 @@ var headlessJavaArgs = listOf(
     "-Dhmc.game.dir.for.each.version=true",
     //"-Dhmc.always.lwjgl.flag=true",
     "-Dhmc.always.pauls.flag=true",
-
-    "-Dhmc.gameargs=--server 127.0.0.1 --port 25577 --quickPlayMultiplayer 127.0.0.1:25577",
 
     "-Dhmc.server.accept.eula=true",
     "--enable-native-access=ALL-UNNAMED"
@@ -84,6 +97,7 @@ tasks.register<JavaExec>("headlessmc") {
 
 // Generate server setup tasks for each platform and version
 versions.forEach { (platform, mcVersions) ->
+    if (platform == "vanilla") return@forEach
     mcVersions.forEach { mcVersion ->
         val taskName = "setup${taskSuffix(platform, mcVersion)}"
         tasks.register<JavaExec>(taskName) {
@@ -121,49 +135,67 @@ versions.forEach { (platform, mcVersions) ->
 
 // Generate server run tasks for each platform and version
 versions.forEach { (platform, mcVersions) ->
-    mcVersions.forEach { mcVersion ->
-        val taskName = "run${taskSuffix(platform, mcVersion)}Server"
-        tasks.register<JavaExec>(taskName) {
-            val finalJar = rootProject.tasks.getByName<Jar>("finalJar")
-            dependsOn(finalJar)
-            doFirst {
-                val serverDir = file("HeadlessMC/servers/$platform/$mcVersion")
-                if (!serverDir.exists()) {
-                    throw GradleException("Server for $platform $mcVersion not found. Please run setup task first.")
-                }
-                val parents = serverDir.walk().maxDepth(3)
-                    .filter { it.isDirectory && it.name == "libraries" }
-                    .map { it.parentFile }
-                    .toList()
+    if (platform == "vanilla") return@forEach
+    forwardingModes.forEach { forwardingMode ->
+        val parsedMode = forwardingMode.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+        mcVersions.forEach { mcVersion ->
+            val taskName = "run${taskSuffix(platform, mcVersion)}Server$parsedMode"
+            tasks.register<JavaExec>(taskName) {
+                val finalJar = rootProject.tasks.getByName<Jar>("finalJar")
+                dependsOn(finalJar)
+                doFirst {
+                    val serverDir = file("HeadlessMC/servers/$platform/$mcVersion")
+                    if (!serverDir.exists()) {
+                        throw GradleException("Server for $platform $mcVersion not found. Please run setup task first.")
+                    }
+                    val parents = serverDir.walk().maxDepth(3)
+                        .filter { it.isDirectory && it.name == "libraries" }
+                        .map { it.parentFile }
+                        .toList()
 
-                parents.forEach { parent ->
-                    val mods = parent.resolve("mods").apply { mkdirs() }
-                    // Remove any proxy-compatible-forge jars from mods folder
-                    parent.resolve("mods").listFiles()?.forEach { if (it.name.startsWith("proxy-compatible-forge-")) it.delete() }
-                    copy { from(files(finalJar.archiveFile)); into(mods) }
+                    parents.forEach { parent ->
+                        val mods = parent.resolve("mods").apply { mkdirs() }
+                        // Remove any proxy-compatible-forge jars from mods folder
+                        parent.resolve("mods").listFiles()
+                            ?.forEach { if (it.name.startsWith("proxy-compatible-forge-")) it.delete() }
+                        copy { from(files(finalJar.archiveFile)); into(mods) }
+                    }
                 }
+                group = "run_server_$forwardingMode"
+                classpath += headlessJar
+                mainClass.set(headlessMain)
+                environment("PCF_FORWARDING_MODE", forwardingMode)
+                jvmArgs(headlessJavaArgs)
+                args("--command server launch pcf-$platform-$mcVersion".split(" "))
+                standardInput = System.`in`
             }
-            group = "run_server"
-            classpath += headlessJar
-            mainClass.set(headlessMain)
-            jvmArgs(headlessJavaArgs)
-            args("--command server launch pcf-$platform-$mcVersion".split(" "))
-            standardInput = System.`in`
         }
     }
 }
 
 // Generate client run tasks for each platform and version
 versions.forEach { (platform, mcVersions) ->
-    mcVersions.forEach { mcVersion ->
-        val taskName = "run${taskSuffix(platform, mcVersion)}Client"
-        tasks.register<JavaExec>(taskName) {
-            group = "run_client"
-            classpath += headlessJar
-            mainClass.set(headlessMain)
-            jvmArgs(headlessJavaArgs)
-            args("--command launch $platform:$mcVersion".split(" "))
-            standardInput = System.`in`
+    forwardingModes.forEach { forwardingMode ->
+        val parsedMode = forwardingMode.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+        mcVersions.forEach { mcVersion ->
+            val taskName = "run${taskSuffix(platform, mcVersion)}Client$parsedMode"
+            tasks.register<JavaExec>(taskName) {
+                group = "run_client_$forwardingMode"
+                classpath += headlessJar
+                mainClass.set(headlessMain)
+                jvmArgs(headlessJavaArgs)
+                when (forwardingMode) {
+                    "legacy" -> jvmArgs("-Dhmc.gameargs=--server 127.0.0.1 --port 25578 --quickPlayMultiplayer 127.0.0.1:25578")
+                    "bungeeguard" -> jvmArgs("-Dhmc.gameargs=--server 127.0.0.1 --port 25579 --quickPlayMultiplayer 127.0.0.1:25579")
+                    "modern" -> jvmArgs("-Dhmc.gameargs=--server 127.0.0.1 --port 25577 --quickPlayMultiplayer 127.0.0.1:25577")
+                }
+                if (platform == "vanilla") {
+                    args("--command launch $mcVersion".split(" "))
+                } else {
+                    args("--command launch $platform:$mcVersion".split(" "))
+                }
+                standardInput = System.`in`
+            }
         }
     }
 }
@@ -179,18 +211,27 @@ val velocityJavaArgs = listOf(
 )
 
 // Set up Velocity
-tasks.register<Copy>("setupVelocity") {
-    group = "setup_proxy"
-    from(file("HeadlessMC/templates/velocity"))
-    into(file("HeadlessMC/velocity"))
+forwardingModes.forEach { forwardingMode ->
+    val parsedMode = forwardingMode.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+    tasks.register<Copy>("setupVelocity$parsedMode") {
+        group = "setup_proxy"
+        from(files(
+            "HeadlessMC/templates/velocity/common",
+            "HeadlessMC/templates/velocity/$forwardingMode"
+        ))
+        into(file("HeadlessMC/velocity/$forwardingMode"))
+    }
 }
 
 // Run Velocity
-tasks.register<JavaExec>("runVelocity") {
-    group = "run_proxy"
-    workingDir(file("HeadlessMC/velocity"))
-    classpath += velocityJar
-    mainClass.set(velocityMain)
-    jvmArgs(velocityJavaArgs)
-    standardInput = System.`in`
+forwardingModes.forEach { forwardingMode ->
+    val parsedMode = forwardingMode.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+    tasks.register<JavaExec>("runVelocity$parsedMode") {
+        group = "run_proxy"
+        workingDir(file("HeadlessMC/velocity/$forwardingMode"))
+        classpath += velocityJar
+        mainClass.set(velocityMain)
+        jvmArgs(velocityJavaArgs)
+        standardInput = System.`in`
+    }
 }

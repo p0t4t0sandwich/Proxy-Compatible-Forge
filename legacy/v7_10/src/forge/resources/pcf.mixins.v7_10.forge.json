@@ -8,7 +8,7 @@
   "plugin": "org.adde0109.pcf.mixin.plugin.PCFMixinPlugin",
   "package": "org.adde0109.pcf.mixin",
   "server": [
-    "v7_10.forge.forwarding.modern.MessageSerializerMixin",
-    "v7_10.forge.forwarding.modern.ServerLoginPacketListenerImplMixin"
+    "v7_10.forge.forwarding.MessageSerializerMixin",
+    "v7_10.forge.forwarding.ServerLoginPacketListenerImplMixin"
   ]
 }
